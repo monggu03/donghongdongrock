@@ -9,6 +9,7 @@
   VERCEL_GIT_COMMIT_SHA          이 화면을 만든 커밋 (Vercel이 자동으로 넣음)
   VERCEL_PROJECT_PRODUCTION_URL  운영 주소 → 마지막 장 QR (Vercel이 자동으로 넣음)
 
+world/world.svg(기계 그림)와 world.json(좌표)을 넣는다. 그림을 고치면 node world/build.mjs 로 다시 만든다.
 captures/<이름>.png|jpg 가 있으면 같은 이름의 캡처 자리를 그 이미지로 바꾼다.
 fontTools가 있으면 쓰는 글자만 남겨 폰트를 줄이고, 없으면 자주 쓰는 한글 2,350자판을 넣는다.
 """
@@ -30,6 +31,13 @@ prod = os.environ.get('VERCEL_PROJECT_PRODUCTION_URL', '').strip()
 live = {'api': api, 'commit': sha}
 src = src.replace('/*LIVE*/{}', json.dumps(live, ensure_ascii=False))
 log.append(f"live: api={'있음' if api else '없음'} commit={sha or '-'}")
+
+# ---------- 파이프라인 기계 그림 (node world/build.mjs 로 다시 만듦) ----------
+WORLD = os.path.join(ROOT, 'world')
+src = (src.replace('<!--WORLD_SVG-->', open(os.path.join(WORLD, 'world.svg'), encoding='utf-8').read())
+          .replace('/*ISO_CSS*/', open(os.path.join(WORLD, 'vendor', 'anatomy', 'iso.css'), encoding='utf-8').read())
+          .replace('/*WORLD_JSON*/{}', open(os.path.join(WORLD, 'world.json'), encoding='utf-8').read()))
+log.append(f"world: {os.path.getsize(os.path.join(WORLD, 'world.svg')) // 1024}KB")
 
 # ---------- 캡처 ----------
 def find_cap(name):
