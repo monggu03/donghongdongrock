@@ -384,7 +384,7 @@ function rack(gx) {
 }
 
 // ---------- 러너 덮개(CI 구간을 덮는 틀) ----------
-const HOOD = { x0: 146, x1: 484, y0: -58, y1: 44, h: 110 };
+const HOOD = { x0: 146, x1: 484, y0: -58, y1: 44, h: 100 };
 function hood(part) {
   const { x0, x1, y0, y1, h } = HOOD;
   const post = (x, y) => S(box(x - 2.5, y - 2.5, 5, 5, TOP, h, 1, 2, 0.3), { tone: "mid" });
@@ -449,7 +449,7 @@ const brk = (x0, x1) => ({ a: pt([x0, -60, 120]), b: pt([x1, -60, 120]) });
 const json = {
   width: WIDTH, height: HEIGHT, anchors, cartAt, slope: Math.atan2(...(() => { const v = mv([100, 0, 0]); return [v[1], v[0]]; })()) * 180 / Math.PI,
   regions: { ci: region(0, 622), cd: region(640, 1290), all: region(0, 1290), prod: region(X.rack - 110, X.rack + 100) },
-  brackets: { ci: brk(150, 600), cd: brk(690, 1260) },
+  brackets: { ci: brk(150, 600), cd: brk(690, 1150) },
   hood: pt([HOOD.x0, HOOD.y0, HOOD.h + 5]), ver: pt([X.rack + 70, -64, 124]), cartTop: pt([0, 30, 0]),
   crates: { v1: pt([X.reg - 24, -48, 72]), v2: pt([X.reg + 12, -48, 72]) },
   loop: { from: mv([X.dock, 0, 0]), to: mv([X.door, 0, 0]), at: Object.fromEntries(["install", "lint", "test", "build", "merge", "image", "reg", "stg"].map((n) => [n, (X[n] - X.dock) / (X.door - X.dock)])) },

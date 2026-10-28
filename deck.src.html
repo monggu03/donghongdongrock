@@ -4,7 +4,7 @@
 /* v2: 밝은 종이 위 파이프라인 세계 하나. 커밋 캡슐이 문을 지나고, 카메라가 따라감. 장은 그 위에 글자만 얹음 */
 :root{
   --frame:#E6E6E0; --bg:#FAFAF7; --card:#FFFFFF; --line:#E1E1DA; --line2:#C6C6BE; --tube:#EEEEE8;
-  --ink:#1E1E1C; --sub:#55554E; --faint:#9A9A92;
+  --ink:#1E1E1C; --sub:#55554E; --faint:#9A9A92; --faint2:#6E6E66;
   --or:#FF6309; --or-t:#D9530B; --or-soft:#FFEADC;
   --ok:#1A7F37; --ok-soft:#E1F2E6; --ng:#CF222E; --ng-soft:#FDEBEC; --run:#BF8700;
   --new:#2F5BD3; --new-soft:#E4EBFB; --old:#CFCFC7; --hanji:#F2EBDD; --val:#3D5A80;
@@ -31,18 +31,25 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 .ttl{position:absolute;left:112px;top:100px;width:1696px;margin:0;font:800 62px/1.22 var(--f-sans);letter-spacing:-1.5px;text-wrap:balance}
 .lead{font:500 32px/1.5 var(--f-sans);color:var(--sub);margin:0}
 .big{font:700 44px/1.3 var(--f-sans);margin:0}
-.cap{font:500 24px/1.4 var(--f-sans);color:var(--sub);margin:0}
+.cap{font:500 28px/1.4 var(--f-sans);color:var(--sub);margin:0}
 .mono{font-family:var(--f-mono)}
 .okc{color:var(--ok)} .ngc{color:var(--ng)} .orc{color:var(--or-t)} .newc{color:var(--new)}
 .abs{position:absolute}
 .stmt{position:absolute;left:112px;top:0;bottom:0;width:1696px;display:flex;flex-direction:column;justify-content:center;gap:32px}
 .stmt h2{margin:0;font:800 96px/1.2 var(--f-sans);letter-spacing:-2.5px;text-wrap:balance}
 #pn{position:absolute;right:56px;bottom:30px;z-index:3;font:500 24px var(--f-sans);color:var(--faint);font-variant-numeric:tabular-nums}
-.foot{position:absolute;margin:0;font:500 24px/1.3 var(--f-sans);color:var(--faint)}
+.foot{position:absolute;margin:0;font:500 24px/1.3 var(--f-sans);color:var(--faint2)}
+/* 코드 카드 머리줄 오른쪽 캡션 */
+.hdr{position:absolute;right:140px;top:838px;margin:0;font:700 32px/1.3 var(--f-sans);text-align:right;z-index:1}
+/* 대소문자 비교 */
+.sx{flex:1;box-sizing:border-box;padding:18px 30px 22px;border:2px solid var(--line2);border-radius:16px;background:var(--card)}
+.sxn{margin:6px 0 0;font:700 52px/1.15 var(--f-mono)}
+.sxS,.sxs{display:inline-block;padding:0 10px;margin-right:2px;border-radius:10px;font-size:66px;line-height:1.05}
+.sxS{background:var(--ok-soft);color:var(--ok)} .sxs{background:var(--ng-soft);color:var(--ng)}
 
 /* 카드·코드·로그 */
 .card{position:absolute;box-sizing:border-box;background:var(--card);border:1px solid var(--line);border-radius:18px}
-.code,.log{position:absolute;margin:0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 0;font:400 24px/1.48 var(--f-mono);color:var(--ink);white-space:pre;overflow:hidden;box-sizing:border-box}
+.code,.log{position:absolute;margin:0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 0;font:400 28px/1.48 var(--f-mono);color:var(--ink);white-space:pre;overflow:hidden;box-sizing:border-box}
 .code .cl,.log .cl{display:flex;padding:0 30px;min-height:1.48em;transition:opacity .3s,background .3s}
 .code .cl>.tx{flex:1;white-space:pre}
 .code.hasdim .cl{opacity:.3}
@@ -54,7 +61,7 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 .code .cl.del{background:var(--ng-soft)} .code .cl.del .tx::before{content:"- ";color:var(--ng);font-weight:700}
 .code .cl.ctx .tx::before{content:"  "}
 .mk{flex:none;width:40px;height:40px;margin:-4px 0 0 18px;border-radius:50%;background:var(--ink);color:#fff;font:800 24px/40px var(--f-sans);text-align:center}
-.code .lab,.log .lab{display:block;padding:0 30px 14px;margin-bottom:12px;border-bottom:1px solid var(--line);font:600 24px/1.3 var(--f-sans);color:var(--sub);white-space:normal}
+.code .lab,.log .lab{display:block;padding:0 30px 14px;margin-bottom:12px;border-bottom:1px solid var(--line);font:600 26px/1.3 var(--f-sans);color:var(--sub);white-space:normal}
 .log .cl.ng{color:var(--ng);font-weight:700}
 .log .cl.ok{color:var(--ok);font-weight:700}
 .log .cl.st{font-weight:700}
@@ -66,7 +73,7 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 /* 캡처 */
 .slot{position:absolute;border:2px dashed var(--line2);border-radius:18px;background:#F2F2EE;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;box-sizing:border-box;padding:24px}
 .slot b{font:700 30px var(--f-sans);color:var(--sub)}
-.slot span{font:500 24px/1.4 var(--f-sans);color:var(--faint)}
+.slot span{font:500 24px/1.4 var(--f-sans);color:var(--faint2)}
 .shot{position:absolute;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--card);box-sizing:border-box}
 .shot img{display:block;width:100%;height:100%;object-fit:contain;object-position:top center}
 
@@ -122,6 +129,9 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 .tb th{font:600 24px/1.3 var(--f-sans);color:var(--sub);text-align:left;padding:0 24px 16px 0;border-bottom:2px solid var(--ink)}
 .tb td{padding:20px 24px 20px 0;border-bottom:1px solid var(--line);vertical-align:top;transition:background .3s}
 .tb td.m{font:500 24px/1.45 var(--f-mono);color:var(--ng)}
+/* 먼 자리용: 글이 주인공인 표와 목록은 크게 */
+.tb.xl{font-size:38px}.tb.xl th{font-size:28px;padding-bottom:18px}.tb.xl td{padding-top:26px;padding-bottom:26px}.tb.xl td.m{font-size:30px}
+.checks.xl li{font-size:42px;padding:26px 0}.checks.xl li small{font-size:30px}
 .tb tr.or td{background:var(--or-soft)}
 .tb .colhl{background:var(--or-soft)}
 
@@ -156,7 +166,7 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 /* 리뷰 대기·확인 목록 */
 .rq{position:absolute;list-style:none;margin:0;padding:0}
 .rq li{display:flex;gap:20px;align-items:center;height:62px;padding:0 22px;margin-bottom:12px;border:2px solid var(--line2);border-radius:14px;background:var(--card);font:600 28px var(--f-sans)}
-.rq li .mono{font:600 26px var(--f-mono);color:var(--faint)}
+.rq li .mono{display:inline-block;min-width:3ch;font:600 26px var(--f-mono);color:var(--faint2)}
 .q5{position:absolute;list-style:none;margin:0;padding:0}
 .q5 li{display:flex;align-items:center;gap:26px;height:96px;border-bottom:1px solid var(--line);font:700 38px var(--f-sans)}
 .q5 li code{margin-left:auto;font:500 28px var(--f-mono);color:var(--val)}
@@ -244,7 +254,7 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 #help b{display:inline-block;min-width:150px;font-family:var(--f-mono);color:#FFB27D}
 #black{position:absolute;inset:0;background:#000;z-index:30}
 .nolive{display:none!important}
-.pend{font:600 30px/1.35 var(--f-sans)!important;color:var(--faint)!important;letter-spacing:0!important}
+.pend{font:600 30px/1.35 var(--f-sans)!important;color:var(--faint2)!important;letter-spacing:0!important}
 .live-dot{display:inline-block;width:16px;height:16px;border-radius:50%;background:var(--ok);margin-right:12px;vertical-align:2px}
 #jump{position:absolute;left:56px;bottom:26px;font:700 28px var(--f-mono);color:var(--sub);z-index:20}
 
@@ -296,9 +306,11 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 @keyframes pressing{50%{transform:translate(var(--px),var(--py))}}
 /* 머지: 차단봉과 자물쇠 */
 #world .gbar{transition:transform .7s var(--ease)}
-#world [data-st="open"] .gbar{transform:translate(var(--ux),var(--uy))}
+#world [data-st="open"] .gbar{transform:translate(calc(var(--ux)*1.5),calc(var(--uy)*1.5))}
 #world .shackle{transition:transform .5s var(--ease)}
-#world [data-st="open"] .shackle{transform:translate(0,-7px)}
+#world [data-st="open"] .shackle{transform:translate(0,-22px)}
+#world .lockbody,#world .shackle{transition:transform .5s var(--ease),opacity .45s ease .25s}
+#world [data-st="open"] .lockbody,#world [data-st="open"] .shackle{opacity:0}
 #world [data-st="lock"] .lockbody .iso-edge{stroke:var(--ng)}
 /* 승인: 버튼(주황)과 멈춤판, Deployment에서는 사라짐 */
 #world .console .iso-solid.button>.iso-top{fill:var(--or)}
@@ -351,10 +363,24 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 /* 글자 덧붙임(기계 바깥: 이름표, 괄호, 결과 칩). --fs = 1/카메라 배율 → 화면에서는 늘 같은 크기 */
 #world{--fs:1}
 .wl,.wbr span,.wrun b,.wrun small,.wver,#wTag,#wOut{transition-property:font-size,opacity,color,background,border-color,transform;transition-duration:1.15s,.3s,.3s,.3s,.3s,.75s;transition-timing-function:cubic-bezier(.65,0,.25,1),ease,ease,ease,ease,var(--ease)}
-.wl{position:absolute;transform:translateX(-50%);display:grid;grid-template-columns:auto auto;column-gap:.3em;align-items:center;justify-items:start;white-space:nowrap;font-size:calc(34px*var(--fs))}
-.wl .ic{width:1.15em;height:1.15em}
-.wl b{font:800 1em/1.2 var(--f-sans);color:var(--ink);transition:color .3s}
-.wl small{grid-column:1/3;justify-self:center;font:500 .72em/1.35 var(--f-mono);color:var(--sub)}
+.wl{position:absolute;transform:translateX(-50%);display:grid;grid-template-columns:1fr auto auto 1fr;column-gap:.3em;align-items:center;justify-items:start;white-space:nowrap;font-size:calc(34px*var(--fs))}
+.wl .ic{grid-column:2;width:1.15em;height:1.15em}
+.wl b{grid-column:3;font:800 1em/1.2 var(--f-sans);color:var(--ink);transition:color .3s}
+.wl small{grid-column:1/5;justify-self:center;font:600 .74em/1.35 var(--f-sans);color:var(--sub)}
+.wl small.m{font:500 .72em/1.35 var(--f-mono)}
+#world.cam-z .wl,#world.cam-z .wbr{opacity:0!important}
+#world .wl.offcam{opacity:0!important}
+#world.cam-z #wOut{font-size:calc(22px*var(--fs))}
+.wl.skipped b{color:var(--faint2);font-size:.82em}
+.cam-all .wver{font-size:calc(26px*var(--fs))}
+/* 러너 틀: 파랑으로 */
+#world g[data-w="runner"] path{stroke:#2F5BD3!important}
+#world g[data-w="runner"] .iso-top,#world g[data-w="runner"] .iso-fill{fill:#D3DFFA!important}
+#world g[data-w="runner"] .iso-shade{fill:#9FB6EE!important}
+/* 승인 버튼이 없던 자리 */
+#wGhost{position:absolute;box-sizing:border-box;border:calc(3px*var(--fs)) dashed var(--ng);border-radius:14px;opacity:0;transition:opacity .4s}
+#wGhost.on{opacity:1}
+#wGhost span{position:absolute;left:50%;top:0;transform:translate(-50%,-125%);padding:.15em .8em;border-radius:999px;border:2px solid var(--ng);background:var(--card);color:var(--ng);font:700 calc(24px*var(--fs))/1.4 var(--f-sans);white-space:nowrap}
 .wl[data-st="ng"] b,.wl[data-st="lock"] b{color:var(--ng)}
 .wl[data-st="skip"] b,.wl[data-st="skip"] small{color:var(--faint)}
 .wbr{position:absolute;height:46px;transform-origin:0 50%}
@@ -415,11 +441,11 @@ body.presenter{overflow:auto;background:#141413;color:#EDEDE6}
   <div class="wbr w" data-w="brCI" id="wbrCI"><span>CI · 지속적 통합</span></div>
   <div class="wbr w" data-w="brCD" id="wbrCD"><span>CD · 지속적 전달과 배포</span></div>
   <div class="wl w" data-w="dev" data-at="dev"><b>내 컴퓨터</b><small>코드 수정, 커밋</small></div>
-  <div class="wl w" data-w="install" data-at="install"><svg class="ic" viewBox="0 0 40 40"></svg><b>설치</b><small>npm ci</small></div>
-  <div class="wl w" data-w="lint" data-at="lint"><svg class="ic" viewBox="0 0 40 40"></svg><b>린트</b><small>npm run lint</small></div>
-  <div class="wl w" data-w="test" data-at="test"><svg class="ic" viewBox="0 0 40 40"></svg><b>테스트</b><small>npm test</small></div>
-  <div class="wl w" data-w="build" data-at="build"><svg class="ic" viewBox="0 0 40 40"></svg><b>빌드</b><small>npm run build</small></div>
-  <div class="wl w" data-w="merge" data-at="merge"><svg class="ic" viewBox="0 0 40 40"></svg><b id="wMergeB">머지</b><small>main</small></div>
+  <div class="wl w" data-w="install" data-at="install"><svg class="ic" viewBox="0 0 40 40"></svg><b>설치</b><small class="m">npm ci</small></div>
+  <div class="wl w" data-w="lint" data-at="lint"><svg class="ic" viewBox="0 0 40 40"></svg><b>린트</b><small class="m">npm run lint</small></div>
+  <div class="wl w" data-w="test" data-at="test"><svg class="ic" viewBox="0 0 40 40"></svg><b>테스트</b><small class="m">npm test</small></div>
+  <div class="wl w" data-w="build" data-at="build"><svg class="ic" viewBox="0 0 40 40"></svg><b>빌드</b><small class="m">npm run build</small></div>
+  <div class="wl w" data-w="merge" data-at="merge"><svg class="ic" viewBox="0 0 40 40"></svg><b id="wMergeB">머지</b><small class="m">main</small></div>
   <div class="wl w" data-w="image" data-at="image"><svg class="ic" viewBox="0 0 40 40"></svg><b>포장</b><small>이미지 만들기</small></div>
   <div class="wl w" data-w="reg" data-at="reg"><svg class="ic" viewBox="0 0 40 40"></svg><b>보관</b><small>이미지 보관소</small></div>
   <div class="wl w" data-w="stg" data-at="stg"><svg class="ic" viewBox="0 0 40 40"></svg><b>스테이징</b><small>리허설 환경</small></div>
@@ -428,6 +454,7 @@ body.presenter{overflow:auto;background:#141413;color:#EDEDE6}
   <div class="wver w" data-w="prod" id="wVer">v1</div>
   <div class="wver wcv" id="wcv1">v1</div>
   <div class="wver wcv v2" id="wcv2">v2</div>
+  <div id="wGhost"><span>승인 버튼 없음</span></div>
   <div id="wTag"></div>
   <div id="wOut" class="gone"></div>
 </div>
@@ -438,7 +465,7 @@ body.presenter{overflow:auto;background:#141413;color:#EDEDE6}
   <div class="seal">東弘同樂</div>
   <h1 class="cover-ttl">CI/CD,<br>어떻게 하는 걸까</h1>
   <div class="cover-meta">동홍동락 in HIU · 2026.11.02 · 홍익대학교 정보통신센터 Q403<br>이도윤 · GDGoC DGU 4th Lead</div>
-  <aside class="notes">안녕하세요, 동국대학교 GDGoC DGU 4th Lead 이도윤입니다. 오늘 20분 동안 CI/CD가 무엇인지, 코드 한 줄이 실제 서비스에 나가기까지 어떤 길을 지나는지 처음부터 끝까지 보여 드리겠습니다. 아래 기계의 레일 위를 계속 지나가는 작은 카트가 오늘의 주인공, 커밋 하나입니다.</aside>
+  <aside class="notes">안녕하세요, 동국대 GDGoC 4th Lead 이도윤입니다. 오늘 20분 동안 코드 한 줄이 실제 서비스에 나가기까지 어떤 길을 지나는지 처음부터 끝까지 보여 드리겠습니다. 레일 위를 지나가는 작은 카트가 오늘의 주인공, 커밋 하나입니다.</aside>
 </section>
 
 <section class="page" id="me" data-title="발표자">
@@ -447,7 +474,7 @@ body.presenter{overflow:auto;background:#141413;color:#EDEDE6}
     <p class="lead" style="margin-top:36px;font-size:36px;color:var(--ink);font-weight:600">GDGoC DGU 4th Lead</p>
     <p class="lead" style="margin-top:10px;font-size:36px">동국대학교 컴퓨터공학 22학번, 백엔드 개발 지망</p>
   </div>
-  <aside class="notes">짧게 소개하겠습니다. 동국대 GDGoC 4th Lead이고, 백엔드 개발자를 준비하고 있습니다. 이번 학기 G-Sprint에서 다섯 팀이 서비스를 만들고 있는데, 그 팀들에게 제일 먼저 권하는 게 오늘 이야기입니다.</aside>
+  <aside class="notes">저는 백엔드 개발자를 준비하고 있습니다. 이번 학기 저희 동아리 프로젝트 기간인 G-Sprint에서 다섯 팀이 서비스를 만들고 있는데, 그 팀들에게 제일 먼저 추천한 것이 오늘 이야기입니다.</aside>
 </section>
 
 <!-- ================= 1. 손으로 하던 배포 ================= -->
@@ -518,7 +545,7 @@ net::ERR_CONNECTION_REFUSED
 Uncaught (in promise) TypeError: Failed to fetch</pre>
     <pre class="code" data-lang="js" style="left:112px;top:720px;width:1180px" data-label="src/App.jsx">const API = 'http://localhost:8080'</pre>
     <p class="big" style="position:absolute;left:1360px;top:460px;width:448px">화면은 뜨는데<br>데이터가 없음</p>
-    <p class="cap" style="position:absolute;left:1360px;top:600px;width:448px">API 주소가 아직 내 노트북</p>
+    <p class="cap" style="position:absolute;left:1360px;top:600px;width:448px">localhost = 보는 사람의 컴퓨터</p>
   </div>
 
   <div data-s="3" data-u="4">
@@ -534,11 +561,11 @@ Uncaught (in promise) TypeError: Failed to fetch</pre>
     <p style="position:absolute;left:112px;top:450px;margin:0;font:800 72px/1.3 var(--f-sans);letter-spacing:-2px">합치기는 매일<br>검사와 배포는 마지막 주에 처음</p>
     <p class="lead" style="position:absolute;left:112px;top:680px">몇 주 동안 쌓인 문제가 배포하는 날 한꺼번에 드러남</p>
   </div>
-  <aside class="notes">팀 프로젝트에서 거의 평균처럼 나오는 장면부터 보겠습니다. GDG에서 팀 프로젝트를 지켜보면 합치기는 생각보다 자주 합니다. main에 바로 push하는 팀도 많고, PR을 쓰는 팀은 기능 하나 끝날 때마다 PR을 올립니다. 그런데 합칠 때 아무것도 자동으로 검사하지 않고, 서버에는 한 번도 올려 보지 않습니다.
-(클릭) 그러다 발표 일주일 전, 처음으로 서버에 배포해 봅니다. 서버에서 빌드를 돌렸더니 실패합니다. 이상한 건 이 코드가 제 컴퓨터에서는 잘 됐다는 겁니다. 이 에러의 정체는 뒤에서 밝혀집니다.
-(클릭) 겨우 고쳐서 띄웠더니 화면은 뜨는데 데이터가 하나도 없습니다. 콘솔을 열어 보면 API 주소가 아직 localhost입니다. 배포된 화면이 제 노트북의 서버를 찾고 있었던 겁니다.
-(클릭) 그다음부터는 환경 변수, CORS, DB 주소, 포트. 하나 고치면 다음 게 막히고, 그렇게 발표 주간 내내 밤을 샙니다. 다들 한 번쯤 겪어 보셨을 겁니다.
-(클릭) 이건 실력 문제가 아닙니다. 합치기는 매일 했는데 검사와 배포는 마지막 주에 처음 해 본 구조가 문제입니다. 몇 주 동안 쌓인 문제가 배포하는 날 한꺼번에 드러납니다.</aside>
+  <aside class="notes">동아리에서 팀 프로젝트를 지켜보면 흔히 보는 장면입니다. 합치기는 자주 합니다. main에 바로 push하기도 하고, 기능마다 PR을 올리기도 합니다. 그런데 자동 검사는 없고, 서버에는 한 번도 올려 보지 않습니다.
+(클릭) 그러다 발표 일주일 전, 처음으로 서버에 배포해 봅니다. 서버에서 빌드를 돌렸더니 실패합니다. 이상한 건, 이 코드가 제 컴퓨터에서는 잘 됐다는 점입니다. 이 에러의 정체는 뒤에서 밝혀집니다.
+(클릭) 겨우 고쳐서 띄웠더니 이번엔 데이터가 하나도 없습니다. 콘솔을 보면 API 주소가 아직 localhost입니다. 배포된 화면은 보는 사람의 브라우저에서 돌기 때문에, localhost는 그 사람 컴퓨터를 가리킵니다. 제 노트북에는 백엔드가 켜져 있어서 저만 잘 보였습니다.
+(클릭) 그다음은 환경 변수, CORS, DB 주소, 포트. 하나 고치면 다음 게 막히고, 발표 주간 내내 밤을 샙니다.
+(클릭) 실력 문제가 아닙니다. 합치기는 매일 했는데 검사와 배포는 마지막 주에 처음 해 본 구조가 문제입니다.</aside>
 </section>
 
 <section class="page" id="ssh" data-title="손으로 하는 배포" data-steps="2" data-sec="손으로 하던 배포">
@@ -548,19 +575,21 @@ $ cd app &amp;&amp; git pull
 $ npm install
 $ npm run build
 $ sudo systemctl restart app</pre>
-  <pre class="log type" data-s="2" data-gap=".6" style="left:112px;top:556px;width:1130px" data-ng="2">$ curl -I https://my-app.example
+  <pre class="log type" data-s="2" data-gap=".6" style="left:112px;top:584px;width:1130px" data-ng="2">$ curl -I https://my-app.example
 HTTP/1.1 502 Bad Gateway</pre>
-  <p class="big orc" data-s="1" style="position:absolute;left:112px;top:720px">명령을 다 쳤으면, 이제 아무 일 없기를 기도</p>
+  <p class="big orc" data-s="1" style="position:absolute;left:112px;top:820px">명령을 다 쳤으면, 이제 아무 일 없기를 기도</p>
   <div class="srv" data-shake="2" style="left:1300px;top:240px;width:508px;height:300px">
     <p class="cap">운영 서버</p>
     <p class="big mono" style="margin-top:8px;font-size:36px">my-app.example</p>
-    <span class="st up" data-u="2">정상 운영 중</span>
-    <span class="st down" data-s="2">응답 없음 · 502</span>
+    <div style="position:relative;height:62px;margin-top:22px">
+      <span class="st up" data-u="2" style="position:absolute;left:0;top:0;margin:0">정상 운영 중</span>
+      <span class="st down" data-s="2" style="position:absolute;left:0;top:0;margin:0">앱 응답 없음 · 502</span>
+    </div>
   </div>
   <p class="big ngc" data-s="2" style="position:absolute;left:1300px;top:580px;width:508px">사용자 접속 불가</p>
   <aside class="notes">그 주에 하는 배포는 보통 이렇게 생겼습니다. 지금도 많은 학생 프로젝트가 이렇게 합니다. 서버에 접속해서, 코드를 받고, 설치하고, 빌드하고, 재시작합니다.
 (클릭) 그리고 아무 일 없기를 기도합니다.
-(클릭) 그런데 주소를 열어 보면 502. 서버가 응답하지 않습니다. 사용자는 아무것도 못 씁니다.</aside>
+(클릭) 그런데 주소를 열어 보면 502. 앞단 서버는 살아 있는데 그 뒤의 앱이 응답하지 않습니다. 사용자는 아무것도 못 씁니다.</aside>
 </section>
 
 <section class="page" id="memory" data-title="기억에 의존하는 8단계" data-steps="1" data-sec="손으로 하던 배포">
@@ -581,10 +610,10 @@ HTTP/1.1 502 Bad Gateway</pre>
   <div style="position:absolute;left:1200px;top:250px;width:608px">
     <p class="big">순서도, 빠짐도<br>전부 사람 기억에 의존</p>
     <p class="big ngc" data-s="1" style="margin-top:60px">한 단계만 빠져도 장애</p>
-    <p class="lead" data-s="1" style="margin-top:14px">04번은 발표 끝에서 다시 등장</p>
+    <p class="lead" data-s="1" style="margin-top:14px">04번은 뒤에서 다시 등장</p>
   </div>
   <aside class="notes">이 방식이 위험한 이유는 사람이 모든 단계를 기억해야 하기 때문입니다. 접속, 코드 받기, 설치, DB 변경, 빌드, 복사, 재시작, 확인. 여덟 단계를 매번 순서대로 해야 합니다.
-(클릭) 피곤한 새벽에 4번, DB 변경 적용 하나만 빠뜨려도 서비스가 깨집니다. 이 4번은 발표 끝에 다시 나옵니다.</aside>
+(클릭) 피곤한 새벽에 4번, DB 변경 적용 하나만 빠뜨려도 서비스가 깨집니다. 이 4번은 뒤에서 다시 나옵니다.</aside>
 </section>
 
 <!-- ================= 2. CI/CD 한 장 ================= -->
@@ -598,9 +627,9 @@ HTTP/1.1 502 Bad Gateway</pre>
     <p class="big">통과한 코드를 서비스까지</p>
     <p class="lead" style="margin-top:6px">Continuous Delivery, Deployment</p>
   </div>
-  <aside class="notes">CI/CD는 방금 본 이 일을 사람 대신 파이프라인이 하게 만드는 겁니다. 파이프라인은 정해진 문을 차례로 지나가는 길이라고 생각하시면 됩니다. 왼쪽이 제 컴퓨터, 오른쪽이 실제 사용자가 쓰는 운영 서버입니다. 커밋 하나가 이 길을 따라 운영까지 갑니다.
-(클릭) 앞쪽 절반이 CI, Continuous Integration, 지속적 통합입니다. 코드를 합치기 전에 자동으로 검사하는 부분입니다.
-(클릭) 뒤쪽 절반이 CD입니다. 검사를 통과한 코드를 실제 서비스까지 보내는 부분입니다. 하나씩 따라가 보겠습니다.</aside>
+  <aside class="notes">CI/CD는 방금 본 이 일을 사람 대신 기계가 하게 만드는 것입니다. 이 기계를 파이프라인이라고 부릅니다. 커밋을 실은 카트가 검사대를 하나씩 지나고, 포장과 보관, 스테이징을 거쳐 오른쪽 끝 운영 서버까지 갑니다. 매번 같은 순서입니다.
+(클릭) 앞쪽 절반이 CI, Continuous Integration, 지속적 통합입니다. 통합은 main에 합치는 것, 머지와 같은 말입니다. 합치기 전에 매번 자동으로 검사합니다.
+(클릭) 뒤쪽 절반이 CD입니다. 검사를 통과한 코드를 실제 서비스까지 보내는 부분입니다. 하나씩 따라가 보고, 마지막에 첫날 체크리스트를 드리겠습니다.</aside>
 </section>
 
 <!-- ================= 3. CI ================= -->
@@ -645,7 +674,7 @@ HTTP/1.1 502 Bad Gateway</pre>
     <p style="margin:4px 0 0;font:800 160px/1 var(--f-sans);letter-spacing:-5px"><span data-count="6">6</span>건</p>
     <p class="cap" style="margin-top:8px">오전에만</p>
   </div>
-  <aside class="notes">이제 CI가 왜 필요한지 보겠습니다. 다섯 명이 같은 앱을 만든다고 생각해 보세요.
+  <aside class="notes">이제 CI가 왜 필요한지 보겠습니다. 다섯 명이 같은 앱을 만든다고 해 보겠습니다.
 (클릭) 한 명은 로그인, 한 명은 결제, 한 명은 DB, 한 명은 화면, 한 명은 시간표를 고칩니다.
 (클릭) 그리고 다들 계속 main에 합칩니다. 오전에만 여섯 번입니다.</aside>
 </section>
@@ -663,14 +692,14 @@ HTTP/1.1 502 Bad Gateway</pre>
     <li><span class="mono">#12</span>반올림 수정</li>
   </ul>
   <ul class="q5 stg" data-s="1" style="left:760px;top:244px;width:1048px">
-    <li><span class="badge">1</span>문법 오류 여부<code>node --check</code></li>
+    <li><span class="badge">1</span>문법 오류 여부<code style="font-family:var(--f-sans)">린트·빌드가 함께</code></li>
     <li><span class="badge">2</span>테스트 통과 여부<code>npm test</code></li>
     <li><span class="badge">3</span>빌드 성공 여부<code>npm run build</code></li>
     <li><span class="badge">4</span>코드 형식과 실수<code>npm run lint</code></li>
-    <li><span class="badge">5</span>보안 취약점<code>npm audit</code></li>
+    <li><span class="badge">5</span>패키지 보안 취약점<code>npm audit</code></li>
   </ul>
-  <aside class="notes">자동화가 없으면 누군가 이걸 전부 손으로 확인해야 합니다. 리뷰 대기열에 PR이 여섯 개 쌓였습니다.
-(클릭) 합치기 전에 문법 오류는 없는지, 테스트는 통과하는지, 빌드는 되는지, 코드 형식은 맞는지, 보안 문제는 없는지. PR 하나마다 이 다섯 가지입니다.</aside>
+  <aside class="notes">자동화가 없으면, 그 여섯 건을 합치기 전에 누군가 손으로 전부 확인해야 합니다. 리뷰 대기열에 PR이 여섯 개 쌓였습니다.
+(클릭) 합치기 전에 문법 오류는 없는지, 테스트는 통과하는지, 빌드는 되는지, 코드 형식은 맞는지, 패키지에 알려진 보안 문제는 없는지. PR 하나마다 이 다섯 가지입니다.</aside>
 </section>
 
 <section class="page" id="thirty" data-title="6 × 5 = 30" data-steps="1" data-sec="CI · 지속적 통합">
@@ -684,23 +713,23 @@ HTTP/1.1 502 Bad Gateway</pre>
 (클릭) 점심 전에만 서른 번입니다. 금방 지칩니다. 그리고 사람은 지치면 건너뜁니다.</aside>
 </section>
 
-<section class="page" id="push" data-title="push하면 검사 출발" data-steps="1" data-sec="CI · 지속적 통합">
-  <h2 class="ttl">CI: 변경을 올리면 검사가 자동으로 출발</h2>
+<section class="page" id="push" data-title="PR 열면 검사 출발" data-steps="1" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">CI: PR을 열면 검사가 자동으로 출발</h2>
   <pre class="log" style="left:112px;top:850px;width:1000px" data-st="1">$ git push origin feat/timetable</pre>
   <p class="lead" data-u="1" style="position:absolute;left:1160px;top:868px">그다음 GitHub에서 PR 열기</p>
   <div data-s="1" style="position:absolute;left:1160px;top:856px"><span class="chip">PR 열기 → <code>on: pull_request</code></span></div>
-  <aside class="notes">이제 CI가 있으면 어떻게 되는지 보겠습니다. 하는 일은 지금과 같습니다. 시간표 기능을 고친 커밋을 올리고 PR을 엽니다.
-(클릭) 그 순간 GitHub가 PR이 열렸다는 걸 알고, 적어 둔 검사 파이프라인을 자동으로 출발시킵니다. 아무도 버튼을 누르지 않았습니다. PR은 원래 하던 그대로이고, 달라진 건 PR마다 검사가 붙었다는 것 하나입니다. 카트에 붙은 글자가 커밋 번호입니다.</aside>
+  <aside class="notes">이제 CI가 있으면 어떻게 되는지 보겠습니다. 여기서부터 화면은 이 발표용으로 만든 시간표 예제 앱, 실습 레포에서 실제로 돌린 결과입니다. 시간표 기능을 고친 커밋을 올리고 PR을 엽니다. 카트에 붙은 글자가 커밋 번호입니다.
+(클릭) 그 순간 GitHub가 PR이 열린 걸 알고 검사를 자동으로 출발시킵니다. 아무도 버튼을 누르지 않았습니다. 달라진 건 PR마다 검사가 붙었다는 것 하나입니다.</aside>
 </section>
 
-<section class="page" id="gates" data-title="문을 하나씩 통과" data-steps="4" data-sec="CI · 지속적 통합">
-  <h2 class="ttl">문을 하나씩 통과: 설치 → 린트 → 테스트 → 빌드</h2>
-  <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">문마다 통과해야 다음 문으로, 결과는 실습 레포의 실제 출력</p>
+<section class="page" id="gates" data-title="검사대를 하나씩 통과" data-steps="4" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">검사대를 하나씩 통과: 설치 → 린트 → 테스트 → 빌드</h2>
+  <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">앞 검사대를 통과해야 다음으로, 결과는 실습 레포의 실제 출력</p>
   <p class="big" data-s="1" data-u="2" style="position:absolute;left:112px;top:860px">설치: 잠금 파일에 적힌 버전 그대로 패키지 설치</p>
   <p class="big" data-s="2" data-u="3" style="position:absolute;left:112px;top:860px">린트: 안 쓰는 변수처럼 실수하기 쉬운 코드 찾기</p>
   <p class="big" data-s="3" data-u="4" style="position:absolute;left:112px;top:860px">테스트: 미리 적어 둔 기대값과 실제 결과 비교</p>
   <p class="big" data-s="4" style="position:absolute;left:112px;top:860px">빌드: 배포할 파일 만들기, 넷 다 통과하면 머지 가능</p>
-  <aside class="notes">검사는 문을 하나씩 지나가는 방식입니다. 문을 통과해야 다음 문으로 갑니다. 화면에 뜨는 결과는 실습 레포에서 실제로 돌린 출력입니다.
+  <aside class="notes">카트는 검사대를 하나씩 지나갑니다. 앞 검사대를 통과해야 다음으로 갑니다. 위에 뜨는 결과는 실습 레포에서 실제로 돌린 출력입니다.
 (클릭) 먼저 설치. 잠금 파일에 적힌 버전 그대로 패키지를 설치합니다.
 (클릭) 린트. 안 쓰는 변수처럼 실수하기 쉬운 코드를 찾습니다.
 (클릭) 테스트. 미리 적어 둔 기대값과 실제 결과를 비교합니다. 여섯 개 다 통과.
@@ -708,30 +737,30 @@ HTTP/1.1 502 Bad Gateway</pre>
 </section>
 
 <section class="page" id="runner" data-title="러너" data-steps="2" data-sec="CI · 지속적 통합">
-  <h2 class="ttl">이 문들이 돌아가는 곳: 매번 새로 빌리는 컴퓨터</h2>
-  <p class="big" data-s="1" data-u="2" style="position:absolute;left:112px;top:842px">러너: GitHub가 빌려주는 깨끗한 리눅스 컴퓨터</p>
+  <h2 class="ttl">이 검사대가 돌아가는 곳: 매번 새로 빌리는 컴퓨터</h2>
+  <p class="big" data-s="1" data-u="2" style="position:absolute;left:112px;top:842px"><span class="newc">러너</span>: GitHub가 빌려주는 깨끗한 리눅스 컴퓨터</p>
   <p class="lead" data-s="1" data-u="2" style="position:absolute;left:112px;top:918px">실행이 끝나면 버려짐, 그래서 매번 설치부터 다시</p>
   <div data-s="2" style="position:absolute;left:112px;top:846px"><span class="chip"><code>.github/workflows/ci.yml</code></span></div>
-  <p class="lead" data-s="2" style="position:absolute;left:112px;top:930px">이 파일을 읽고 러너에서 문을 차례로 실행하는 것이 GitHub Actions</p>
-  <aside class="notes">이 검사들은 어디서 돌까요. 제 컴퓨터가 아닙니다.
-(클릭) GitHub가 빌려주는 깨끗한 리눅스 컴퓨터, 러너에서 돕니다. 실행이 끝나면 버려지기 때문에 매번 설치부터 다시 합니다. 그래서 내 컴퓨터에만 깔려 있던 무언가에 기대는 코드는 여기서 걸립니다.
-(클릭) 어떤 문을 어떤 순서로 지날지는 레포 안 yml 파일 하나에 적어 둡니다. GitHub Actions는 이 파일을 읽고 러너에서 실행해 주는 서비스입니다. 단계 하나가 아니라 단계 전체를 감싸는 틀입니다.</aside>
+  <p class="lead" data-s="2" style="position:absolute;left:112px;top:930px">이 파일을 읽고 러너에서 검사를 차례로 실행하는 것이 GitHub Actions</p>
+  <aside class="notes">이 검사들이 어디서 도는지 보겠습니다. 제 컴퓨터가 아닙니다.
+(클릭) GitHub가 빌려주는 깨끗한 리눅스 컴퓨터, 러너에서 돕니다. 이 파란 틀이 러너입니다. 실행이 끝나면 버려져서 매번 설치부터 다시 하고, 그래서 내 컴퓨터에만 깔린 무언가에 기대는 코드는 여기서 걸립니다.
+(클릭) 어떤 검사를 어떤 순서로 할지는 레포 안 yml 파일 하나에 적어 둡니다. GitHub Actions는 이 파일을 읽고 러너에서 실행해 주는 서비스입니다.</aside>
 </section>
 
 <section class="page" id="fail" data-title="실패: 테스트에서 멈춤" data-steps="2" data-sec="CI · 지속적 통합">
   <h2 class="ttl">다음 PR: padStart를 지운 한 줄, 테스트에서 멈춤</h2>
-  <pre class="code" data-lang="diff" style="left:112px;top:830px;width:1180px" data-label="PR #13 · src/lib/timetable.js">-return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+  <pre class="code" data-lang="diff" style="left:112px;top:818px;width:1696px;padding-bottom:12px" data-label="PR #13 · src/lib/timetable.js">-return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
 +return `${h}:${m}`</pre>
-  <p class="lead" data-u="1" style="position:absolute;left:1350px;top:850px;width:458px">화면은 뜨고, 시간만 14:5로 표시</p>
-  <p class="big ngc" data-s="1" data-u="2" style="position:absolute;left:1350px;top:846px;width:458px">테스트 실패, 뒤 단계는 건너뜀</p>
-  <p class="big" data-s="2" style="position:absolute;left:1350px;top:846px;width:458px">빨간불인 동안 main 합치기 차단</p>
-  <aside class="notes">이번엔 다른 팀원이 PR을 하나 올립니다. padStart가 굳이 필요한가 싶어서 지웠습니다. 린트도 통과하고 빌드도 됩니다. 화면도 잘 뜨고 시간만 14:5처럼 이상하게 나옵니다.
+  <p class="hdr" data-u="1">화면은 뜨고, 시간만 14:5로 표시</p>
+  <p class="hdr ngc" data-s="1" data-u="2">테스트 실패, 뒤 단계는 건너뜀</p>
+  <p class="hdr" data-s="2">빨간불인 동안 main 합치기 차단</p>
+  <aside class="notes">이번엔 다른 팀원이 PR을 하나 올립니다. 시간을 두 자리로 채워 주는 padStart가 굳이 필요한가 싶어서 지웠습니다. 린트도 통과하고 빌드도 됩니다. 화면도 잘 뜨고 시간만 14:5처럼 이상하게 나옵니다.
 (클릭) 설치 통과, 린트 통과, 그리고 테스트에서 걸립니다. 빨간불이 들어오고, 뒤의 빌드는 아예 실행하지 않습니다.
 (클릭) 그리고 머지 문이 잠깁니다.</aside>
 </section>
 
 <section class="page" id="assert" data-title="기대 14:05, 실제 14:5" data-steps="1" data-sec="CI · 지속적 통합">
-  <h2 class="ttl">기대 14:05, 실제 14:5: 한 글자 차이를 기계가 짚음</h2>
+  <h2 class="ttl">기대 14:05와 실제 14:5, 한 글자 차이를 기계가 짚음</h2>
   <pre class="log type" style="left:112px;top:250px;width:1180px;font-size:30px" data-label="Actions 로그, frontend-check › Test" data-ng="1,2,5" data-st="4,7">FAIL  src/lib/timetable.test.js > 시간 변환
       > 845분은 "14:05"로 표시한다
 AssertionError: expected '14:5' to be '14:05'
@@ -765,47 +794,51 @@ Tests  3 failed | 3 passed (6)</pre>
     <p class="lead mono" style="margin-top:8px;font-family:var(--f-mono)">frontend-check</p>
     <p class="big" data-s="1" style="margin-top:64px">레포 주인도 우회 불가</p>
     <p class="lead" data-s="1" style="margin-top:10px">팀 규칙을 사람 대신 시스템이 지킴</p>
-    <p class="lead" data-s="1" style="margin-top:10px">main에 바로 push도 차단</p>
+    <p class="lead" data-s="1" style="margin-top:10px">PR 필수까지 켜면 main 직접 push도 차단</p>
   </div>
-  <aside class="notes">PR 화면에서는 이렇게 보입니다. 브랜치 보호를 켜 두면 빨간 X가 떠 있는 동안 머지 버튼 자체가 잠깁니다. main 보호 규칙에서 frontend-check를 필수 검사로 지정해 둔 겁니다.
-(클릭) 레포 주인도 우회하지 못하게 해 둡니다. "테스트 깨진 코드는 머지하지 말자"는 팀마다 말로는 다 합니다. 발표 주간 새벽에는 그게 안 지켜집니다. 브랜치 보호는 그 규칙을 사람 대신 시스템이 지키게 만듭니다. 처음에 본 main에 바로 push하는 습관도 여기서 같이 막힙니다. 보호된 main에는 검사를 통과한 PR로만 들어갈 수 있습니다.</aside>
+  <aside class="notes">PR 화면에서는 이렇게 보입니다. 브랜치 보호를 켜 두면 빨간 X가 떠 있는 동안 머지 버튼 자체가 잠깁니다. main 보호 규칙에서 방금 돌아간 검사 묶음, frontend-check를 필수 검사로 지정해 둔 것입니다.
+(클릭) 레포 주인도 우회하지 못하게 해 둡니다. 테스트 깨진 코드는 머지하지 말자, 말로는 다 하지만 발표 주간 새벽에는 안 지켜집니다. 그 규칙을 시스템이 대신 지킵니다. PR 필수까지 켜 두면 처음에 본 main에 바로 push도 여기서 같이 막힙니다.</aside>
 </section>
 
 <section class="page" id="fixed" data-title="고친 커밋, 다시 초록" data-steps="2" data-sec="CI · 지속적 통합">
   <h2 class="ttl">고친 커밋을 같은 PR에 push, 다시 초록이면 머지</h2>
-  <pre class="code" data-lang="diff" style="left:112px;top:830px;width:1180px" data-label="PR #13에 커밋 추가">-return `${h}:${m}`
+  <pre class="code" data-lang="diff" style="left:112px;top:818px;width:1696px;padding-bottom:12px" data-label="PR #13에 커밋 추가">-return `${h}:${m}`
 +return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`</pre>
-  <p class="lead" data-u="1" style="position:absolute;left:1350px;top:850px;width:458px">PR을 새로 만들 필요 없음</p>
-  <div data-s="1" data-u="2" style="position:absolute;left:1350px;top:852px"><span class="chip ok">All checks have passed</span></div>
-  <p class="big" data-s="2" style="position:absolute;left:1350px;top:846px;width:458px">머지 완료, main에 합쳐짐</p>
+  <p class="hdr" data-u="1">PR을 새로 만들 필요 없음</p>
+  <p class="hdr okc" data-s="1" data-u="2">All checks have passed</p>
+  <p class="hdr" data-s="2">이제부터 3f9a2c1을 끝까지 추적</p>
   <aside class="notes">고치는 건 간단합니다. 원래대로 돌린 커밋을 같은 브랜치에 push합니다. PR을 새로 만들 필요가 없습니다.
 (클릭) 검사가 자동으로 다시 돌고, 이번엔 전부 통과합니다. 머지 문이 열립니다.
 (클릭) 머지 버튼을 누르면 이 커밋이 main에 합쳐집니다. 이제부터 이 커밋, 3f9a2c1을 끝까지 따라가겠습니다.</aside>
 </section>
 
-<section class="page" id="catch" data-title="문마다 잡는 사고" data-steps="2" data-sec="CI · 지속적 통합">
-  <h2 class="ttl">문마다 잡아내는 사고가 다름</h2>
-  <table class="tb" style="left:112px;top:244px;width:1696px">
-    <thead><tr><th style="width:200px">잡은 문</th><th>실제 로그</th><th style="width:420px">사람이 놓치는 이유</th></tr></thead>
+<section class="page" id="catch" data-title="검사대마다 잡는 사고" data-steps="2" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">검사대마다 잡아내는 사고가 다름</h2>
+  <table class="tb xl" style="left:112px;top:244px;width:1696px">
+    <thead><tr><th style="width:200px">잡은 검사</th><th>실제 로그</th><th style="width:420px">사람이 놓치는 이유</th></tr></thead>
     <tbody>
       <tr><td><b>린트</b></td><td class="m">Identifier 'useMemo' is imported but never used.</td><td>실행에는 문제가 없어서</td></tr>
       <tr data-s="1"><td><b>테스트</b></td><td class="m">Expected: "14:05" Received: "14:5"</td><td>화면은 떠서</td></tr>
       <tr data-s="2" class="or"><td><b>빌드</b></td><td class="m">Could not resolve './components/sessionTable.jsx'</td><td>내 컴퓨터에서는 돼서</td></tr>
     </tbody>
   </table>
-  <div data-s="2" style="position:absolute;left:112px;top:700px;width:1696px">
+  <div data-s="2" style="position:absolute;left:112px;top:640px;width:1696px">
     <span class="chip or">발표 일주일 전 그 에러의 정체</span>
-    <p class="big" style="margin-top:28px">윈도우와 맥은 파일 이름 대소문자를 무시, 리눅스 러너는 구분</p>
+    <div style="display:flex;gap:28px;margin-top:22px">
+      <div class="sx"><p class="cap">실제 파일 이름</p><p class="sxn"><b class="sxS">S</b>essionTable.jsx</p></div>
+      <div class="sx"><p class="cap">App.jsx의 import</p><p class="sxn"><b class="sxs">s</b>essionTable.jsx</p></div>
+    </div>
+    <p class="lead" style="margin-top:18px;color:var(--ink)">윈도우·맥은 같은 파일로 취급, 리눅스 러너와 서버는 다른 파일로 취급</p>
   </div>
   <aside class="notes">실습 레포에는 사고를 몇 가지 더 준비해 뒀습니다. 린트는 안 쓰는 import를 잡습니다. 실행에는 문제가 없어서 사람은 그냥 넘어갑니다.
 (클릭) 테스트는 방금 본 시간 표시를 잡습니다. 화면은 떠서 놓칩니다.
-(클릭) 빌드는 파일 이름 대소문자를 잡습니다. 발표 일주일 전 서버에서 터진 그 에러가 바로 이겁니다. 파일 이름의 대문자 S를 소문자로 썼는데, 윈도우와 맥은 대소문자를 구분하지 않아서 제 컴퓨터에서는 빌드가 됩니다. 러너는 리눅스라 구분합니다. 서버도 대부분 리눅스입니다. 그래서 단계마다 잡는 게 달라서 셋 다 겁니다.</aside>
+(클릭) 빌드는 파일 이름 대소문자를 잡습니다. 발표 일주일 전 서버에서 터진 그 에러가 바로 이것입니다. 파일은 대문자 S인데 import는 소문자 s입니다. 윈도우와 맥은 대소문자를 구분하지 않아 제 컴퓨터에서는 되고, 리눅스인 러너와 서버는 구분해서 실패합니다. 그래서 셋 다 걸어 둡니다.</aside>
 </section>
 
 <section class="page" id="ciSum" data-title="CI 정리" data-steps="1" data-sec="CI · 지속적 통합">
   <div class="stmt"><h2>CI = 자주 합치고<br>합칠 때마다 자동 확인</h2><p class="lead" data-s="1">문제가 생겨도 어제 이후 바뀐 한 줄만 보면 됨</p></div>
   <aside class="notes">정리하면 CI는 작게 자주 합치고, 합칠 때마다 기계가 자동으로 확인하는 겁니다.
-(클릭) 그러면 문제가 생겨도 어제 이후 바뀐 한 줄만 보면 됩니다. 검사 없이 합치면 깨진 줄이 몇 주 동안 main에 숨어 있다가 배포하는 날 한꺼번에 드러나고, 그때는 몇 주치를 뒤져야 합니다.</aside>
+(클릭) 그러면 문제가 생겨도 어제 이후 바뀐 한 줄만 보면 됩니다. 발표 일주일 전에 몇 주치를 한꺼번에 뒤질 일이 없습니다.</aside>
 </section>
 
 <!-- ================= 4. CD ================= -->
@@ -826,14 +859,14 @@ Tests  3 failed | 3 passed (6)</pre>
 <section class="page" id="pack" data-title="이미지로 포장" data-steps="2" data-sec="CD · 지속적 전달과 배포">
   <h2 class="ttl">검사 끝난 코드를 한 번 포장: 이미지</h2>
   <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">배포할 결과물부터 만듦</p>
-  <p class="big" data-s="1" data-u="2" style="position:absolute;left:112px;top:860px">이미지 이름표에 커밋 번호 3f9a2c1이 그대로</p>
+  <p class="big" data-s="1" data-u="2" style="position:absolute;left:112px;top:860px">이미지 이름표에 커밋 번호 3f9a2c1, 화면에서는 v2</p>
   <div data-s="2" style="position:absolute;left:112px;top:842px;display:flex;align-items:center;gap:16px">
-    <span class="chip ink">이미지</span><b style="font:800 36px var(--f-sans)">=</b><span class="chip">실행 환경</span><b style="font:800 36px var(--f-sans)">+</b><span class="chip">앱 코드</span><b style="font:800 36px var(--f-sans)">+</b><span class="chip">패키지</span><b style="font:800 36px var(--f-sans)">+</b><span class="chip">실행 설정</span>
+    <span class="chip ink">이미지</span><b style="font:800 36px var(--f-sans)">=</b><span class="chip">실행 환경</span><b style="font:800 36px var(--f-sans)">+</b><span class="chip">앱 코드</span><b style="font:800 36px var(--f-sans)">+</b><span class="chip">패키지</span><b style="font:800 36px var(--f-sans)">+</b><span class="chip">실행 명령</span>
   </div>
-  <p class="lead" data-s="2" style="position:absolute;left:112px;top:930px">한 번 만들면 다시 빌드하지 않음, 검사한 그것을 그대로 내보냄</p>
+  <p class="lead" data-s="2" style="position:absolute;left:112px;top:930px">한 번 만든 이미지를 스테이징과 운영에 그대로, 환경별 값은 배포 때 주입</p>
   <aside class="notes">배포하려면 먼저 결과물을 포장합니다.
-(클릭) 검사를 통과한 코드를 통째로 묶은 것을 이미지라고 합니다. 이미지 이름표에 커밋 번호가 그대로 붙어서, 어떤 코드로 만든 건지 바로 알 수 있습니다.
-(클릭) 이미지 안에는 실행 환경, 앱 코드, 패키지, 실행 설정이 다 들어 있어서 어느 서버에서 돌려도 똑같이 돕니다. 그리고 한 번 만들면 다시 빌드하지 않습니다. 검사한 그것을 그대로 내보냅니다. 실습에서 쓴 Cloud Run은 Dockerfile이 없어도 소스만 올리면 이 이미지를 만들어 줍니다.</aside>
+(클릭) 검사를 통과한 코드를 바로 실행할 수 있게 통째로 묶은 상자를 이미지라고 부릅니다. 이름표에 커밋 번호 3f9a2c1이 붙고, 화면에서는 줄여서 v2라고 부르겠습니다. 지금 운영에서 도는 건 v1입니다.
+(클릭) 이미지 안에는 실행 환경, 앱 코드, 패키지, 실행 명령이 들어 있어서 어느 서버에서든 똑같이 돕니다. 다만 DB 주소처럼 환경마다 다른 값은 배포할 때 환경 변수로 넣습니다. 그래서 같은 이미지를 스테이징과 운영에 그대로 씁니다. 처음의 localhost 문제도 주소를 코드에 적지 않고 환경 변수로 빼면 풀립니다.</aside>
 </section>
 
 <section class="page" id="store" data-title="보관소" data-steps="2" data-sec="CD · 지속적 전달과 배포">
@@ -844,7 +877,7 @@ Tests  3 failed | 3 passed (6)</pre>
   <p class="lead" data-s="2" style="position:absolute;left:112px;top:930px">지난 버전도 그대로 남음, 되돌리기의 재료</p>
   <aside class="notes">만든 이미지는 보관소에 넣습니다. 이미 지난번에 만든 v1이 들어 있습니다.
 (클릭) 그 옆에 이번 v2가 쌓입니다.
-(클릭) 회사마다 Docker Hub, Amazon ECR, 구글 Artifact Registry 같은 걸 씁니다. 중요한 건 지난 버전도 그대로 남아 있다는 점입니다. 이게 뒤에서 되돌릴 때 재료가 됩니다.</aside>
+(클릭) Docker Hub, ECR, Artifact Registry처럼 이름은 회사마다 달라도, 중요한 건 지난 버전도 그대로 남는다는 점입니다. 이게 뒤에서 되돌릴 때 재료가 됩니다.</aside>
 </section>
 
 <section class="page" id="staging" data-title="스테이징" data-steps="2" data-sec="CD · 지속적 전달과 배포">
@@ -852,10 +885,10 @@ Tests  3 failed | 3 passed (6)</pre>
   <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">운영과 똑같이 만든 환경</p>
   <p class="big" data-s="1" data-u="2" style="position:absolute;left:112px;top:860px">실제로 띄워 보고, 헬스체크 통과해야 다음으로</p>
   <div data-s="2" style="position:absolute;left:112px;top:846px"><span class="chip">Vercel 미리보기 배포</span></div>
-  <p class="lead" data-s="2" style="position:absolute;left:112px;top:930px">PR마다 임시 주소를 만들어 미리 확인, 같은 역할</p>
+  <p class="lead" data-s="2" style="position:absolute;left:112px;top:930px">PR마다 임시 주소로 머지 전에 미리 확인, 폰으로 열면 localhost 문제도 발견</p>
   <aside class="notes">운영에 바로 넣기 전에 운영과 똑같이 만든 스테이징에 먼저 올립니다.
-(클릭) 실제로 띄워 보고, 앱이 살아 있는지 묻는 헬스체크를 통과해야 다음으로 갑니다.
-(클릭) 프론트를 Vercel에 연결해 보신 분은 이미 비슷한 걸 쓰고 계십니다. PR마다 미리보기 주소가 생기는데, 운영에 나가기 전에 미리 확인하는 같은 역할입니다.</aside>
+(클릭) 실제로 띄워 보고, 앱이 제대로 응답하는지 직접 묻는 헬스체크를 통과해야 다음으로 갑니다.
+(클릭) 프론트를 Vercel에 연결해 보신 분은 비슷한 걸 이미 쓰고 계십니다. PR마다 미리보기 주소가 생겨서, 스테이징보다 한 발 앞인 머지 전에 확인할 수 있습니다. 처음에 본 localhost 문제도 이 주소를 팀원 폰으로 한 번만 열어 보면 첫 PR에서 바로 보입니다.</aside>
 </section>
 
 <section class="page" id="delivery" data-title="Continuous Delivery" data-steps="1" data-sec="CD · 지속적 전달과 배포">
@@ -869,7 +902,7 @@ Tests  3 failed | 3 passed (6)</pre>
 
 <section class="page" id="deploy" data-title="Continuous Deployment" data-steps="1" data-sec="CD · 지속적 전달과 배포">
   <h2 class="ttl">Continuous Deployment: 마지막 버튼이 사라짐</h2>
-  <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">승인 칸 자체가 없음</p>
+  <p class="big" data-u="1" style="position:absolute;left:112px;top:846px">승인 버튼 자체가 없음</p>
   <p class="big" data-s="1" style="position:absolute;left:112px;top:846px">검사를 다 통과하면 사람 없이 운영까지</p>
   <p class="lead" data-s="1" style="position:absolute;left:112px;top:924px">오늘 실습 레포와 Vercel이 이 방식</p>
   <aside class="notes">두 번째, Continuous Deployment, 지속적 배포는 한 걸음 더 갑니다. 마지막 버튼 자체가 없습니다.
@@ -885,37 +918,40 @@ Tests  3 failed | 3 passed (6)</pre>
   </div>
   <p class="big" data-s="2" style="position:absolute;left:760px;top:846px">나머지는 전부 파이프라인</p>
   <aside class="notes">전체 흐름을 한 번에 보겠습니다. 커밋 3f9a2c1이 PR로 올라갑니다.
-(클릭) 설치, 린트, 테스트, 빌드. 전부 통과하고 머지 문 앞에 섭니다.
-(클릭) 머지 버튼을 누르면, 이미지로 포장되고, 보관소에 쌓이고, 스테이징에서 확인하고, 운영 서버 12대가 새 버전으로 바뀝니다. 사람이 한 일은 PR 올리기와 머지 버튼 한 번입니다.</aside>
+(클릭) 설치, 린트, 테스트, 빌드. 전부 통과했습니다. 이제 머지 버튼을 누릅니다.
+(클릭) 포장, 보관, 스테이징, 그리고 운영 서버 12대가 새 버전으로 바뀝니다. 사람이 한 일은 PR 올리기와 머지 버튼 한 번뿐입니다.</aside>
 </section>
 
 <section class="page" id="yaml" data-title="파일 한 개" data-steps="3" data-sec="전체 흐름">
   <h2 class="ttl">이 길 전체가 레포 안 파일 한 개</h2>
-  <pre class="code hasdim" data-lang="yaml" data-hlsteps="1-4|7|8-12|13-14" style="left:112px;top:236px;width:980px" data-label="ci.yml 구조 (실습 레포 파일을 줄인 것)">on:
+  <pre class="code hasdim" data-lang="yaml" data-hlsteps="1-4|8|9-14|15-17" style="left:112px;top:220px;width:1000px;font-size:26px" data-label="ci.yml 구조 (실습 레포 파일을 줄인 것, 배포 단계 생략)">on:
   pull_request:
   push:
     branches: [main]
 jobs:
   check:
+    name: frontend-check
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
       - run: npm ci
       - run: npm run lint
       - run: npm test
       - run: npm run build
   deploy:
-    needs: check</pre>
+    needs: check
+    if: github.event_name == 'push'</pre>
   <div style="position:absolute;left:1160px;top:250px;width:648px">
     <div class="yl" data-y="0" style="height:216px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">1</span>트리거</p>
       <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;align-items:flex-start"><span class="chip">PR 열기 → <code>pull_request</code></span><span class="chip">main에 머지 → <code>push</code></span></div></div>
     <div class="yl" data-y="1" style="height:130px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">2</span>러너</p><p class="lead" style="margin-top:6px">ubuntu-latest, 빌려 쓰는 리눅스</p></div>
-    <div class="yl" data-y="2" style="height:130px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">3</span>단계</p><p class="lead" style="margin-top:6px">문 네 개를 위에서부터 차례로</p></div>
-    <div class="yl" data-y="3" style="height:130px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">4</span>배포</p><p class="lead" style="margin-top:6px">needs: check, 검사가 끝나야 출발</p></div>
+    <div class="yl" data-y="2" style="height:130px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">3</span>단계</p><p class="lead" style="margin-top:6px">코드 받기, 그다음 검사 네 개를 차례로</p></div>
+    <div class="yl" data-y="3" style="height:178px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">4</span>배포</p><p class="lead" style="margin-top:6px">needs: 검사가 통과해야 출발<br>if: main에 머지됐을 때만 배포</p></div>
   </div>
-  <aside class="notes">방금 본 길 전체가 레포 안 파일 한 개에 적혀 있습니다. 실습 레포 파일을 줄인 겁니다. 첫 번째, 트리거. 언제 출발할지입니다. PR을 열면 pull_request, main에 머지하면 push. 사람이 하는 행동과 키워드가 이렇게 짝지어집니다.
+  <aside class="notes">방금 본 길 전체가 레포 안 파일 한 개에 적혀 있습니다. 첫 번째, 트리거. 언제 출발할지입니다. PR을 열면 pull_request, main에 머지하면 push입니다.
 (클릭) 두 번째, 러너. 어디서 돌지입니다. ubuntu-latest, 빌려 쓰는 리눅스입니다.
-(클릭) 세 번째, 단계. 아까 본 문 네 개가 위에서부터 차례로 적혀 있습니다. 평소 제 컴퓨터에서 치던 명령 그대로입니다.
-(클릭) 네 번째, 배포. needs: check는 검사가 끝나야 배포를 출발시킨다는 뜻입니다.</aside>
+(클릭) 세 번째, 단계. 맨 위 checkout은 빈 러너에 코드를 받아 오는 줄이고, 그 아래가 아까 본 검사 네 개입니다.
+(클릭) 네 번째, 배포. needs는 검사가 통과해야 출발한다는 뜻이고, if 줄 덕분에 PR에서는 검사만 하고 main에 머지됐을 때만 배포합니다.</aside>
 </section>
 
 <section class="page" id="repeat" data-title="반복 가능성" data-steps="2" data-sec="전체 흐름">
@@ -930,28 +966,27 @@ jobs:
   </div>
   <aside class="notes">많은 분들이 CI/CD를 빠른 배포라고 생각합니다.
 (클릭) 그런데 핵심은 속도가 아니라 반복 가능성입니다.
-(클릭) 배포 절차가 파일로 적혀 있으니까 첫 배포든 백 번째 배포든 같은 단계가 같은 순서로 돕니다. 새벽 3시의 나와 낮 2시의 나가 똑같이 배포합니다. 빨라지는 건 그 결과입니다.</aside>
+(클릭) 배포 절차가 파일로 적혀 있으니까 첫 배포든 백 번째 배포든 같은 단계가 같은 순서로 돕니다. 새벽 3시의 저도, 낮 2시의 저도 똑같이 배포합니다. 빨라지는 건 그 결과입니다.</aside>
 </section>
 
 <!-- ================= 6. 운영과 복구 ================= -->
 <section class="page" id="prodFail" data-title="운영에서 생기는 문제" data-steps="1" data-sec="운영과 복구">
   <h2 class="ttl">검사를 다 통과해도 운영에서는 문제가 생김</h2>
-  <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">v2가 운영 서버 12대에 퍼진 상태</p>
-  <p class="big ngc" data-s="1" style="position:absolute;left:112px;top:846px">서버 12대 중 3대에서 오류</p>
-  <p class="lead" data-s="1" style="position:absolute;left:112px;top:924px">테스트가 운영의 모든 상황을 알지는 못함</p>
-  <aside class="notes">그런데 검사를 다 통과해도 운영에서는 문제가 생깁니다.
-(클릭) 서버 12대 중 3대에서 오류가 납니다. 테스트가 실제 사용자 데이터나 트래픽 같은 운영의 모든 상황을 알지는 못하기 때문입니다. 그래서 좋은 파이프라인은 새 버전을 내보내는 방법과 되돌리는 방법까지 갖춥니다.</aside>
+  <p class="lead" data-u="1" style="position:absolute;left:112px;top:860px">v2가 운영 서버 12대에 퍼진 상태</p>
+  <p class="big" data-s="1" style="position:absolute;left:112px;top:856px">테스트가 운영의 모든 상황을 알지는 못함</p>
+  <aside class="notes">이제 운영과 복구입니다. 검사를 다 통과해도 운영에서는 문제가 생깁니다.
+(클릭) 서버 12대 중 3대에서 오류가 납니다. 같은 이미지여도 운영에서는 서버마다 받는 요청과 데이터가 달라서, 테스트에 없던 상황이 일부부터 터집니다. 그래서 좋은 파이프라인은 새 버전을 내보내는 방법과 되돌리는 방법까지 갖춥니다.</aside>
 </section>
 
 <section class="page" id="strat" data-title="배포 전략 세 가지" data-steps="2" data-sec="운영과 복구">
-  <h2 class="ttl">새 버전을 조금씩 내보내는 세 가지 방법</h2>
+  <h2 class="ttl">운영을 멈추지 않고 새 버전으로 바꾸는 세 가지 방법</h2>
   <div class="strat roll" style="top:236px"><h3>롤링</h3><p>서버를 한 대씩 새 버전으로 교체</p>
     <div class="fig"><i class="sv" style="left:0;--i:0"></i><i class="sv" style="left:130px;--i:1"></i><i class="sv" style="left:260px;--i:2"></i><i class="sv" style="left:390px;--i:3"></i><i class="sv" style="left:520px;--i:4"></i><i class="sv" style="left:650px;--i:5"></i></div></div>
   <div class="strat bg" data-s="1" style="top:446px"><h3>블루그린</h3><p>두 환경을 준비해 두고 한 번에 전환</p>
     <div class="fig"><span class="bg-box o">이전</span><span class="bg-sw"><i></i></span><span class="bg-box n">신규</span></div></div>
   <div class="strat" data-s="2" style="top:656px"><h3>카나리</h3><p>일부 사용자에게 먼저 새 버전</p>
     <div class="fig"><div class="cn20"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="b"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div>
-  <aside class="notes">새 버전을 한꺼번에 내보내지 않는 방법이 세 가지 있습니다. 첫 번째, 롤링. 서버를 한 대씩 새 버전으로 바꿉니다.
+  <aside class="notes">기존 버전을 한 번에 덮어쓰지 않고 새 버전으로 바꾸는 방법이 세 가지 있습니다. 첫 번째, 롤링. 서버를 한 대씩 새 버전으로 바꿉니다.
 (클릭) 두 번째, 블루그린. 이전 환경과 새 환경을 둘 다 띄워 두고 스위치를 한 번에 넘깁니다. 문제가 생기면 스위치를 다시 넘기면 됩니다.
 (클릭) 세 번째, 카나리. 일부 사용자에게만 먼저 새 버전을 보여 줍니다. 옛날 광부들이 탄광에 카나리아를 먼저 들여보낸 데서 온 이름입니다.</aside>
 </section>
@@ -1008,18 +1043,18 @@ jobs:
   <p class="foot" data-u="2" style="position:absolute;left:760px;top:880px">100명으로 그린 예시 값</p>
   <aside class="notes">이번엔 문제가 생기는 경우입니다. 25%까지 넓혔습니다.
 (클릭) 그런데 오류율이 2.4%로 튀어서 기준선을 넘습니다.
-(클릭) 그러면 바로 되돌립니다. 새 버전을 받았던 25명도 전부 이전 버전으로 돌아갑니다. 피해를 본 사람은 100명 중 25명에서 멈춥니다.</aside>
+(클릭) 그러면 바로 되돌립니다. 새 버전을 받았던 25명도 전부 이전 버전으로 돌아갑니다. 새 버전에 노출된 사람이 100명 중 25명에서 멈춥니다.</aside>
 </section>
 
 <section class="page" id="revert" data-title="이전 이미지로 교체" data-steps="2" data-sec="운영과 복구">
   <h2 class="ttl">되돌리기 = 보관해 둔 이전 이미지로 교체</h2>
-  <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">보관소에 v1이 그대로 있음</p>
+  <p class="lead" data-u="1" style="position:absolute;left:112px;top:850px">보관소에 v1이 그대로 있음</p>
   <p class="big" data-s="1" style="position:absolute;left:112px;top:846px">다시 빌드하지 않아서 몇 초</p>
-  <p class="lead" data-s="1" data-u="2" style="position:absolute;left:112px;top:924px">실습의 Cloud Run: 트래픽 100%를 이전 리비전으로</p>
+  <p class="lead" data-s="1" data-u="2" style="position:absolute;left:112px;top:924px">Cloud Run: 배포마다 남는 이전 버전(리비전)으로 트래픽 100% 이동</p>
   <p class="lead" data-s="2" style="position:absolute;left:112px;top:924px">그다음 Revert PR로 main의 코드도 되돌림</p>
   <aside class="notes">되돌리는 방법은 간단합니다. 아까 보관소에 v1을 남겨 뒀습니다.
-(클릭) 그 v1 이미지를 다시 운영에 올립니다. 다시 빌드하지 않으니까 몇 초면 됩니다. 실습에서 쓴 Cloud Run에서는 리비전 탭에서 트래픽 100%를 이전 리비전으로 옮기면 됩니다.
-(클릭) 다만 main에는 아직 v2 코드가 남아 있어서, 다음에 누가 머지하면 v2가 다시 나갑니다. 그래서 GitHub의 Revert 버튼으로 되돌리는 PR을 올립니다. 이것도 CI와 CD를 똑같이 한 바퀴 돕니다.</aside>
+(클릭) 그 v1 이미지를 다시 운영에 올립니다. 다시 빌드하지 않으니까 몇 초면 됩니다. 실습 백엔드를 올린 Cloud Run은 배포마다 버전을 리비전으로 남겨서, 트래픽 100%를 이전 리비전으로 옮기면 끝입니다.
+(클릭) 다만 main에는 아직 v2 코드가 남아 있어서, GitHub의 Revert 버튼으로 되돌리는 PR도 올립니다. 이것도 CI와 CD를 똑같이 한 바퀴 돕니다.</aside>
 </section>
 
 <section class="page" id="monitor" data-title="모니터링" data-sec="운영과 복구">
@@ -1038,8 +1073,8 @@ jobs:
   <aside class="notes">그래서 배포 뒤에도 숫자로 계속 지켜봅니다. 요청이 얼마나 오는지, 응답이 얼마나 걸리는지, 오류가 얼마나 나는지, 그리고 헬스체크. 카나리에서 되돌릴지 말지도 이 숫자로 정합니다.</aside>
 </section>
 
-<section class="page" id="health" data-title="켜졌다 ≠ 정상" data-steps="2" data-sec="운영과 복구">
-  <h2 class="ttl">켜졌다 ≠ 정상: 헬스체크까지 통과해야 배포 성공</h2>
+<section class="page" id="health" data-title="켜짐 ≠ 정상" data-steps="2" data-sec="운영과 복구">
+  <h2 class="ttl">켜짐 ≠ 정상: 헬스체크까지 통과해야 배포 성공</h2>
   <div class="card" style="left:112px;top:236px;width:820px;height:400px;padding:34px 40px">
     <p class="cap">서버 실행 여부</p>
     <p class="mono" style="margin:14px 0 0;font:500 28px var(--f-mono);color:var(--sub)">$ systemctl is-active app</p>
@@ -1048,9 +1083,9 @@ jobs:
   </div>
   <div class="card" style="left:988px;top:236px;width:820px;height:400px;padding:34px 40px">
     <p class="cap">앱 정상 동작 여부</p>
-    <p class="mono" style="margin:14px 0 0;font:500 28px var(--f-mono);color:var(--sub)">$ curl my-app.example/health</p>
+    <p class="mono" style="margin:14px 0 0;font:500 28px var(--f-mono);color:var(--sub)">$ curl -i my-app.example/health</p>
     <div data-s="1">
-      <p class="ngc" style="margin:40px 0 0;font:800 44px/1.25 var(--f-mono)">500 Internal<br>Server Error</p>
+      <p class="ngc" style="margin:40px 0 0;font:800 44px/1.25 var(--f-mono)">HTTP/1.1 500<br>Internal Server Error</p>
       <p class="mono" style="margin:20px 0 0;font:500 26px var(--f-mono);color:var(--ng)">relation "orders" does not exist</p>
     </div>
   </div>
@@ -1060,14 +1095,14 @@ jobs:
   </div>
   <aside class="notes">모니터링에서 중요한 건 질문을 제대로 하는 겁니다. 서버가 켜졌는지만 물으면 active, 켜져 있다고 나옵니다.
 (클릭) 그런데 앱한테 직접 물어보면 500 에러입니다. orders라는 테이블이 없다고 합니다.
-(클릭) 기억나시나요. 처음에 손으로 배포할 때 빠뜨린 4번, DB 변경 적용입니다. 서버는 켜져 있는데 앱은 깨져 있습니다. 그래서 배포 성공의 기준은 서버가 켜진 게 아니라 헬스체크까지 통과하는 겁니다.</aside>
+(클릭) 처음에 빠뜨렸던 그 4번, DB 변경 적용입니다. 서버는 켜져 있는데 앱은 깨져 있습니다. 그래서 배포 성공의 기준은 헬스체크 통과이고, 헬스체크는 DB까지 실제로 확인하게 만들어 둡니다. 그러면 스테이징의 GET /health에서 걸려서 이런 버전은 운영까지 못 갑니다.</aside>
 </section>
 
 <!-- ================= 7. 정리 ================= -->
 <section class="page" id="twoq" data-title="CI와 CD가 판정하는 것" data-steps="2" data-sec="정리">
   <h2 class="ttl">CI와 CD는 각자 한 가지를 판정</h2>
-  <div class="card" data-s="1" style="left:212px;top:236px;width:760px;height:180px;padding:30px 36px;border:3px solid var(--ok)"><p class="cap" style="font-weight:700;color:var(--ok)">CI</p><p class="big" style="margin-top:6px">머지해도 되는지 판정</p></div>
-  <div class="card" data-s="2" style="left:1040px;top:236px;width:770px;height:180px;padding:30px 36px;border:3px solid var(--ok)"><p class="cap" style="font-weight:700;color:var(--ok)">CD</p><p class="big" style="margin-top:6px">내보내도 되는지 판정</p></div>
+  <div class="card" data-s="1" style="left:112px;top:236px;width:820px;height:180px;padding:30px 36px;border:3px solid var(--ok)"><p class="cap" style="font-weight:700;color:var(--ok)">CI</p><p class="big" style="margin-top:6px">머지해도 되는지 판정</p></div>
+  <div class="card" data-s="2" style="left:988px;top:236px;width:820px;height:180px;padding:30px 36px;border:3px solid var(--ok)"><p class="cap" style="font-weight:700;color:var(--ok)">CD</p><p class="big" style="margin-top:6px">내보내도 되는지 판정</p></div>
   <aside class="notes">그래서 CI와 CD는 이렇게 기억하시면 됩니다.
 (클릭) CI는 이 코드를 합쳐도 되는지 판정합니다.
 (클릭) CD는 이 코드를 사용자에게 내보내도 되는지 판정합니다.</aside>
@@ -1085,10 +1120,10 @@ jobs:
   <div data-s="1" style="position:absolute;left:1090px;top:250px;width:718px">
     <span class="chip"><code>.github/workflows/ci.yml</code></span>
     <p class="big" style="margin-top:40px">매번 같은 순서로 자동 실행</p>
-    <p class="lead" style="margin-top:14px">빠뜨릴 사람이 없음</p>
+    <p class="lead" style="margin-top:14px">04 DB 변경도 마이그레이션 파일로 배포 때 자동 적용</p>
   </div>
   <aside class="notes">처음에 본 이 여덟 단계,
-(클릭) 이제 사람이 기억할 필요가 없습니다. 파일 한 개에 적어 두면 매번 같은 순서로 자동으로 돕니다. 빠뜨릴 사람이 없습니다.</aside>
+(클릭) 이제 사람이 기억할 필요가 없습니다. 파일 한 개에 적어 두면 매번 같은 순서로 자동으로 돕니다. 4번 DB 변경도 Flyway 같은 마이그레이션 도구로 코드에 넣어 두면 배포할 때 자동으로 적용되고, 혹시 빠져도 DB까지 확인하는 헬스체크에서 멈춥니다.</aside>
 </section>
 
 <!-- ================= 8. 회사에서는 ================= -->
@@ -1102,6 +1137,7 @@ jobs:
   <pre class="code tabp" data-lang="yaml" data-tabp="0" data-mk="1:1,2:2,3:3" style="left:112px;top:330px;width:1180px" data-label=".github/workflows/ci.yml">on: pull_request
 runs-on: ubuntu-latest
 steps:
+  - uses: actions/checkout@v7
   - run: npm ci
   - run: npm run lint
   - run: npm test
@@ -1125,39 +1161,41 @@ steps:
     - npm test
     - npm run build</pre>
   <div style="position:absolute;left:1350px;top:340px;width:458px">
-    <p class="big tabp" data-tabp="0">GitHub에 내장</p>
-    <p class="big tabp hid" data-tabp="1">직접 설치해 운영하는 서버</p>
-    <p class="big tabp hid" data-tabp="2">GitLab에 내장</p>
+    <div style="position:relative;height:118px">
+      <p class="big tabp" data-tabp="0" style="position:absolute;left:0;top:0;width:458px">GitHub에 내장</p>
+      <p class="big tabp hid" data-tabp="1" style="position:absolute;left:0;top:0;width:458px">직접 설치해 운영하는 서버</p>
+      <p class="big tabp hid" data-tabp="2" style="position:absolute;left:0;top:0;width:458px">GitLab에 내장</p>
+    </div>
     <div style="margin-top:44px">
       <p style="margin:0 0 22px;font:600 30px/1.5 var(--f-sans)"><span class="badge" style="width:46px;height:46px;line-height:46px;font-size:24px;margin-right:14px">1</span>트리거</p>
       <p style="margin:0 0 22px;font:600 30px/1.5 var(--f-sans)"><span class="badge" style="width:46px;height:46px;line-height:46px;font-size:24px;margin-right:14px">2</span>러너</p>
       <p style="margin:0 0 22px;font:600 30px/1.5 var(--f-sans)"><span class="badge" style="width:46px;height:46px;line-height:46px;font-size:24px;margin-right:14px">3</span>단계</p>
     </div>
-    <p class="lead tabp hid" data-tabp="1" style="margin-top:20px">트리거는 파일 밖 웹훅 설정</p>
+    <p class="lead tabp hid" data-tabp="1" style="margin-top:20px">트리거는 파일 밖 Jenkins 설정</p>
   </div>
   <aside class="notes">회사에 가면 GitHub Actions 대신 Jenkins나 GitLab CI를 쓰는 곳이 많습니다. GitHub Actions는 GitHub에 들어 있는 자동화입니다.
-(클릭) Jenkins는 회사가 직접 서버에 설치해서 운영하는 자동화 서버입니다. 마음대로 고칠 수 있는 대신 관리도 직접 합니다. 트리거는 파일 밖 웹훅으로 설정합니다.
+(클릭) Jenkins는 회사가 직접 서버에 설치해서 운영하는 자동화 서버입니다. 마음대로 고칠 수 있는 대신 관리도 직접 합니다. 트리거만 파일 밖, Jenkins 설정에 둡니다.
 (클릭) GitLab CI는 GitLab에 들어 있습니다. 탭을 바꿔 보면 문법만 다르고 트리거, 러너, 단계는 같은 자리에 있습니다.</aside>
 </section>
 
 <section class="page" id="map" data-title="회사 도구 대응" data-sec="회사에서는">
   <h2 class="ttl">회사에서는 칸마다 도구 이름만 바뀜</h2>
-  <table class="tb" style="left:112px;top:250px;width:1696px;font-size:32px">
+  <table class="tb xl" style="left:112px;top:250px;width:1696px;font-size:40px">
     <thead><tr><th style="width:320px">칸</th><th class="colhl" style="width:440px;padding-left:20px">이 실습</th><th style="width:440px">AWS</th><th>사내, 금융권</th></tr></thead>
     <tbody>
       <tr><td><b>CI 실행기</b></td><td class="colhl" style="padding-left:20px">GitHub Actions</td><td>CodeBuild</td><td>Jenkins</td></tr>
       <tr><td><b>이미지 보관소</b></td><td class="colhl" style="padding-left:20px">Artifact Registry</td><td>ECR</td><td>Nexus</td></tr>
       <tr><td><b>실행 환경</b></td><td class="colhl" style="padding-left:20px">Cloud Run</td><td>ECS, EC2</td><td>사내 쿠버네티스</td></tr>
-      <tr><td><b>배포 인증</b></td><td class="colhl" style="padding-left:20px">WIF</td><td>IAM 역할 + OIDC</td><td>사내 계정, 결재</td></tr>
+      <tr><td><b>배포 인증</b></td><td class="colhl" style="padding-left:20px">WIF</td><td>IAM 역할</td><td>사내 계정, 결재</td></tr>
     </tbody>
   </table>
-  <aside class="notes">칸별로 보면 이렇습니다. AWS로 하면 결과물은 ECR에, 실행은 ECS나 EC2에. 사내나 금융권에서는 Jenkins, Nexus, 사내 쿠버네티스를 많이 씁니다. 특히 금융권은 배포 전에 승인 절차를 거치는 Delivery 형태가 흔합니다. 회사와 시기마다 다르니 면접에서 물어보시면 그 회사 개발 문화를 알 수 있습니다.</aside>
+  <aside class="notes">칸별로 보면 이렇습니다. 칸은 그대로이고 이름만 바뀝니다. 사내나 금융권에서는 Jenkins, Nexus, 사내 쿠버네티스를 많이 씁니다. 면접에서 물어보시면 그 회사 개발 문화가 보입니다.</aside>
 </section>
 
 <!-- ================= 9. 가져가기 ================= -->
 <section class="page" id="reasons" data-title="안 돌아가는 이유" data-steps="2" data-sec="가져가기">
   <h2 class="ttl">학생 프로젝트에서 잘 안 돌아가는 이유</h2>
-  <table class="tb" style="left:112px;top:250px;width:1696px;font-size:34px">
+  <table class="tb xl" style="left:112px;top:250px;width:1696px;font-size:42px">
     <thead><tr><th style="width:820px">흔한 생각</th><th>바꾸면</th></tr></thead>
     <tbody>
       <tr><td><b>배포는 발표 직전에 하는 것</b></td><td>첫날 Hello World 배포</td></tr>
@@ -1165,24 +1203,24 @@ steps:
       <tr data-s="2"><td><b>main에 바로 push해도 됨</b></td><td>브랜치 보호로 검사 통과한 PR만</td></tr>
     </tbody>
   </table>
-  <aside class="notes">학생 프로젝트에서 CI/CD가 잘 안 돌아가는 이유는 대개 이 세 가지입니다. 배포를 발표 직전에 한 번 하는 이벤트로 생각하는 것. 첫날 Hello World를 배포해 두면 발표 주간의 배포는 그냥 또 한 번의 배포입니다.
+  <aside class="notes">이제 여러분 프로젝트로 가져가 보겠습니다. 학생 프로젝트에서 CI/CD가 잘 안 돌아가는 이유는 대개 세 가지입니다. 첫째, 배포를 발표 직전에 한 번 하는 행사로 생각하는 것. 첫날 Hello World를 배포해 두면 발표 주간의 배포는 그냥 또 한 번의 배포입니다.
 (클릭) 테스트가 없으니 CI가 필요 없다고 생각하는 것. 린트와 빌드만 걸어도 오늘 본 사고 두 개는 막힙니다.
-(클릭) 그리고 main에 바로 push하는 것. 브랜치 보호를 걸면 검사를 통과한 PR만 main에 들어갑니다. 팀 규칙을 말 대신 시스템이 지킵니다.</aside>
+(클릭) 그리고 main에 바로 push하는 것. 아까 본 브랜치 보호 한 번이면 검사를 통과한 PR만 main에 들어갑니다.</aside>
 </section>
 
 <section class="page" id="day1" data-title="Day 1 체크리스트" data-steps="4" data-sec="가져가기">
   <h2 class="ttl">첫날 한 시간 체크리스트</h2>
-  <ul class="checks" style="left:112px;top:240px;width:1500px">
+  <ul class="checks xl" style="left:112px;top:240px;width:1696px">
     <li data-c="1"><span class="bx2"></span><div>두 레포에 ci.yml 복사<small>명령만 프로젝트에 맞게</small></div></li>
     <li data-c="2"><span class="bx2"></span><div>프론트는 Vercel 연결<small>레포 Import 한 번</small></div></li>
-    <li data-c="3"><span class="bx2"></span><div>백엔드는 WIF 연결 후 Hello World를 Cloud Run에 첫 배포<small>실습 레포의 gcp-setup.sh</small></div></li>
-    <li data-c="4"><span class="bx2"></span><div>두 레포 main 브랜치 보호 + 필수 검사 지정<small>팀이면 승인 1명</small></div></li>
+    <li data-c="3"><span class="bx2"></span><div>백엔드는 Hello World를 Cloud Run에 첫 배포<small>키 파일 없는 배포 권한 연결(WIF)은 gcp-setup.sh 한 번</small></div></li>
+    <li data-c="4"><span class="bx2"></span><div>두 레포 main 보호: PR 필수 + 필수 검사 + 우회 금지<small>GitHub 무료 요금제는 공개 레포만 보호 가능, 해커톤 레포는 공개가 간편</small></div></li>
   </ul>
   <aside class="notes">그래서 프로젝트 첫날 한 시간 안에 이것만 해 두시길 권합니다.
-(클릭) ci.yml 복사,
-(클릭) Vercel 연결,
-(클릭) 백엔드 Hello World를 Cloud Run에 첫 배포,
-(클릭) 그리고 브랜치 보호. 이후로는 PR 하나가 검사 한 번, 배포 한 번이 됩니다.</aside>
+(클릭) ci.yml 복사. 파일은 가이드북에 그대로 들어 있고, D-7에 터진 빌드 실패가 첫 PR부터 잡힙니다.
+(클릭) Vercel 연결. 배포 주소를 폰으로 한 번 열어 보면 localhost 문제가 첫날 걸립니다.
+(클릭) 백엔드 Hello World를 Cloud Run에 첫 배포. 비밀 키 없이 GitHub가 구글 클라우드에 배포하게 이어 주는 WIF도 가이드북 스크립트 한 번이면 됩니다.
+(클릭) 그리고 브랜치 보호. PR 필수, 필수 검사, 우회 금지를 켭니다. GitHub 무료 요금제에서는 공개 레포만 보호 규칙이 걸리니, 해커톤 레포는 공개로 만드시는 게 편합니다.</aside>
 </section>
 
 <section class="page" id="dongji" data-title="동지톤" data-sec="가져가기">
@@ -1208,36 +1246,37 @@ steps:
   </div>
   <div class="bx" style="left:112px;top:500px;width:420px;height:130px;font-family:var(--f-mono);font-size:30px">cicd-backend<small>실습 백엔드 레포</small></div>
   <div class="ar" style="left:544px;top:564px;width:80px"></div>
-  <div class="bx" style="left:636px;top:500px;width:380px;height:130px">GitHub Actions<small>테스트 후 배포, WIF</small></div>
+  <div class="bx" style="left:636px;top:500px;width:380px;height:130px">GitHub Actions<small>테스트 후 배포</small></div>
   <div class="ar" style="left:1028px;top:564px;width:80px"></div>
   <div class="bx ink" style="left:1120px;top:500px;width:260px;height:130px">Cloud Run</div>
   <div style="position:absolute;left:1420px;top:504px;width:388px" data-s="2">
     <p class="cap">지금 응답 중인 리비전</p>
     <p class="pend" style="margin:6px 0 0;font:800 40px/1.25 var(--f-mono);word-break:break-all" data-live="revision">배포된 주소에서 실시간 표시</p>
   </div>
-  <p class="lead" data-s="2" style="position:absolute;left:112px;top:720px">지금 보고 계신 화면이 PR, 검사, 머지, 배포를 거쳐 올라온 결과</p>
-  <p class="lead nolive" data-live-show="revision" style="position:absolute;left:112px;top:800px;color:var(--ink)"><span class="live-dot"></span>지금 이 순간 서버 응답: <b data-live="message"></b></p>
-  <aside class="notes">마지막으로 하나만 더 보여 드리겠습니다. 지금 보고 계신 이 발표 페이지도 오늘 말씀드린 길로 배포됐습니다. 대본 하나를 고칠 때도 PR을 올리고, GitHub Actions가 화면 넘침과 문구를 검사하고, 머지하면 Vercel이 배포합니다.
+  <p class="big" data-s="2" style="position:absolute;left:112px;top:712px">지금 보고 계신 화면이 PR, 검사, 머지, 배포를 거쳐 올라온 결과</p>
+  <p class="lead nolive" data-s="2" data-live-show="revision" style="position:absolute;left:112px;top:800px;color:var(--ink)"><span class="live-dot"></span>지금 이 순간 서버 응답: <b data-live="message"></b></p>
+  <aside class="notes">마지막으로 하나만 더 보여 드리겠습니다. 지금 보고 계신 이 발표 페이지도 오늘 본 길로 배포됐습니다. 대본 한 줄을 고칠 때도 PR을 올리고, 검사를 통과해야 머지되고, 머지하면 Vercel이 배포합니다.
 (클릭) 이 숫자가 지금 이 화면을 만든 커밋입니다.
-(클릭) 그리고 이건 지금 응답하고 있는 실습 백엔드, Cloud Run 리비전입니다.</aside>
+(클릭) 그리고 이건 지금 응답하고 있는 실습 백엔드의 배포 버전 번호, Cloud Run 리비전입니다.</aside>
 </section>
 
 <section class="page" id="sweep" data-title="정리" data-steps="1">
   <div class="stg" style="position:absolute;left:112px;top:150px;display:flex;align-items:center;gap:26px;font:800 60px/1.2 var(--f-sans);letter-spacing:-1.5px">
     <span>코드 변경</span><span class="faint" style="color:var(--faint)">→</span><span>검사된 소프트웨어</span><span style="color:var(--faint)">→</span><span>실제 서비스</span>
   </div>
-  <p data-s="1" style="position:absolute;left:112px;top:270px;margin:0;font:800 84px/1.2 var(--f-sans);letter-spacing:-2.5px">PR 하나 = 검사 한 번 = 배포 한 번</p>
-  <aside class="notes">오늘 내용을 한 줄로 줄이면, 코드 변경이 검사된 소프트웨어가 되고, 실제 서비스가 되는 길을 자동으로 만드는 것. 그게 CI/CD입니다.
-(클릭) PR 하나가 검사 한 번이고, 배포 한 번입니다. 발표 직전에 몰아서 하던 검사와 배포를 매일 조금씩 기계에게 맡기는 겁니다.</aside>
+  <p data-s="1" style="position:absolute;left:112px;top:270px;margin:0;font:800 84px/1.2 var(--f-sans);letter-spacing:-2.5px">PR마다 검사, 머지마다 배포</p>
+  <aside class="notes">오늘 내용을 한 줄로 줄이겠습니다. 코드 변경이 검사된 소프트웨어가 되고, 다시 실제 서비스가 되기까지. 그 길을 기계가 매번 같은 순서로 가게 만드는 것, 그게 CI/CD입니다.
+(클릭) PR을 올릴 때마다 검사하고, 머지할 때마다 배포합니다. 합치기는 이미 매일 하고 계십니다. 검사와 배포도 첫날부터 기계에게 맡기면, 발표 일주일 전 새벽 3시는 오지 않습니다.</aside>
 </section>
 
 <section class="page" id="qa" data-title="자료와 질문">
   <h2 class="ttl">자료와 질문</h2>
-  <div class="slot" data-cap="qr" style="left:112px;top:250px;width:420px;height:420px"><b>QR 자리</b><span>이 발표 페이지 주소</span></div>
-  <div style="position:absolute;left:620px;top:270px;width:1188px">
+  <div class="slot" data-cap="qr" style="left:112px;top:236px;width:600px;height:600px"><b>QR 자리</b><span>이 발표 페이지 주소</span></div>
+  <div style="position:absolute;left:790px;top:256px;width:1018px">
     <p class="big">이 발표 페이지</p>
-    <p class="lead" style="margin-top:12px">폰으로 열어 오늘 화면을 다시 보기, 실습 가이드북은 발표 후 공유</p>
-    <p style="margin:110px 0 0;font:800 120px/1 var(--f-sans);letter-spacing:-3px">Q&amp;A</p>
+    <p style="margin:14px 0 0;font:700 40px var(--f-mono)">donghongdongrock.vercel.app</p>
+    <p class="lead" style="margin-top:16px">폰으로 열어 오늘 화면을 다시 보기<br>실습 가이드북(ci.yml, gcp-setup.sh 포함)은 발표 후 공유</p>
+    <p style="margin:90px 0 0;font:800 120px/1 var(--f-sans);letter-spacing:-3px">Q&amp;A</p>
   </div>
   <aside class="notes">오늘 화면은 QR로 열면 폰에서 다시 보실 수 있습니다. 실습 가이드북은 발표 끝나고 공유하겠습니다. 질문 받겠습니다. 감사합니다.</aside>
 </section>
@@ -1363,9 +1402,9 @@ steps:
     CAM = {
       ci: fitCam(padR(RG.ci, 24, 120), [40, 236, 1840, 594]),
       cd: fitCam(padR(RG.cd, 24, 120), [40, 236, 1840, 594]),
-      all: fitCam(padR(RG.all, 120, 90), [30, 230, 1860, 560]),
-      allLow: fitCam(padR(RG.all, 120, 90), [30, 452, 1860, 520]),
-      cover: fitCam(padR(RG.all, 120, 90), [30, 556, 1860, 480]),
+      all: fitCam(padR(RG.all, 120, 90), [80, 230, 1760, 560]),
+      allLow: fitCam(padR(RG.all, 120, 90), [80, 452, 1760, 520]),
+      cover: fitCam(padR(RG.all, 120, 90), [80, 556, 1760, 480]),
     };
     /* 가까이 찍기: 제목 아래부터 아래 글 위까지(BZ) 한 장면을 꽉 채움. 창 밖(VZ 바깥)은 흐리게 가림 */
     var BZ = [40, 196, 1840, 630], VZ = [186, 836];
@@ -1389,6 +1428,8 @@ steps:
       e.style.transform = 'rotate('+Math.atan2(dy, dx)+'rad)';
     });
     verEl.style.left = WD.ver[0]+'px'; verEl.style.top = (WD.ver[1] - 8)+'px';
+    (function(){ var cs = world.querySelector('.console'), gh = document.getElementById('wGhost'); if(!cs || !gh) return; var bb = cs.getBBox();
+      gh.style.left = (bb.x - 10)+'px'; gh.style.top = (bb.y - 10)+'px'; gh.style.width = (bb.width + 20)+'px'; gh.style.height = (bb.height + 20)+'px'; })();
     ['v1','v2'].forEach(function(v){ var e = document.getElementById('wcv'+v.slice(1)), q = WD.crates[v]; e.style.left = q[0]+'px'; e.style.top = (q[1] - 6)+'px'; });
     loopEl.style.setProperty('--l0x', WD.loop.from[0]+'px'); loopEl.style.setProperty('--l0y', WD.loop.from[1]+'px');
     loopEl.style.setProperty('--l1x', WD.loop.to[0]+'px'); loopEl.style.setProperty('--l1y', WD.loop.to[1]+'px');
@@ -1428,6 +1469,8 @@ steps:
     var c = CAM[st.cam] || CAM.ci;
     world.style.transform = 'translate('+c.tx+'px,'+c.ty+'px) scale('+c.s+')';
     world.classList.toggle('cam-all', c.s < .7);
+    world.classList.toggle('cam-z', !!c.v);
+    $$('.wl', world).forEach(function(e){ var x = c.tx + parseFloat(e.style.left || 0)*c.s; e.classList.toggle('offcam', x < 90 || x > 1830); });
     view.style.setProperty('--v0', (c.v ? c.v[0] : -80)+'px'); view.style.setProperty('--v1', (c.v ? c.v[1] : 1160)+'px');
     world.style.setProperty('--fs', Math.max(1, 1/c.s).toFixed(3));
     Object.keys(W).forEach(function(name){
@@ -1443,7 +1486,9 @@ steps:
     });
     mergeB.textContent = st.g.merge === 'lock' ? '머지 잠김' : '머지';
     var al = {human:['승인', '사람이 버튼'], up:['승인됨', '사람이 누름'], none:['승인 없음', '바로 통과']}[st.appr] || ['승인', ''];
-    each('appr', function(e){ e.setAttribute('data-st', st.appr); }); apprB.textContent = al[0]; apprS.textContent = al[1];
+    apprB.parentNode.classList.toggle('skipped', st.appr === 'none');
+    each('appr', function(e){ e.setAttribute('data-st', st.appr); });
+    document.getElementById('wGhost').classList.toggle('on', !!st.ghost && !!c.v); apprB.textContent = al[0]; apprS.textContent = al[1];
     each('prod', function(e){ e.setAttribute('data-v', st.prod.v); });
     verEl.textContent = st.prod.v; verEl.classList.toggle('v2', st.prod.v === 'v2');
     blades.forEach(function(b, i){ var k = FAIL_CELLS.indexOf(i); b.classList.toggle('ng', k >= 0 && k < (st.prod.fail||0)); });
@@ -1471,8 +1516,8 @@ steps:
     }
     var o = st.out, po = prevW && prevW.out;
     if(o){
-      var a = ANCH[o.at] ? ANCH[o.at].top : [0, 0];
-      outEl.style.left = a[0]+'px'; outEl.style.top = a[1]+'px';
+      var a = ANCH[o.at] ? ANCH[o.at].top : [0, 0], dx = o.at === 'merge' ? 130 : 0, dy = o.at === 'merge' ? 16 : 0;
+      outEl.style.left = (a[0] + dx)+'px'; outEl.style.top = (a[1] + dy)+'px';
       outEl.textContent = o.t;
       outEl.className = (o.st||'') + (o.ko ? ' ko' : '');
       if(!inst && (!po || po.t !== o.t || po.at !== o.at)){ void outEl.offsetWidth; outEl.classList.add('pop'); }
@@ -1548,11 +1593,11 @@ steps:
     },
 
     push:{ base:M(ONCI, {cap:{x:'dev', t:'e41b7d2', show:1}}),
-      steps:{1:[{cap:{x:'entry'}}, {t:800, out:{at:'entry', t:'워크플로 시작', ko:1}}]} },
+      steps:{1:[{cap:{x:'entry'}}, {t:800, out:{at:'entry', t:'검사 시작', ko:1}}]} },
 
-    gates:{ base:M(ONCI, {cap:{x:'entry', t:'e41b7d2', show:1}, out:{at:'entry', t:'워크플로 시작', ko:1}}),
+    gates:{ base:M(ONCI, {cap:{x:'entry', t:'e41b7d2', show:1}, out:{at:'entry', t:'검사 시작', ko:1}}),
       steps:{1:zgate('install'), 2:zgate('lint'), 3:zgate('test'),
-             4:zgate('build').concat([{t:600, cap:{x:'merge'}, g:{merge:'open'}, cam:'mergeZ'}])} },
+             4:zgate('build').concat([{t:600, cap:{x:'merge'}, g:{merge:'open'}}])} },
 
     runner:{ base:M(ONCI, {g:{install:'ok', lint:'ok', test:'ok', build:'ok', merge:'open'}, cap:{x:'merge', t:'e41b7d2', show:1}}),
       steps:{1:[{show:{runner:1}}]} },
@@ -1575,7 +1620,7 @@ steps:
     delivery:{ base:M(STAGED, {show:{appr:1}, appr:'human'}),
       enter:[{t:700, cam:'apprZ'}, {t:300, cap:{x:'pre'}, out:{at:'appr', t:'승인 대기', ko:1}}],
       steps:{1:[{appr:'up', out:null}, {t:650, cam:'shipZ'}].concat(cdShip('v2', {t:250}))} },
-    deploy:{ base:M(STAGED, {show:{appr:1}, appr:'none', out:null, cam:'shipZ'}),
+    deploy:{ base:M(STAGED, {show:{appr:1}, appr:'none', out:null, cam:'shipZ', ghost:1}),
       steps:{1:cdShip('v2', {t:0})} },
 
     full:{ base:{on:1, cam:'all', show:{brCI:1, brCD:1, appr:1}, appr:'none', cap:{x:'dev', t:'3f9a2c1', show:1}},
@@ -1639,6 +1684,7 @@ steps:
       $$('.tabp', page).forEach(function(t){ t.classList.toggle('hid', +t.dataset.tabp !== s); });
     },
     day1:function(s, page){ $$('.checks li', page).forEach(function(li){ li.classList.toggle('ck', +li.dataset.c <= s); }); },
+    self:function(){ loadLive(0); },
     delivery:function(s){ var b = document.getElementById('approveBtn'); b.classList.toggle('done', s >= 1); b.textContent = s >= 1 ? '승인됨' : '승인하고 배포'; }
   };
 
@@ -1748,20 +1794,26 @@ steps:
   $$('.tab', stage).forEach(function(t){ t.addEventListener('click', function(e){ e.stopPropagation(); if(pages[P].id === 'tools'){ S = +t.dataset.tab; render('step'); } }); });
 
   /* ---------- 실시간 배포 정보 (배포된 주소에서만) ---------- */
-  var LIVE = window.DHDL || {};
+  var LIVE = window.DHDL || {}, liveOk = false, liveBusy = false;
+  // 응답 중인 리비전: 처음 열 때 한 번, 실패하면 두 번 더, 그리고 44장에 들어올 때마다 다시
+  function loadLive(n){
+    if(liveOk || liveBusy || !(LIVE.api && /^https?:$/.test(location.protocol) && window.fetch)) return;
+    liveBusy = true;
+    var ctl = window.AbortController ? new AbortController() : null;
+    var to = setTimeout(function(){ if(ctl) ctl.abort(); }, 8000);
+    function again(){ clearTimeout(to); liveBusy = false; if(n < 2) setTimeout(function(){ loadLive(n + 1); }, 1500); }
+    fetch(LIVE.api.replace(/\/$/, '') + '/api/hello', ctl ? {signal: ctl.signal} : {})
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){ if(d && d.revision){ clearTimeout(to); liveBusy = false; liveOk = true; setLive('message', d.message || ''); setLive('revision', d.revision); } else again(); })
+      .catch(again);
+  }
   function setLive(key, val){
     $$('[data-live="'+key+'"]').forEach(function(e){ e.textContent = val; e.classList.remove('pend'); });
     $$('[data-live-show="'+key+'"]').forEach(function(e){ e.classList.remove('nolive'); });
   }
   if(LIVE.commit) setLive('commit', LIVE.commit);
-  if(LIVE.api && /^https?:$/.test(location.protocol) && window.fetch){
-    var ctl = window.AbortController ? new AbortController() : null;
-    var to = setTimeout(function(){ if(ctl) ctl.abort(); }, 5000);
-    fetch(LIVE.api.replace(/\/$/, '') + '/api/hello', ctl ? {signal: ctl.signal} : {})
-      .then(function(r){ return r.ok ? r.json() : null; })
-      .then(function(d){ clearTimeout(to); if(d && d.revision){ setLive('message', d.message || ''); setLive('revision', d.revision); } })
-      .catch(function(){ clearTimeout(to); });
-  }
+  if(LIVE.revision){ setLive('message', LIVE.message || ''); setLive('revision', LIVE.revision); }
+  loadLive(0);
 
   var m = location.hash.match(/^#p(\d+)(?:-(\d+))?$/);
   fit();

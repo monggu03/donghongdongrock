@@ -29,8 +29,17 @@ api = os.environ.get('DHDL_API_URL', '').strip().rstrip('/')
 sha = os.environ.get('VERCEL_GIT_COMMIT_SHA', '').strip()[:7]
 prod = os.environ.get('VERCEL_PROJECT_PRODUCTION_URL', '').strip()
 live = {'api': api, 'commit': sha}
+if api:  # 발표장 와이파이가 안 될 때를 대비해 빌드 때 확인한 리비전을 넣어 둠 (실시간 값이 오면 덮어씀)
+    try:
+        import urllib.request
+        with urllib.request.urlopen(api + '/api/hello', timeout=6) as r:
+            d = json.loads(r.read().decode('utf-8'))
+        if d.get('revision'):
+            live['revision'] = str(d['revision']); live['message'] = str(d.get('message', ''))
+    except Exception:
+        pass
 src = src.replace('/*LIVE*/{}', json.dumps(live, ensure_ascii=False))
-log.append(f"live: api={'있음' if api else '없음'} commit={sha or '-'}")
+log.append(f"live: api={'있음' if api else '없음'} commit={sha or '-'} revision={live.get('revision', '-')}")
 
 # ---------- 파이프라인 기계 그림 (node world/build.mjs 로 다시 만듦) ----------
 WORLD = os.path.join(ROOT, 'world')
