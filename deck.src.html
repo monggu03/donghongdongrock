@@ -237,7 +237,6 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 .ch5{display:flex;gap:14px}
 .ch5 span{padding:12px 24px;border-radius:12px;background:var(--ok-soft);color:var(--ok);font:700 28px/1.2 var(--f-sans)}
 .notr .drw *{transition:none!important}
-#wCap.popin{animation:capin .35s ease}
 @keyframes capin{from{opacity:0}to{opacity:1}}
 
 /* 도움말·발표자·라이브 */
@@ -249,116 +248,138 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 .live-dot{display:inline-block;width:16px;height:16px;border-radius:50%;background:var(--ok);margin-right:12px;vertical-align:2px}
 #jump{position:absolute;left:56px;bottom:26px;font:700 28px var(--f-mono);color:var(--sub);z-index:20}
 
-/* ================= 파이프라인 세계 (3400×1080) ================= */
-#world{position:absolute;left:0;top:0;z-index:1;width:3400px;height:1080px;transform-origin:0 0;opacity:0;pointer-events:none;transition:transform 1.1s cubic-bezier(.65,0,.25,1),opacity .45s ease}
+/* ================= 파이프라인 기계 (world/build.mjs가 그린 아이소메트릭 SVG) ================= */
+/*ISO_CSS*/
+#world{position:absolute;left:0;top:0;z-index:1;transform-origin:0 0;opacity:0;pointer-events:none;transition:transform 1.15s cubic-bezier(.65,0,.25,1),opacity .45s ease;
+  --anatomy-paper:#FAFAF7;--anatomy-card:#FAFAF7;--anatomy-weight:1.25px;--anatomy-hi:#1E1E1C;--anatomy-lit:#1E1E1C;--anatomy-dot:#2E2E2B;
+  --anatomy-red:#CF222E;--anatomy-green:#1A7F37;--anatomy-blue:#2F5BD3}
 #world.on{opacity:1}
 #world.on.dim{opacity:.13}
 #world.inst,#world.inst *{transition:none!important}
-.w{position:absolute;transition:opacity .4s ease}
-.w.off{opacity:0}
-.w.fade{opacity:.2}
-.w-dev{box-sizing:border-box;border:3px solid var(--ink);border-radius:26px;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:18px 0 16px}
-.w-dev svg{width:110px;height:70px}
-.w-dev .dt{display:flex;flex-direction:column;align-items:center;gap:2px}
-.cam-all .w-dev svg{width:84px;height:54px}
-.cam-all .w-dev small{display:none}
-.w-dev b{font:800 34px/1.2 var(--f-sans)}
-.w-dev small{font:500 24px/1.3 var(--f-sans);color:var(--sub)}
-.w-tube{box-sizing:border-box;border-radius:36px;background:var(--tube);border:2px solid #D3D3CB;overflow:hidden}
-.w-fill{position:absolute;left:0;top:0;bottom:0;width:0;background:#CDEBD5;transition:width .75s var(--ease),background .3s}
-.w-fill.ng{background:#F7CFD2}
-.w-rail{box-sizing:border-box;border-top:4px solid var(--line2);border-bottom:4px solid var(--line2);background:repeating-linear-gradient(90deg,transparent 0 36px,#DADAD2 36px 44px)}
-.w-g,.w-st,.w-appr{top:0;width:0;height:0}
-.w-g .ring{position:absolute;left:-24px;top:516px;width:48px;height:168px;box-sizing:border-box;border:5px solid #C9C9C1;border-radius:24px;background:#fff;transition:border-color .3s,background .3s,opacity .3s}
-.w-g.mg .ring{left:-32px;width:64px;border-radius:16px}
-.w-st .box{position:absolute;left:-96px;top:504px;width:192px;height:192px;box-sizing:border-box;border:4px solid #C9C9C1;border-radius:26px;background:rgba(255,255,255,.75);transition:border-color .3s,background .3s}
-.w-st .press{position:absolute;left:-70px;top:516px;width:140px;height:14px;border-radius:7px;background:var(--line2)}
-.w-st[data-st="run"] .press{animation:press .5s var(--ease) 2}
-@keyframes press{50%{transform:translateY(54px);background:var(--ink)}}
-.w .ic{position:absolute;left:-26px;top:440px;width:52px;height:52px}
-.w-g b,.w-st b,.w-appr b{position:absolute;left:-160px;width:320px;top:712px;text-align:center;font:800 34px/1.2 var(--f-sans);color:var(--ink);transition:color .3s}
-.w-g small,.w-st small,.w-appr small{position:absolute;left:-160px;width:320px;top:758px;text-align:center;font:500 24px/1.3 var(--f-mono);color:var(--sub);transition:opacity .3s}
-.w-st small,.w-appr small{font-family:var(--f-sans)}
-.w-g[data-st="run"] .ring,.w-st[data-st="run"] .box{border-color:var(--run)}
-.w-g[data-st="ok"] .ring,.w-g[data-st="open"] .ring,.w-st[data-st="ok"] .box{border-color:var(--ok);background:var(--ok-soft)}
-.w-g[data-st="ng"] .ring,.w-g[data-st="lock"] .ring{border-color:var(--ng);background:var(--ng-soft)}
-.w-g[data-st="ng"] b,.w-g[data-st="lock"] b{color:var(--ng)}
-.w-g[data-st="skip"] .ring{border-style:dashed;opacity:.55}
-.w-g[data-st="skip"] b,.w-g[data-st="skip"] small{color:var(--faint)}
-.w-st .stack{position:absolute;left:-96px;top:380px;width:192px;display:flex;justify-content:center;gap:12px}
-.vc{width:78px;height:50px;border-radius:12px;background:var(--old);color:var(--ink);font:800 28px/50px var(--f-sans);text-align:center;transition:opacity .3s,box-shadow .3s,transform .3s}
-.vc.v2{background:var(--new);color:#fff}
-.vc.off{display:none}
-.vc.hi{box-shadow:0 0 0 6px var(--or)}
-.vc.in{animation:pop .45s var(--ease) both}
-.w-appr .bar{position:absolute;left:-17px;top:504px;width:34px;height:192px;border-radius:17px;background:var(--or);box-sizing:border-box;transition:transform .6s var(--ease),opacity .4s,background .3s,border-color .3s}
-.w-appr .cap{position:absolute;left:-30px;top:482px;width:60px;height:22px;border-radius:8px;background:var(--ink)}
-.w-appr[data-st="up"] .bar{transform:translateY(-150px);opacity:.3}
-.w-appr[data-st="none"] .bar{background:transparent;border:4px dashed var(--line2)}
-.w-appr[data-st="none"] .cap{background:var(--line2)}
-.w-appr[data-st="none"] b{color:var(--faint)}
-.w-prod{box-sizing:border-box;border:4px solid var(--ink);border-radius:28px;background:var(--card)}
-.w-prod b{position:absolute;left:32px;top:24px;font:800 36px/1.2 var(--f-sans)}
-.w-prod small{position:absolute;left:32px;top:72px;font:500 24px/1.3 var(--f-sans);color:var(--sub);transition:opacity .3s}
-.w-prod .ver{position:absolute;right:28px;top:24px;padding:0 20px;height:52px;border-radius:26px;background:var(--old);font:800 32px/52px var(--f-sans);transition:background .3s,color .3s}
-.w-prod[data-v="v2"] .ver{background:var(--new);color:#fff}
-.w-prod .cells{position:absolute;left:30px;top:124px;display:grid;grid-template-columns:repeat(4,96px);gap:14px}
-.w-prod .cells i{height:60px;border-radius:12px;background:var(--old);transition:background .35s ease}
-.w-prod[data-v="v2"] .cells i{background:var(--new)}
-.w-prod .cells i.ng{background:var(--ng)!important}
-.w-prod .cells i:nth-child(1){transition-delay:0s}.w-prod .cells i:nth-child(2){transition-delay:.05s}.w-prod .cells i:nth-child(3){transition-delay:.1s}.w-prod .cells i:nth-child(4){transition-delay:.15s}
-.w-prod .cells i:nth-child(5){transition-delay:.2s}.w-prod .cells i:nth-child(6){transition-delay:.25s}.w-prod .cells i:nth-child(7){transition-delay:.3s}.w-prod .cells i:nth-child(8){transition-delay:.35s}
-.w-prod .cells i:nth-child(9){transition-delay:.4s}.w-prod .cells i:nth-child(10){transition-delay:.45s}.w-prod .cells i:nth-child(11){transition-delay:.5s}.w-prod .cells i:nth-child(12){transition-delay:.55s}
-.w-br{height:46px}
-.w-br::before{content:"";position:absolute;left:0;right:0;top:21px;height:3px;background:var(--line2)}
-.w-br::after{content:"";position:absolute;left:0;right:0;top:21px;height:24px;border-left:3px solid var(--line2);border-right:3px solid var(--line2)}
-.w-br span{position:relative;z-index:1;display:block;width:max-content;margin:0 auto;padding:0 22px;background:var(--bg);font:800 36px/46px var(--f-sans);color:var(--ink)}
-.w-runner{box-sizing:border-box;border:4px dashed var(--ink);border-radius:32px;background:rgba(30,30,28,.035)}
-.w-runner b{position:absolute;left:32px;top:14px;font:800 36px/1.2 var(--f-sans)}
-.w-runner small{position:absolute;left:32px;top:58px;font:600 26px/1.3 var(--f-mono);color:var(--sub)}
-#wCap,#wLoop{position:absolute;left:0;top:572px;width:172px;height:56px;margin-left:-86px;border-radius:28px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;box-sizing:border-box;font:700 26px/1 var(--f-mono);z-index:4;transition:transform .75s var(--ease),background .3s,width .4s,height .4s,top .4s,margin .4s,border-radius .4s,opacity .35s}
-#world.fast #wCap{transition-duration:.42s,.3s,.4s,.4s,.4s,.4s,.4s,.35s}
-#world.vfast #wCap{transition-duration:.3s,.2s,.3s,.3s,.3s,.3s,.3s,.3s}
-#world.vfast .w-fill{transition-duration:.3s,.3s}
-#world.fast .w-fill{transition-duration:.42s,.3s}
-#wCap.ng{background:var(--ng)}
-#wCap .v{display:none;font:800 50px/1 var(--f-sans)}
-#wCap.cube{width:126px;height:126px;top:537px;margin-left:-63px;border-radius:24px;background:var(--new)}
-#wCap.cube.old{background:#8E8E86}
-#wCap.cube .t{display:none} #wCap.cube .v{display:block}
-#wCap.gone{opacity:0}
-#wCap.notr{transition:none!important}
-#wCap.shk{animation:capshk .45s ease}
-@keyframes capshk{0%,100%{margin-left:-86px}20%{margin-left:-110px}40%{margin-left:-66px}60%{margin-left:-98px}80%{margin-left:-80px}}
-#wLoop{display:none;transition:none}
-#world.loop #wLoop{display:flex;animation:loopx 9s linear infinite}
-@keyframes loopx{from{transform:translateX(380px)}to{transform:translateX(2900px)}}
-#world.loop .w-g .ring,#world.loop .w-st .box{animation:flash 9s linear infinite;animation-delay:var(--ld)}
-@keyframes flash{0%{border-color:#C9C9C1;background:#fff}1.5%,28%{border-color:var(--ok);background:var(--ok-soft)}32%,100%{border-color:#C9C9C1;background:#fff}}
-#wOut{position:absolute;left:0;top:366px;height:58px;padding:0 24px;transform:translateX(-50%);border-radius:16px;background:var(--card);border:3px solid var(--line2);font:600 26px/52px var(--f-mono);color:var(--ink);white-space:nowrap;box-sizing:border-box;z-index:4;transition:opacity .25s}
+#world>svg{position:absolute;left:0;top:0;overflow:visible}
+#world .w{transition:opacity .45s ease}
+#world .w.off{opacity:0}
+#world .w.fade{opacity:.16}
+#world .iso-halo{filter:blur(10px)}
+/* 상태 램프 */
+#world .lamp-cap>.iso-top{fill:#DADAD4;transition:fill .3s}
+#world .lamp-cap>.iso-shade{transition:fill .3s}
+#world [data-st="run"] .lamp-cap>.iso-top{fill:#E3B341;animation:lampblink .5s steps(1) infinite}
+#world [data-st="ok"] .lamp-cap>.iso-top,#world [data-st="open"] .lamp-cap>.iso-top{fill:var(--ok)}
+#world [data-st="ng"] .lamp-cap>.iso-top,#world [data-st="lock"] .lamp-cap>.iso-top{fill:var(--ng)}
+@keyframes lampblink{50%{fill:#F3DFA8}}
+/* 설치: 호퍼에서 패키지가 떨어짐 */
+#world .drops{opacity:0}
+#world [data-st="run"] .drops{opacity:1}
+#world [data-st="run"] .pkg{animation:pkgfall .6s linear infinite}
+@keyframes pkgfall{0%{transform:translate(0,0);opacity:0}15%{opacity:1}100%{transform:translate(var(--fx),var(--fy));opacity:0}}
+/* 린트: 솔이 좌우로 */
+#world [data-st="run"] .teeth{animation:brushing .22s ease-in-out infinite alternate}
+@keyframes brushing{from{transform:translate(calc(var(--sx)*-1),calc(var(--sy)*-1))}to{transform:translate(var(--sx),var(--sy))}}
+/* 테스트: 다이얼 바늘 */
+#world .zone{stroke-width:3.2px}
+#world .zone.ok{stroke:var(--ok)} #world .zone.ng{stroke:var(--ng)}
+#world .needle{stroke:var(--ink);stroke-width:2.2px;opacity:0;transition:opacity .3s}
+#world [data-w="test"] .n0{opacity:1}
+#world [data-w="test"][data-st="run"] .n0{animation:needlewob .25s ease-in-out infinite alternate}
+#world [data-w="test"][data-st="ok"] .n0,#world [data-w="test"][data-st="ng"] .n0{opacity:0}
+#world [data-st="ok"] .n1,#world [data-st="ng"] .n2{opacity:1}
+#world [data-st="ng"] .n2{stroke:var(--ng)}
+@keyframes needlewob{from{opacity:.35}to{opacity:1}}
+/* 빌드·포장: 누름판 */
+#world [data-st="run"] .head{animation:pressing .45s ease-in-out 2}
+@keyframes pressing{50%{transform:translate(var(--px),var(--py))}}
+/* 머지: 차단봉과 자물쇠 */
+#world .gbar{transition:transform .7s var(--ease)}
+#world [data-st="open"] .gbar{transform:translate(var(--ux),var(--uy))}
+#world .shackle{transition:transform .5s var(--ease)}
+#world [data-st="open"] .shackle{transform:translate(0,-7px)}
+#world [data-st="lock"] .lockbody .iso-edge{stroke:var(--ng)}
+/* 승인: 버튼(주황)과 멈춤판, Deployment에서는 사라짐 */
+#world .console .iso-solid.button>.iso-top{fill:var(--or)}
+#world .console .iso-solid.button>.iso-shade{fill:#F7A06A}
+#world .stripe{fill:var(--or)}
+#world .stop,#world .btn{transition:transform .5s var(--ease),opacity .5s}
+#world [data-st="up"] .stop{transform:translate(var(--dx),var(--dy));opacity:0}
+#world [data-st="up"] .btn{transform:translate(var(--bx),var(--by))}
+#world [data-st="none"] .stop,#world [data-st="none"] .console{opacity:0}
+/* 스테이징·운영 랙 */
+#world .screen{fill:#EEF0EA}
+#world .blade{fill:#F4F4F1;stroke:var(--anatomy-lo);stroke-width:1px;transition:stroke .3s}
+#world .led{fill:#CFCFC7;transition:fill .35s}
+#world [data-st="ok"] .stg-led{fill:var(--ok)}
+#world [data-st="run"] .stg-led{fill:#E3B341}
+#world [data-v="v2"] .led{fill:var(--new)}
+#world .blade-g.ng .led{fill:var(--ng)!important}
+#world .blade-g.ng .blade{stroke:var(--ng)}
+#world .cells .blade-g:nth-child(1) .led{transition-delay:0s}#world .cells .blade-g:nth-child(2) .led{transition-delay:.06s}#world .cells .blade-g:nth-child(3) .led{transition-delay:.12s}
+#world .cells .blade-g:nth-child(4) .led{transition-delay:.18s}#world .cells .blade-g:nth-child(5) .led{transition-delay:.24s}#world .cells .blade-g:nth-child(6) .led{transition-delay:.3s}
+#world .cells .blade-g:nth-child(7) .led{transition-delay:.36s}#world .cells .blade-g:nth-child(8) .led{transition-delay:.42s}#world .cells .blade-g:nth-child(9) .led{transition-delay:.48s}
+#world .cells .blade-g:nth-child(10) .led{transition-delay:.54s}#world .cells .blade-g:nth-child(11) .led{transition-delay:.6s}#world .cells .blade-g:nth-child(12) .led{transition-delay:.66s}
+/* 상자(이미지): v2 파란 띠, v1 회색 띠 */
+#world .band{fill:var(--new)}
+#world .shelf-v1 .band,#world .c-crate.v1 .band{fill:#A9A9A2}
+#world .shelf-v2{transition:opacity .45s,transform .45s var(--ease)}
+#world .shelf-v2.off{opacity:0;transform:translate(0,-14px)}
+#world .crate.hi>.iso-solid>.iso-edge{stroke:var(--or);stroke-width:3px}
+/* 커밋 카트 */
+#wCart,#wLoop{transition:transform .75s var(--ease),opacity .35s}
+#world.fast #wCart{transition-duration:.42s,.3s}
+#world.vfast #wCart{transition-duration:.3s,.2s}
+#wCart .c-crate,#wLoop .c-crate{opacity:0;transition:opacity .35s}
+#wCart .c-cart{transition:opacity .35s}
+#wCart.cube .c-cart{opacity:0}
+#wCart.cube:not(.old) .c-crate.v2,#wCart.cube.old .c-crate.v1{opacity:1}
+#wCart.ng .c-cart .iso-top{fill:var(--ng-soft)}
+#wCart.ng .c-cart .iso-edge{stroke:var(--ng)}
+#wCart.gone{opacity:0}
+#wCart.notr{transition:none!important}
+#wCart.popin{animation:capin .35s ease}
+#wCart.shk .c-cart{animation:cartshk .45s ease}
+@keyframes cartshk{0%,100%{transform:translate(0,0)}20%{transform:translate(-9px,-1px)}40%{transform:translate(8px,1px)}60%{transform:translate(-5px,0)}80%{transform:translate(3px,0)}}
+#wLoop{opacity:0}
+#world.loop #wLoop{opacity:1;animation:loopmove 9s linear infinite}
+@keyframes loopmove{from{transform:translate(var(--l0x),var(--l0y))}to{transform:translate(var(--l1x),var(--l1y))}}
+#world.loop [data-ld] .lamp-cap>.iso-top{animation:lampflash 9s linear infinite;animation-delay:var(--ld)}
+@keyframes lampflash{0%{fill:#DADAD4}1.5%,26%{fill:var(--ok)}30%,100%{fill:#DADAD4}}
+/* 글자 덧붙임(기계 바깥: 이름표, 괄호, 결과 칩). --fs = 1/카메라 배율 → 화면에서는 늘 같은 크기 */
+#world{--fs:1}
+.wl,.wbr span,.wrun b,.wrun small,.wver,#wTag,#wOut{transition-property:font-size,opacity,color,background,border-color,transform;transition-duration:1.15s,.3s,.3s,.3s,.3s,.75s;transition-timing-function:cubic-bezier(.65,0,.25,1),ease,ease,ease,ease,var(--ease)}
+.wl{position:absolute;transform:translateX(-50%);display:grid;grid-template-columns:auto auto;column-gap:.3em;align-items:center;justify-items:start;white-space:nowrap;font-size:calc(34px*var(--fs))}
+.wl .ic{width:1.15em;height:1.15em}
+.wl b{font:800 1em/1.2 var(--f-sans);color:var(--ink);transition:color .3s}
+.wl small{grid-column:1/3;justify-self:center;font:500 .72em/1.35 var(--f-mono);color:var(--sub)}
+.wl[data-st="ng"] b,.wl[data-st="lock"] b{color:var(--ng)}
+.wl[data-st="skip"] b,.wl[data-st="skip"] small{color:var(--faint)}
+.wbr{position:absolute;height:46px;transform-origin:0 50%}
+.wbr::before{content:"";position:absolute;left:0;right:0;top:21px;height:3px;background:var(--line2)}
+.wbr::after{content:"";position:absolute;left:0;right:0;top:21px;height:24px;border-left:3px solid var(--line2);border-right:3px solid var(--line2)}
+.wbr span{position:absolute;left:50%;top:23px;transform:translate(-50%,-50%);padding:0 .6em;background:var(--bg);font:800 calc(36px*var(--fs))/1.3 var(--f-sans);color:var(--ink);white-space:nowrap}
+.wrun{position:absolute;transform:translate(0,-100%);padding-bottom:12px}
+.wrun b{display:block;font:800 calc(36px*var(--fs))/1.2 var(--f-sans)}
+.wrun small{display:block;font:600 calc(26px*var(--fs))/1.3 var(--f-mono);color:var(--sub)}
+.wver{position:absolute;transform:translate(-50%,-100%);padding:0 .65em;border-radius:999px;background:var(--old);font:800 calc(34px*var(--fs))/1.6 var(--f-sans);color:var(--ink)}
+.wver.v2{background:var(--new);color:#fff}
+#wTag{position:absolute;left:0;top:0;height:1.9em;padding:0 .7em;border-radius:999px;background:var(--ink);color:#fff;font:700 calc(24px*var(--fs))/1.9em var(--f-mono);white-space:nowrap;translate:-50% 0}
+#world.fast #wTag{transition-duration:1.15s,.3s,.3s,.3s,.3s,.42s}
+#world.vfast #wTag{transition-duration:1.15s,.2s,.2s,.2s,.2s,.3s}
+#wTag.ng{background:var(--ng)}
+#wTag.gone{opacity:0}
+#wTag.notr{transition:none!important}
+#wOut{position:absolute;left:0;top:0;padding:0 .9em;transform:translate(-50%,-100%);border-radius:.6em;background:var(--card);border:3px solid var(--line2);font:600 calc(26px*var(--fs))/2em var(--f-mono);color:var(--ink);white-space:nowrap;box-sizing:border-box;z-index:4}
 #wOut.ok{border-color:var(--ok);color:var(--ok)}
 #wOut.ng{border-color:var(--ng);color:var(--ng);background:var(--ng-soft)}
 #wOut.ko{font-family:var(--f-sans);font-weight:700}
 #wOut.gone{opacity:0}
 #wOut.pop{animation:outpop .35s var(--ease)}
-@keyframes outpop{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translateX(-50%)}}
-/* 멀리서 볼 때(축소)는 글자를 키우고 보조 글자는 숨김 */
-.cam-all .w-g b,.cam-all .w-st b,.cam-all .w-appr b{font-size:56px;top:716px}
-.cam-all .w-g small,.cam-all .w-st small,.cam-all .w-appr small,.cam-all .w-dev small,.cam-all .w-prod small{opacity:0}
-.cam-all .w-dev b{font-size:48px}
-.cam-all .w-prod b{font-size:54px}
-.cam-all .w-dev b{margin-top:8px}
-.cam-all .w-prod .ver{font-size:52px;height:72px;line-height:72px;top:18px}
-.cam-all .w-br span{font-size:66px;line-height:80px;margin-top:-18px}
-.cam-all #wCap,.cam-all #wLoop{height:84px;top:558px;width:260px;margin-left:-130px;border-radius:42px;font-size:46px}
-.cam-all #wCap.cube{width:156px;height:156px;top:522px;margin-left:-78px}
-.cam-all #wOut{font-size:46px;height:86px;line-height:80px;top:330px;padding:0 30px}
-.cam-all .vc{width:86px;height:64px;font-size:46px;line-height:64px}
-.cam-all .w-st .stack{top:362px;gap:8px}
+@keyframes outpop{from{opacity:0;translate:0 16px}to{opacity:1;translate:0 0}}
+/* 멀리서 볼 때(축소)는 보조 글자를 숨김 */
+.cam-all .wl small,.cam-all .wl .ic,.cam-all .wrun small{display:none}
+.cam-all .wl{font-size:calc(30px*var(--fs))}
 
 /* 정적 모드(검사용): 모든 움직임을 끝 상태로 */
 .static *,.static *::before,.static *::after{transition:none!important;animation-duration:0s!important;animation-delay:0s!important;animation-iteration-count:1!important}
-.static #world.loop #wLoop{display:none}
+.static #world.loop #wLoop{opacity:0}
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01s!important;animation-duration:.01s!important}}
 
 /* 발표자 창 */
@@ -379,36 +400,24 @@ body.presenter{overflow:auto;background:#141413;color:#EDEDE6}
 <div id="prog"></div>
 <div id="sec"></div>
 
-<!-- ================= 파이프라인 세계: 모든 장이 같은 지도 위에서 상태만 바뀜 ================= -->
-<div id="world" aria-hidden="true">
-  <div class="w w-br" data-w="brCI" style="left:340px;width:1440px;top:248px"><span>CI · 지속적 통합</span></div>
-  <div class="w w-br" data-w="brCD" style="left:1840px;width:1450px;top:248px"><span>CD · 지속적 전달과 배포</span></div>
-  <div class="w w-runner" data-w="runner" style="left:468px;top:318px;width:1014px;height:494px"><b>러너</b><small>runs-on: ubuntu-latest</small></div>
-
-  <div class="w w-dev" data-w="dev" style="left:70px;top:470px;width:270px;height:260px">
-    <svg viewBox="0 0 110 70" aria-hidden="true"><rect x="16" y="4" width="78" height="50" rx="6" fill="none" stroke="#1E1E1C" stroke-width="5"/><path d="M4 62h102" stroke="#1E1E1C" stroke-width="6" stroke-linecap="round"/><path d="M40 22l-8 7 8 7M70 22l8 7-8 7" fill="none" stroke="#1E1E1C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <div class="dt"><b>내 컴퓨터</b><small>코드 수정, 커밋</small></div>
-  </div>
-  <div class="w w-tube" data-w="tube" style="left:340px;top:566px;width:1440px;height:68px"><i class="w-fill" id="wFill"></i></div>
-  <div class="w w-rail" data-w="rail" style="left:1780px;top:584px;width:1040px;height:32px"></div>
-
-  <div class="w w-g" data-w="install" style="left:600px"><i class="ring"></i><svg class="ic" viewBox="0 0 40 40"></svg><b>설치</b><small>npm ci</small></div>
-  <div class="w w-g" data-w="lint" style="left:850px"><i class="ring"></i><svg class="ic" viewBox="0 0 40 40"></svg><b>린트</b><small>npm run lint</small></div>
-  <div class="w w-g" data-w="test" style="left:1100px"><i class="ring"></i><svg class="ic" viewBox="0 0 40 40"></svg><b>테스트</b><small>npm test</small></div>
-  <div class="w w-g" data-w="build" style="left:1350px"><i class="ring"></i><svg class="ic" viewBox="0 0 40 40"></svg><b>빌드</b><small>npm run build</small></div>
-  <div class="w w-g mg" data-w="merge" style="left:1620px"><i class="ring"></i><svg class="ic" viewBox="0 0 40 40"></svg><b>머지</b><small>main</small></div>
-
-  <div class="w w-st" data-w="image" style="left:1960px"><i class="box"></i><i class="press"></i><svg class="ic" viewBox="0 0 40 40"></svg><b>포장</b><small>이미지 만들기</small></div>
-  <div class="w w-st" data-w="reg" style="left:2200px"><i class="box"></i><div class="stack"><span class="vc" data-v="v1">v1</span><span class="vc v2" data-v="v2">v2</span></div><svg class="ic" viewBox="0 0 40 40"></svg><b>보관</b><small>이미지 보관소</small></div>
-  <div class="w w-st" data-w="stg" style="left:2440px"><i class="box"></i><svg class="ic" viewBox="0 0 40 40"></svg><b>스테이징</b><small>리허설 환경</small></div>
-  <div class="w w-appr" data-w="appr" style="left:2680px"><i class="cap"></i><i class="bar"></i><b id="wApprB">승인</b><small id="wApprS">사람이 버튼</small></div>
-  <div class="w w-prod" data-w="prod" style="left:2820px;top:422px;width:470px;height:356px">
-    <b>운영</b><small>실제 사용자</small><span class="ver" id="wVer">v1</span>
-    <div class="cells"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  </div>
-
-  <div id="wCap"><span class="t"></span><span class="v"></span></div>
-  <div id="wLoop">커밋</div>
+<!-- ================= 파이프라인 기계: world/build.mjs가 그린 SVG + 글자 덧붙임. 모든 장이 같은 기계 위에서 상태만 바뀜 ================= -->
+<div id="world" class="iso" data-theme="light" aria-hidden="true">
+  <!--WORLD_SVG-->
+  <div class="wbr w" data-w="brCI" id="wbrCI"><span>CI · 지속적 통합</span></div>
+  <div class="wbr w" data-w="brCD" id="wbrCD"><span>CD · 지속적 전달과 배포</span></div>
+  <div class="wl w" data-w="dev" data-at="dev"><b>내 컴퓨터</b><small>코드 수정, 커밋</small></div>
+  <div class="wl w" data-w="install" data-at="install"><svg class="ic" viewBox="0 0 40 40"></svg><b>설치</b><small>npm ci</small></div>
+  <div class="wl w" data-w="lint" data-at="lint"><svg class="ic" viewBox="0 0 40 40"></svg><b>린트</b><small>npm run lint</small></div>
+  <div class="wl w" data-w="test" data-at="test"><svg class="ic" viewBox="0 0 40 40"></svg><b>테스트</b><small>npm test</small></div>
+  <div class="wl w" data-w="build" data-at="build"><svg class="ic" viewBox="0 0 40 40"></svg><b>빌드</b><small>npm run build</small></div>
+  <div class="wl w" data-w="merge" data-at="merge"><svg class="ic" viewBox="0 0 40 40"></svg><b id="wMergeB">머지</b><small>main</small></div>
+  <div class="wl w" data-w="image" data-at="image"><svg class="ic" viewBox="0 0 40 40"></svg><b>포장</b><small>이미지 만들기</small></div>
+  <div class="wl w" data-w="reg" data-at="reg"><svg class="ic" viewBox="0 0 40 40"></svg><b>보관</b><small>이미지 보관소</small></div>
+  <div class="wl w" data-w="stg" data-at="stg"><svg class="ic" viewBox="0 0 40 40"></svg><b>스테이징</b><small>리허설 환경</small></div>
+  <div class="wl w" data-w="appr" data-at="appr"><b id="wApprB">승인</b><small id="wApprS">사람이 버튼</small></div>
+  <div class="wl w" data-w="prod" data-at="prod"><b>운영</b><small>실제 사용자</small></div>
+  <div class="wver w" data-w="prod" id="wVer">v1</div>
+  <div id="wTag"></div>
   <div id="wOut" class="gone"></div>
 </div>
 
@@ -1304,21 +1313,46 @@ steps:
   $$('.stg, .st8', stage).forEach(function(g){ [].forEach.call(g.children, function(c,i){ c.style.setProperty('--i', i); }); });
 
   /* =====================================================================
-     파이프라인 세계: 상태(state) 하나를 화면에 그리는 applyW + 프레임을 차례로 재생하는 play
+     파이프라인 기계: 상태(state) 하나를 그림에 입히는 applyW + 프레임을 차례로 재생하는 play
+     그림과 좌표는 world/build.mjs가 만든 world.svg, world.json (build.py가 넣어 줌)
      ===================================================================== */
-  var world = document.getElementById('world'), capEl = document.getElementById('wCap'), outEl = document.getElementById('wOut'),
-      fillEl = document.getElementById('wFill'), verEl = document.getElementById('wVer'),
-      apprB = document.getElementById('wApprB'), apprS = document.getElementById('wApprS');
-  var W = {}; $$('[data-w]', world).forEach(function(e){ W[e.dataset.w] = e; });
-  var cells = $$('.w-prod .cells i', world);
-  var vcs = {}; $$('.vc', world).forEach(function(e){ vcs[e.dataset.v] = e; });
-  var WX = {dev:205, entry:440, install:600, lint:850, test:1100, build:1350, merge:1620, after:1730, rail:1850,
-            image:1960, reg:2200, stg:2440, pre:2575, appr:2680, door:2790, prod:2960};
+  var WD = /*WORLD_JSON*/{};
+  var world = document.getElementById('world'), cartEl = document.getElementById('wCart'), loopEl = document.getElementById('wLoop'),
+      tagEl = document.getElementById('wTag'), outEl = document.getElementById('wOut'), verEl = document.getElementById('wVer'),
+      apprB = document.getElementById('wApprB'), apprS = document.getElementById('wApprS'), mergeB = document.getElementById('wMergeB');
+  var W = {}; $$('[data-w]', world).forEach(function(e){ (W[e.dataset.w] = W[e.dataset.w] || []).push(e); });
+  var blades = $$('.blade-g', world);
+  var shelfBox = {v1: world.querySelector('.shelf-v1'), v2: world.querySelector('.shelf-v2')};
+  var CART = WD.cartAt || {}, ANCH = WD.anchors || {};
   var GATES = ['install','lint','test','build','merge','image','reg','stg'];
-  var CAM = {
-    ci:{s:1, x:960, y:600}, cd:{s:1, x:2440, y:600}, all:{s:.55, x:1700, y:600}, allLow:{s:.55, x:1700, y:600, sy:700},
-    cover:{s:.55, x:1700, y:600, sy:790}, prod:{s:1.4, x:3055, y:643}
-  };
+  function fitCam(r, box){
+    var s = Math.min(box[2]/(r.x1 - r.x0), box[3]/(r.y1 - r.y0));
+    return {s:s, tx: box[0] + box[2]/2 - (r.x0 + r.x1)/2*s, ty: box[1] + box[3]/2 - (r.y0 + r.y1)/2*s};
+  }
+  function padR(r, top, bottom){ return {x0:r.x0, x1:r.x1, y0:r.y0 - top, y1:r.y1 + bottom}; }
+  var CAM = {ci:{s:1, tx:0, ty:0}};
+  if(WD.width){
+    var RG = WD.regions;
+    CAM = {
+      ci: fitCam(padR(RG.ci, 24, 120), [40, 236, 1840, 594]),
+      cd: fitCam(padR(RG.cd, 24, 120), [40, 236, 1840, 594]),
+      all: fitCam(padR(RG.all, 120, 90), [30, 230, 1860, 560]),
+      allLow: fitCam(padR(RG.all, 120, 90), [30, 452, 1860, 520]),
+      cover: fitCam(padR(RG.all, 120, 90), [30, 556, 1860, 480]),
+      prod: fitCam(padR(RG.prod, 90, 120), [420, 290, 1080, 540])
+    };
+    world.style.width = WD.width+'px'; world.style.height = WD.height+'px';
+    $$('.wl', world).forEach(function(e){ var a = ANCH[e.dataset.at]; if(!a) return; e.style.left = a.label[0]+'px'; e.style.top = (a.label[1] + 16)+'px'; });
+    [['wbrCI', WD.brackets.ci], ['wbrCD', WD.brackets.cd]].forEach(function(p){
+      var e = document.getElementById(p[0]), b = p[1], dx = b.b[0] - b.a[0], dy = b.b[1] - b.a[1];
+      e.style.left = b.a[0]+'px'; e.style.top = (b.a[1] - 23)+'px'; e.style.width = Math.hypot(dx, dy)+'px';
+      e.style.transform = 'rotate('+Math.atan2(dy, dx)+'rad)';
+    });
+    verEl.style.left = WD.ver[0]+'px'; verEl.style.top = (WD.ver[1] - 8)+'px';
+    loopEl.style.setProperty('--l0x', WD.loop.from[0]+'px'); loopEl.style.setProperty('--l0y', WD.loop.from[1]+'px');
+    loopEl.style.setProperty('--l1x', WD.loop.to[0]+'px'); loopEl.style.setProperty('--l1y', WD.loop.to[1]+'px');
+    Object.keys(WD.loop.at).forEach(function(n){ (W[n]||[]).forEach(function(e){ if(e instanceof SVGElement){ e.setAttribute('data-ld', ''); e.style.setProperty('--ld', (WD.loop.at[n]*9).toFixed(2)+'s'); } }); });
+  }
   var FAIL_CELLS = [2, 6, 9];
   var NONE = {install:'', lint:'', test:'', build:'', merge:'', image:'', reg:'', stg:''};
   var ALLOK = {install:'ok', lint:'ok', test:'ok', build:'ok', merge:'open', image:'ok', reg:'ok', stg:'ok'};
@@ -1338,10 +1372,10 @@ steps:
     return o;
   }
   function M(){ var s = {}; for(var i=0;i<arguments.length;i++) s = mergeSt(s, arguments[i]); return s; }
-  $$('.w-g, .w-st', world).forEach(function(e){ var x = parseFloat(e.style.left); e.style.setProperty('--ld', ((x-380)/(2900-380)*9).toFixed(2)+'s'); });
+  function each(name, fn){ (W[name] || []).forEach(fn); }
 
   var prevW = null, icNow = {};
-  function capX(c){ return typeof c.x === 'number' ? c.x : WX[c.x]; }
+  function posOf(name){ return CART[name] || CART.dev || [0, 0]; }
   function applyW(st, inst){
     if(STATIC) inst = true;
     if(inst) world.classList.add('inst');
@@ -1351,49 +1385,48 @@ steps:
     world.classList.toggle('fast', st.spd === 'fast');
     world.classList.toggle('vfast', st.spd === 'vfast');
     var c = CAM[st.cam] || CAM.ci;
-    world.style.transform = 'translate('+((c.sx||960) - c.x*c.s)+'px,'+((c.sy||600) - c.y*c.s)+'px) scale('+c.s+')';
+    world.style.transform = 'translate('+c.tx+'px,'+c.ty+'px) scale('+c.s+')';
     world.classList.toggle('cam-all', c.s < .7);
-    for(var name in W){
+    world.style.setProperty('--fs', Math.max(1, 1/c.s).toFixed(3));
+    Object.keys(W).forEach(function(name){
       var v = st.show[name]; if(v === undefined) v = 1;
-      W[name].classList.toggle('off', !v);
-      W[name].classList.toggle('fade', v === 'f');
-    }
+      each(name, function(e){ e.classList.toggle('off', !v); e.classList.toggle('fade', v === 'f'); });
+    });
     GATES.forEach(function(n){
       var s = st.g[n] || '';
-      W[n].dataset.st = s;
+      each(n, function(e){ e.setAttribute('data-st', s); });
+      var lab = world.querySelector('.wl[data-at="'+n+'"] .ic');
       var ic = n === 'merge' ? (s === 'lock' ? 'lock' : s === 'open' ? 'open' : 'lockidle') : (s || 'wait');
-      if(icNow[n] !== ic){ icNow[n] = ic; W[n].querySelector('.ic').innerHTML = ICON[ic]; }
+      if(lab && icNow[n] !== ic){ icNow[n] = ic; lab.innerHTML = ICON[ic]; }
     });
-    W.merge.querySelector('b').textContent = st.g.merge === 'lock' ? '머지 잠김' : '머지';
+    mergeB.textContent = st.g.merge === 'lock' ? '머지 잠김' : '머지';
     var al = {human:['승인', '사람이 버튼'], up:['승인됨', '사람이 누름'], none:['승인 없음', '바로 통과']}[st.appr] || ['승인', ''];
-    W.appr.dataset.st = st.appr; apprB.textContent = al[0]; apprS.textContent = al[1];
-    W.prod.dataset.v = st.prod.v; verEl.textContent = st.prod.v;
-    cells.forEach(function(ce, i){ var k = FAIL_CELLS.indexOf(i); ce.classList.toggle('ng', k >= 0 && k < (st.prod.fail||0)); });
-    ['v1','v2'].forEach(function(v){
-      var e = vcs[v], on = st.stack.indexOf(v) >= 0, was = !e.classList.contains('off');
-      e.classList.toggle('off', !on);
-      if(on && !was && !inst){ e.classList.remove('in'); void e.offsetWidth; e.classList.add('in'); }
-      e.classList.toggle('hi', st.hi === v);
-    });
-    var cp = st.cap, x = capX(cp), pc = prevW && prevW.cap;
-    var jump = !inst && (!pc || x < capX(pc) - 1 || cp.t !== pc.t || (cp.show && !pc.show));
-    if(jump){ capEl.classList.add('notr'); fillEl.style.transition = 'none'; }
-    capEl.style.transform = 'translateX('+x+'px)';
-    capEl.querySelector('.t').textContent = cp.t;
-    capEl.querySelector('.v').textContent = cp.v;
-    capEl.classList.toggle('ng', cp.st === 'ng');
-    capEl.classList.toggle('cube', cp.kind === 'cube');
-    capEl.classList.toggle('old', cp.kind === 'cube' && cp.v === 'v1');
-    capEl.classList.toggle('gone', !cp.show);
-    fillEl.style.width = Math.max(0, Math.min(1440, x - 340))+'px';
-    fillEl.classList.toggle('ng', cp.st === 'ng');
+    each('appr', function(e){ e.setAttribute('data-st', st.appr); }); apprB.textContent = al[0]; apprS.textContent = al[1];
+    each('prod', function(e){ e.setAttribute('data-v', st.prod.v); });
+    verEl.textContent = st.prod.v; verEl.classList.toggle('v2', st.prod.v === 'v2');
+    blades.forEach(function(b, i){ var k = FAIL_CELLS.indexOf(i); b.classList.toggle('ng', k >= 0 && k < (st.prod.fail||0)); });
+    ['v1','v2'].forEach(function(v){ var e = shelfBox[v]; if(!e) return; e.classList.toggle('off', st.stack.indexOf(v) < 0); e.classList.toggle('hi', st.hi === v); });
+    var cp = st.cap, p = posOf(cp.x), pc = prevW && prevW.cap;
+    var jump = !inst && (!pc || p[0] < posOf(pc.x)[0] - 1 || cp.t !== pc.t || (cp.show && !pc.show));
+    if(jump){ cartEl.classList.add('notr'); tagEl.classList.add('notr'); }
+    var tg = WD.cartTop || [0, -60], label = cp.kind === 'cube' ? cp.v : cp.t;
+    cartEl.style.transform = 'translate('+p[0]+'px,'+p[1]+'px)';
+    tagEl.style.transform = 'translate('+(p[0] + tg[0])+'px,'+(p[1] + tg[1])+'px)';
+    tagEl.textContent = label;
+    tagEl.classList.toggle('ng', cp.st === 'ng');
+    tagEl.classList.toggle('gone', !cp.show || !label);
+    cartEl.classList.toggle('ng', cp.st === 'ng');
+    cartEl.classList.toggle('cube', cp.kind === 'cube');
+    cartEl.classList.toggle('old', cp.kind === 'cube' && cp.v === 'v1');
+    cartEl.classList.toggle('gone', !cp.show);
     if(jump){
-      void capEl.offsetWidth; capEl.classList.remove('notr'); fillEl.style.transition = '';
-      if(cp.show){ capEl.classList.remove('popin'); void capEl.offsetWidth; capEl.classList.add('popin'); }
+      void cartEl.getBoundingClientRect(); cartEl.classList.remove('notr'); tagEl.classList.remove('notr');
+      if(cp.show){ cartEl.classList.remove('popin'); void cartEl.getBoundingClientRect(); cartEl.classList.add('popin'); }
     }
     var o = st.out, po = prevW && prevW.out;
     if(o){
-      outEl.style.left = (typeof o.at === 'number' ? o.at : WX[o.at])+'px';
+      var a = ANCH[o.at] ? ANCH[o.at].top : [0, 0];
+      outEl.style.left = a[0]+'px'; outEl.style.top = a[1]+'px';
       outEl.textContent = o.t;
       outEl.className = (o.st||'') + (o.ko ? ' ko' : '');
       if(!inst && (!po || po.t !== o.t || po.at !== o.at)){ void outEl.offsetWidth; outEl.classList.add('pop'); }
@@ -1410,7 +1443,7 @@ steps:
       setTimeout(function(){
         if(my !== tok) return;
         cur = mergeSt(cur, f); applyW(cur, false);
-        if(f.fx === 'shake'){ capEl.classList.remove('shk'); void capEl.offsetWidth; capEl.classList.add('shk'); }
+        if(f.fx === 'shake'){ cartEl.classList.remove('shk'); void cartEl.getBoundingClientRect(); cartEl.classList.add('shk'); }
         nx();
       }, f.t || 0);
     })();
@@ -1441,13 +1474,13 @@ steps:
   }
 
   /* ---------- 장별 세계 상태 ---------- */
-  var ONCI = {on:1, cam:'ci', show:{brCI:1, rail:'f', image:0, reg:0, stg:0, prod:0}};
-  var MERGED = M({on:1, cam:'cd', show:{brCI:1, brCD:1}, g:{install:'ok', lint:'ok', test:'ok', build:'ok', merge:'open'}, cap:{x:'after', t:'3f9a2c1', show:1}});
+  var ONCI = {on:1, cam:'ci', show:{rail:'f', image:0, reg:0, stg:0, prod:0}};
+  var MERGED = M({on:1, cam:'cd', show:{}, g:{install:'ok', lint:'ok', test:'ok', build:'ok', merge:'open'}, cap:{x:'after', t:'3f9a2c1', show:1}});
   var ONRAIL = M(MERGED, {cap:{x:'rail'}});
   var PACKED = M(ONRAIL, {g:{image:'ok'}, cap:{x:'image', kind:'cube', v:'v2'}, out:{at:'image', t:'app:3f9a2c1'}});
   var STORED = M(PACKED, {g:{reg:'ok'}, cap:{x:'reg'}, out:null, stack:['v1','v2']});
   var STAGED = M(STORED, {g:{stg:'ok'}, cap:{x:'stg'}, out:{at:'stg', t:'GET /health 200', st:'ok'}});
-  var SHIPPED = {on:1, cam:'cd', show:{brCI:1, brCD:1, appr:1}, appr:'none', g:ALLOK, stack:['v1','v2'], prod:{v:'v2'},
+  var SHIPPED = {on:1, cam:'cd', show:{appr:1}, appr:'none', g:ALLOK, stack:['v1','v2'], prod:{v:'v2'},
                  cap:{x:'door', t:'3f9a2c1', kind:'cube', v:'v2', show:0}};
   var FADE_CD = {rail:'f', image:'f', reg:'f', stg:'f', appr:'f', prod:'f', brCD:'f'};
   var FADE_CI = {dev:'f', tube:'f', install:'f', lint:'f', test:'f', build:'f', merge:'f', brCI:'f'};
@@ -1502,17 +1535,17 @@ steps:
       steps:{1:[{cap:{x:'entry'}, spd:'fast'}].concat(ciRun({fast:1, out:false, t:420}), [{t:300, cap:{x:'merge'}, g:{merge:'open'}}]),
              2:[{cap:{x:'after'}, spd:'fast'}].concat(cdPack({fast:1, out:false}), cdStore({fast:1}), cdStage({fast:1, out:false}), cdShip('v2', {fast:1, t:250}), [{t:0, spd:''}])} },
 
-    prodFail:{ base:M(SHIPPED, {cam:'prod', show:{brCI:0, brCD:0}}),
+    prodFail:{ base:M(SHIPPED, {cam:'prod'}),
       steps:{1:[{prod:{fail:3}, out:{at:'prod', t:'서버 12대 중 3대 오류', ko:1, st:'ng'}}]} },
 
-    revert:{ base:M(SHIPPED, {show:{brCI:0}}),
+    revert:{ base:SHIPPED,
       steps:{1:[{hi:'v1'}, {t:700, cap:{x:'reg', t:'v1', kind:'cube', v:'v1', show:1}}, {t:500, cap:{x:'door'}, spd:'fast'},
                 {t:600, cap:{show:0}, prod:{v:'v1'}}, {t:700, out:{at:'prod', t:'v1로 복귀', ko:1, st:'ok'}, spd:''}]} },
 
-    twoq:{ base:M(SHIPPED, {cam:'allLow'}),
+    twoq:{ base:M(SHIPPED, {cam:'allLow', show:{brCI:1, brCD:1}}),
       steps:{1:[{show:FADE_CD}], 2:[{show:M(SHOW_CD, FADE_CI)}]} },
 
-    sweep:{ base:M(SHIPPED, {cam:'allLow', loop:1, g:NONE, cap:{x:'dev', show:0}}) }
+    sweep:{ base:M(SHIPPED, {cam:'allLow', loop:1, show:{brCI:1, brCD:1}, g:NONE, cap:{x:'dev', show:0}}) }
   };
 
   function stateAt(p, s){
