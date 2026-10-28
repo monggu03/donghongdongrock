@@ -2,9 +2,10 @@
 """발표 페이지 검사 (CI의 deck-check 단계)
 
 out/index.html 을 크롬으로 열어 모든 장·클릭 단계를 넘기며 확인한다.
+(?static 으로 열어 움직임 없이 각 단계의 끝 상태만 본다)
   - 화면(1920×1080) 밖으로 나간 요소
   - 코드·로그 카드 안에서 잘린 줄
-  - 24px보다 작은 글자
+  - 24px보다 작은 글자 (뒤 배경 파이프라인 그림은 카메라 배율까지 곱한 실제 크기)
   - 슬라이드 글자 속 물음표(질문형 문구 금지)와 이모지
   - 자바스크립트 오류
 하나라도 걸리면 종료 코드 1 → PR에 빨간 X.
@@ -16,7 +17,7 @@ import os, re, sys
 from playwright.sync_api import sync_playwright
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-PAGE = 'file://' + os.path.join(ROOT, 'out', 'index.html')
+PAGE = 'file://' + os.path.join(ROOT, 'out', 'index.html') + '?static'
 shots = sys.argv[sys.argv.index('--shots') + 1] if '--shots' in sys.argv else None
 if shots:
     os.makedirs(shots, exist_ok=True)
@@ -42,6 +43,15 @@ PROBE = r"""
       if (fs < 23.5) out.push(`글자가 너무 작음(${fs}px): ` + el.textContent.trim().slice(0, 24));
     }
   });
+  const w = document.getElementById('world');
+  if (w && w.classList.contains('on')) {
+    const ws = new DOMMatrix(getComputedStyle(w).transform).a;
+    w.querySelectorAll('*').forEach(el => {
+      if (el.closest('svg') || !shown(el) || el.children.length || !el.textContent.trim()) return;
+      const fs = parseFloat(getComputedStyle(el).fontSize) * ws;
+      if (fs < 23.5) out.push(`배경 그림 글자가 너무 작음(${fs.toFixed(1)}px): ` + el.textContent.trim().slice(0, 24));
+    });
+  }
   const text = [...page.querySelectorAll('h1,h2,p,li,td,th,b,span,div')]
     .filter(e => !e.closest('.notes') && !e.closest('pre') && !e.children.length)
     .map(e => e.textContent).join('\n');
@@ -60,10 +70,10 @@ def main():
         pg.on('pageerror', lambda e: errors.append(str(e)))
         pg.on('console', lambda m: errors.append(m.text) if m.type == 'error' else None)
         pg.goto(PAGE + '#p1-0')
-        pg.wait_for_timeout(800)
+        pg.wait_for_timeout(1000)
         total = pg.evaluate("() => document.querySelectorAll('.page').length")
         for _ in range(600):
-            pg.wait_for_timeout(700)  # 전환·캡슐 이동이 끝날 때까지
+            pg.wait_for_timeout(250)  # 정적 모드라 바로 끝 상태
             info = pg.evaluate(PROBE)
             key = (info['idx'], info['step'])
             if key in seen:

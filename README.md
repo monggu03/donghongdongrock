@@ -1,6 +1,7 @@
 # 동홍동락 in HIU · CI/CD, 어떻게 하는 걸까
 
 2026.11.02 동홍동락 in HIU(동국대·홍익대 GDGoC 연합 세미나) 20분 발표 페이지입니다.
+CI/CD를 처음 듣는 사람이 20분 안에 전체 그림을 잡도록, 파이프라인 지도 한 장 위에서 커밋 하나가 문을 지나 운영까지 가는 모습을 애니메이션으로 보여 주는 강의형 발표입니다.
 발표 내용 그대로, 이 페이지도 **PR → 검사 → 머지 → 배포 → 롤백** 다섯 칸으로 배포합니다.
 
 | 칸 | 이 레포에서 |
@@ -19,9 +20,9 @@
 
 | 경로 | 내용 |
 |---|---|
-| `deck.src.html` | 발표 원본(슬라이드 48장, 장마다 대본) |
+| `deck.src.html` | 발표 원본(46장, 클릭 117번, 장마다 대본). 뒤에 깔린 파이프라인 지도(`#world`)는 장마다 상태만 바뀌고 카메라가 따라감 |
 | `build.py` | 폰트·캡처·배포 정보를 넣어 `out/index.html` 한 파일로 만듦 |
-| `check.py` | CI 검사(크롬으로 모든 장·단계 확인) |
+| `check.py` | CI 검사(크롬으로 모든 장·단계 확인, `?static`으로 움직임 없이 끝 상태만) |
 | `captures/` | 슬라이드에 넣을 캡처 (이름 규칙은 `captures/README.md`) |
 | `fonts/` | Pretendard, JetBrains Mono, Noto Serif CJK(東弘同樂 글자만) · 모두 SIL OFL 1.1 |
 | `vercel.json` | Vercel 빌드 설정 |
@@ -42,7 +43,7 @@ python build.py      # out/index.html
 python check.py      # CI와 같은 검사
 ```
 
-`out/index.html`을 크롬으로 열면 됩니다(인터넷 없이도 동작).
+`out/index.html`을 크롬으로 열면 됩니다(인터넷 없이도 동작). 주소 끝에 `?static`을 붙이면 애니메이션 없이 각 단계의 끝 화면만 보여 줍니다.
 
 ## 발표할 때
 
