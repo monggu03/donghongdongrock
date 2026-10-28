@@ -1370,7 +1370,8 @@ steps:
     /* 가까이 찍기: 제목 아래부터 아래 글 위까지(BZ) 한 장면을 꽉 채움. 창 밖(VZ 바깥)은 흐리게 가림 */
     var BZ = [40, 196, 1840, 630], VZ = [186, 836];
     var Z = function(x0, y0, x1, y1){ var c = fitCam({x0:x0, y0:y0, x1:x1, y1:y1}, BZ); c.v = VZ; return c; };
-    CAM.testZ = Z(760, 100, 1460, 490);      // 테스트 다이얼과 멈춘 카트
+    // CI 검사대 하나씩: 위 결과 칩부터 카트까지 (installZ, lintZ, testZ, buildZ)
+    ['install','lint','test','build'].forEach(function(n){ var a = ANCH[n].top; CAM[n+'Z'] = Z(a[0] - 350, a[1] - 75, a[0] + 350, a[1] + 315); });
     CAM.mergeZ = Z(1250, 200, 1950, 560);    // 머지 문
     CAM.failMergeZ = Z(1000, 210, 1700, 580); // 테스트에서 멈춘 카트와 잠긴 머지 문
     CAM.imageZ = Z(1820, 250, 2480, 640);    // 포장 성형기
@@ -1503,6 +1504,7 @@ steps:
     if(o.out !== false) fr[2].out = {at:n, t:OUT[n].t, ko:OUT[n].ko, st:'ok'};
     return fr;
   }
+  function zgate(n){ var f = gate(n, 'ok', {t:0}); f[0].cam = n+'Z'; f[1].t += 300; return f; }  // 검사대로 다가가며 실행
   function ciRun(o){ return gate('install','ok',{fast:o.fast, t:o.t, out:o.out}).concat(gate('lint','ok',{fast:o.fast, out:o.out}), gate('test','ok',{fast:o.fast, out:o.out}), gate('build','ok',{fast:o.fast, out:o.out})); }
   function cdPack(o){ o = o || {};
     return [{t:120, cap:{x:'image'}, out:null}, {t:o.fast===2?300:o.fast?430:720, g:{image:'run'}},
@@ -1536,11 +1538,11 @@ steps:
 
     auto:{
       base:{on:1, cam:'all', show:{tube:0, rail:0, install:0, lint:0, test:0, build:0, merge:0, image:0, reg:0, stg:0}, cap:{x:'dev', t:'커밋', show:0}},
-      enter:[{t:400, show:{tube:1}}, {t:140, show:{install:1}}, {t:110, show:{lint:1}}, {t:110, show:{test:1}}, {t:110, show:{build:1}},
-             {t:110, show:{merge:1}}, {t:140, show:{rail:1}}, {t:110, show:{image:1}}, {t:110, show:{reg:1}}, {t:110, show:{stg:1}},
-             {t:350, cam:'ci'}, {t:650, cap:{show:1}, spd:'vfast'}]
-        .concat(ciRun({fast:2, out:false, t:150}), [{t:120, cap:{x:'merge'}}, {t:300, g:{merge:'open'}, cam:'cd'}, {t:150, cap:{x:'after'}}],
-                cdPack({fast:2, out:false}), cdStore({fast:2}), cdStage({fast:2, out:false}), cdShip('v2', {fast:1, t:150, out:false}), [{t:700, cam:'all', spd:''}]),
+      enter:[{t:500, show:{tube:1}}, {t:200, show:{install:1}}, {t:180, show:{lint:1}}, {t:180, show:{test:1}}, {t:180, show:{build:1}},
+             {t:180, show:{merge:1}}, {t:220, show:{rail:1}}, {t:180, show:{image:1}}, {t:180, show:{reg:1}}, {t:180, show:{stg:1}},
+             {t:700, cam:'ci'}, {t:900, cap:{show:1}}]
+        .concat(ciRun({out:false, t:300}), [{t:300, cap:{x:'merge'}}, {t:700, g:{merge:'open'}}, {t:500, cam:'cd', cap:{x:'after'}}],
+                cdPack({out:false}), cdStore(), cdStage({out:false}), cdShip('v2', {t:400, out:false}), [{t:1200, cam:'all'}]),
       steps:{1:[{show:{brCI:1, rail:'f', image:'f', reg:'f', stg:'f', prod:'f'}}],
              2:[{show:M({brCD:1, rail:1, image:1, reg:1, stg:1, prod:1}, FADE_CI)}]}
     },
@@ -1549,8 +1551,8 @@ steps:
       steps:{1:[{cap:{x:'entry'}}, {t:800, out:{at:'entry', t:'워크플로 시작', ko:1}}]} },
 
     gates:{ base:M(ONCI, {cap:{x:'entry', t:'e41b7d2', show:1}, out:{at:'entry', t:'워크플로 시작', ko:1}}),
-      steps:{1:gate('install','ok',{t:0}), 2:gate('lint','ok',{t:0}), 3:gate('test','ok',{t:0}),
-             4:gate('build','ok',{t:0}).concat([{t:600, cap:{x:'merge'}, g:{merge:'open'}}])} },
+      steps:{1:zgate('install'), 2:zgate('lint'), 3:zgate('test'),
+             4:zgate('build').concat([{t:600, cap:{x:'merge'}, g:{merge:'open'}, cam:'mergeZ'}])} },
 
     runner:{ base:M(ONCI, {g:{install:'ok', lint:'ok', test:'ok', build:'ok', merge:'open'}, cap:{x:'merge', t:'e41b7d2', show:1}}),
       steps:{1:[{show:{runner:1}}]} },
