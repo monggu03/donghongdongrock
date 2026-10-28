@@ -426,7 +426,7 @@ body.presenter{overflow:auto;background:#141413;color:#EDEDE6}
   <div class="seal">東弘同樂</div>
   <h1 class="cover-ttl">CI/CD,<br>어떻게 하는 걸까</h1>
   <div class="cover-meta">동홍동락 in HIU · 2026.11.02 · 홍익대학교 정보통신센터 Q403<br>이도윤 · GDGoC DGU 4th Lead</div>
-  <aside class="notes">안녕하세요, 동국대학교 GDGoC DGU 4th Lead 이도윤입니다. 오늘 20분 동안 CI/CD가 무엇인지, 코드 한 줄이 실제 서비스에 나가기까지 어떤 길을 지나는지 처음부터 끝까지 보여 드리겠습니다. 아래에서 계속 지나가는 작은 캡슐이 오늘의 주인공, 커밋 하나입니다.</aside>
+  <aside class="notes">안녕하세요, 동국대학교 GDGoC DGU 4th Lead 이도윤입니다. 오늘 20분 동안 CI/CD가 무엇인지, 코드 한 줄이 실제 서비스에 나가기까지 어떤 길을 지나는지 처음부터 끝까지 보여 드리겠습니다. 아래 기계의 레일 위를 계속 지나가는 작은 카트가 오늘의 주인공, 커밋 하나입니다.</aside>
 </section>
 
 <section class="page" id="me" data-title="발표자">
@@ -439,54 +439,59 @@ body.presenter{overflow:auto;background:#141413;color:#EDEDE6}
 </section>
 
 <!-- ================= 1. 손으로 하던 배포 ================= -->
-<section class="page" id="night" data-title="데모데이 전날 밤" data-steps="4" data-sec="손으로 하던 배포">
-  <h2 class="ttl">데모데이 전날 밤, 합치기와 배포를 한꺼번에</h2>
+<section class="page" id="night" data-title="발표 일주일 전" data-steps="4" data-sec="손으로 하던 배포">
+  <h2 class="ttl">발표 일주일 전, 처음 해 보는 배포</h2>
   <div class="tl">
-    <div class="tc"><i>D-14</i><b>각자 브랜치에서 작업</b></div>
-    <div class="tc"><i>D-1 밤</i><b>한꺼번에 머지</b></div>
-    <div class="tc"><i>D-1 밤</i><b>충돌, 빌드 실패</b></div>
-    <div class="tc"><i>D-day 03:00</i><b>처음으로 서버에 배포</b></div>
+    <div class="tc"><i>개발 기간</i><b>기능마다 main에 합침</b></div>
+    <div class="tc"><i>D-7</i><b>첫 배포, 빌드 실패</b></div>
+    <div class="tc"><i>D-6</i><b>화면만 뜨고 데이터 없음</b></div>
+    <div class="tc"><i>D-5 03:00</i><b>설정 맞추다 밤샘</b></div>
   </div>
 
-  <svg class="drw" data-u="1" style="position:absolute;left:112px;top:420px" width="1696" height="460" viewBox="0 0 1696 460" aria-hidden="true">
-    <path pathLength="1" d="M0 230H1696" stroke="#1E1E1C" stroke-width="5" fill="none"/>
-    <text x="0" y="282" font-family="JetBrains Mono,monospace" font-size="26" fill="#55554E">main</text>
-    <g fill="none" stroke="#55554E" stroke-width="4">
-      <path pathLength="1" d="M160 230C260 230 260 70 380 70H1520"/>
-      <path pathLength="1" d="M200 230C300 230 300 160 420 160H1520"/>
-      <path pathLength="1" d="M240 230C340 230 340 380 460 380H1520"/>
-    </g>
-    <g fill="#FAFAF7" stroke="#55554E" stroke-width="4">
-      <circle cx="620" cy="70" r="11"/><circle cx="900" cy="70" r="11"/><circle cx="1240" cy="70" r="11"/>
-      <circle cx="700" cy="160" r="11"/><circle cx="1100" cy="160" r="11"/><circle cx="1420" cy="160" r="11"/>
-      <circle cx="660" cy="380" r="11"/><circle cx="980" cy="380" r="11"/><circle cx="1300" cy="380" r="11"/>
-    </g>
-    <g font-family="Pretendard,sans-serif" font-size="30" font-weight="700" fill="#1E1E1C">
-      <text x="1550" y="80">로그인</text><text x="1550" y="170">결제</text><text x="1550" y="390">화면</text>
-    </g>
-  </svg>
-
-  <div data-s="1" data-u="2">
-    <svg class="drw" data-s="1" data-u="2" style="position:absolute;left:112px;top:420px" width="980" height="460" viewBox="0 0 980 460" aria-hidden="true">
-      <path pathLength="1" d="M0 230H980" stroke="#1E1E1C" stroke-width="5" fill="none"/>
+  <div data-u="1">
+    <svg class="drw" style="position:absolute;left:112px;top:410px" width="1696" height="400" viewBox="0 0 1696 400" aria-hidden="true">
+      <path pathLength="1" d="M0 230H1380" stroke="#1E1E1C" stroke-width="5" fill="none"/>
       <text x="0" y="282" font-family="JetBrains Mono,monospace" font-size="26" fill="#55554E">main</text>
       <g fill="none" stroke="#55554E" stroke-width="4">
-        <path pathLength="1" d="M80 230C160 230 160 70 260 70H560C700 70 700 230 800 230"/>
-        <path pathLength="1" d="M100 230C180 230 180 160 280 160H580C700 160 700 230 800 230"/>
-        <path pathLength="1" d="M120 230C200 230 200 380 300 380H600C720 380 720 230 800 230"/>
+        <path pathLength="1" d="M150 230C200 230 200 110 256 110H334C390 110 390 230 440 230"/>
+        <path pathLength="1" d="M560 230C610 230 610 110 666 110H744C800 110 800 230 850 230"/>
+        <path pathLength="1" d="M930 230C980 230 980 110 1036 110H1114C1170 110 1170 230 1220 230"/>
       </g>
-      <circle cx="800" cy="230" r="28" fill="#1E1E1C"/>
-      <text x="800" y="241" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="32" font-weight="800" fill="#fff">!</text>
+      <g fill="#FAFAF7" stroke="#55554E" stroke-width="4">
+        <circle cx="262" cy="110" r="11"/><circle cx="328" cy="110" r="11"/>
+        <circle cx="672" cy="110" r="11"/><circle cx="738" cy="110" r="11"/>
+        <circle cx="1042" cy="110" r="11"/><circle cx="1108" cy="110" r="11"/>
+      </g>
+      <g fill="#FAFAF7" stroke="#1E1E1C" stroke-width="5">
+        <circle cx="440" cy="230" r="15"/><circle cx="850" cy="230" r="15"/><circle cx="1220" cy="230" r="15"/>
+      </g>
+      <g fill="#1E1E1C">
+        <circle cx="500" cy="230" r="11"/><circle cx="540" cy="230" r="11"/>
+        <circle cx="890" cy="230" r="11"/>
+        <circle cx="1270" cy="230" r="11"/><circle cx="1310" cy="230" r="11"/><circle cx="1350" cy="230" r="11"/>
+      </g>
+      <g font-family="JetBrains Mono,monospace" font-size="24" fill="#55554E" text-anchor="middle">
+        <text x="295" y="76">feat/login</text><text x="705" y="76">feat/payment</text><text x="1075" y="76">feat/timetable</text>
+      </g>
+      <g stroke="#A3A39B" stroke-width="3">
+        <path pathLength="1" d="M520 252V292"/><path pathLength="1" d="M1310 252V292"/><path pathLength="1" d="M850 252V292"/>
+      </g>
+      <g font-family="Pretendard,sans-serif" font-size="28" font-weight="700" fill="#1E1E1C" text-anchor="middle">
+        <text x="520" y="330">main에 바로 push</text><text x="1310" y="330">main에 바로 push</text>
+        <text x="850" y="330">기능마다 PR</text>
+      </g>
     </svg>
-    <pre class="code" data-lang="text" style="left:1140px;top:500px;width:668px" data-label="App.jsx 머지 충돌">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
-const API = 'http://localhost:8080'
-=======
-const API = import.meta.env.VITE_API_URL
-&gt;&gt;&gt;&gt;&gt;&gt;&gt; feat/deploy</pre>
+    <svg style="position:absolute;left:112px;top:410px" width="1696" height="400" viewBox="0 0 1696 400" aria-hidden="true">
+      <path d="M1396 230H1452" stroke="#A3A39B" stroke-width="4" stroke-dasharray="10 10" fill="none"/>
+      <rect x="1462" y="160" width="232" height="140" rx="18" fill="none" stroke="#A3A39B" stroke-width="4" stroke-dasharray="12 10"/>
+      <text x="1578" y="222" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="32" font-weight="800" fill="#55554E">서버</text>
+      <text x="1578" y="262" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="24" font-weight="600" fill="#A3A39B">배포 0번</text>
+    </svg>
+    <p class="lead" style="position:absolute;left:112px;top:850px">합치기는 자주 함, 합칠 때 자동 검사는 없음</p>
   </div>
 
-  <div data-s="2" data-u="3">
-    <pre class="log type" data-shake="2" style="left:112px;top:430px;width:1180px" data-label="빌드 로그" data-ng="2,4,5">$ npm run build
+  <div data-s="1" data-u="2">
+    <pre class="log type" data-shake="1" style="left:112px;top:430px;width:1180px" data-label="서버 빌드 로그" data-ng="2,4,5">$ npm run build
 ✗ Build failed in 285ms
 error during build:
 [UNRESOLVED_IMPORT] Could not resolve
@@ -495,24 +500,33 @@ error during build:
     <p class="cap" style="position:absolute;left:1360px;top:600px;width:448px">이 에러의 정체는 뒤에서</p>
   </div>
 
+  <div data-s="2" data-u="3">
+    <pre class="log type" data-shake="2" style="left:112px;top:430px;width:1180px" data-label="배포된 화면의 브라우저 콘솔" data-ng="1,2,3">GET http://localhost:8080/api/sessions
+net::ERR_CONNECTION_REFUSED
+Uncaught (in promise) TypeError: Failed to fetch</pre>
+    <pre class="code" data-lang="js" style="left:112px;top:720px;width:1180px" data-label="src/App.jsx">const API = 'http://localhost:8080'</pre>
+    <p class="big" style="position:absolute;left:1360px;top:460px;width:448px">화면은 뜨는데<br>데이터가 없음</p>
+    <p class="cap" style="position:absolute;left:1360px;top:600px;width:448px">API 주소가 아직 내 노트북</p>
+  </div>
+
   <div data-s="3" data-u="4">
     <div style="position:absolute;left:104px;top:400px;font:800 260px/1 var(--f-mono);letter-spacing:-8px">03:00</div>
     <div style="position:absolute;left:1060px;top:450px;width:748px">
-      <p class="big">서버 접속, 설치, 환경 변수, DB 주소</p>
-      <p class="lead" style="margin-top:20px">배포 설정을 데모데이 당일 새벽에 처음 맞춰 봄</p>
+      <p class="big">환경 변수, CORS, DB 주소, 포트</p>
+      <p class="lead" style="margin-top:20px">하나 고치면 다음이 막힘, 발표 주간 내내 밤샘</p>
     </div>
   </div>
 
   <div data-s="4">
     <svg style="position:absolute;left:112px;top:366px" width="1696" height="40" viewBox="0 0 1696 40" aria-hidden="true"><path d="M2 2V22H1694V2" fill="none" stroke="#FF6309" stroke-width="4"/></svg>
-    <p style="position:absolute;left:112px;top:450px;margin:0;font:800 72px/1.3 var(--f-sans);letter-spacing:-2px">2주 동안 합친 적 0번<br>서버에 올린 적 0번</p>
-    <p class="lead" style="position:absolute;left:112px;top:680px">문제가 한꺼번에 터지면 어디서 깨졌는지 찾기 어려움</p>
+    <p style="position:absolute;left:112px;top:450px;margin:0;font:800 72px/1.3 var(--f-sans);letter-spacing:-2px">합치기는 매일<br>검사와 배포는 마지막 주에 처음</p>
+    <p class="lead" style="position:absolute;left:112px;top:680px">몇 주 동안 쌓인 문제가 배포하는 날 한꺼번에 드러남</p>
   </div>
-  <aside class="notes">팀 프로젝트에서 흔한 장면부터 보겠습니다. 데모데이까지 2주가 남았고, 각자 기능을 맡아 자기 브랜치에서 작업합니다. 로그인, 결제, 화면. 2주 동안 main에는 아무도 합치지 않습니다.
-(클릭) 그리고 데모데이 전날 밤, 모두가 한꺼번에 main에 합칩니다. 2주 동안 따로 고친 코드가 처음 만나니까 같은 줄을 서로 다르게 고친 곳에서 충돌이 납니다.
-(클릭) 충돌을 겨우 풀었더니 이번엔 빌드가 실패합니다. 이상한 건 이 코드가 제 컴퓨터에서는 잘 됐다는 겁니다. 이 에러의 정체는 뒤에서 밝혀집니다.
-(클릭) 새벽 3시, 처음으로 서버에 올려 봅니다. 서버 접속하고, 설치하고, 환경 변수 맞추고, DB 주소 바꾸고. 다들 한 번쯤 겪어 보셨을 겁니다.
-(클릭) 이건 실력 문제가 아닙니다. 2주 동안 한 번도 합치지 않았고, 한 번도 서버에 올려 보지 않은 구조가 문제입니다.</aside>
+  <aside class="notes">팀 프로젝트에서 거의 평균처럼 나오는 장면부터 보겠습니다. GDG에서 팀 프로젝트를 지켜보면 합치기는 생각보다 자주 합니다. main에 바로 push하는 팀도 많고, PR을 쓰는 팀은 기능 하나 끝날 때마다 PR을 올립니다. 그런데 합칠 때 아무것도 자동으로 검사하지 않고, 서버에는 한 번도 올려 보지 않습니다.
+(클릭) 그러다 발표 일주일 전, 처음으로 서버에 배포해 봅니다. 서버에서 빌드를 돌렸더니 실패합니다. 이상한 건 이 코드가 제 컴퓨터에서는 잘 됐다는 겁니다. 이 에러의 정체는 뒤에서 밝혀집니다.
+(클릭) 겨우 고쳐서 띄웠더니 화면은 뜨는데 데이터가 하나도 없습니다. 콘솔을 열어 보면 API 주소가 아직 localhost입니다. 배포된 화면이 제 노트북의 서버를 찾고 있었던 겁니다.
+(클릭) 그다음부터는 환경 변수, CORS, DB 주소, 포트. 하나 고치면 다음 게 막히고, 그렇게 발표 주간 내내 밤을 샙니다. 다들 한 번쯤 겪어 보셨을 겁니다.
+(클릭) 이건 실력 문제가 아닙니다. 합치기는 매일 했는데 검사와 배포는 마지막 주에 처음 해 본 구조가 문제입니다. 몇 주 동안 쌓인 문제가 배포하는 날 한꺼번에 드러납니다.</aside>
 </section>
 
 <section class="page" id="ssh" data-title="손으로 하는 배포" data-steps="2" data-sec="손으로 하던 배포">
@@ -532,7 +546,7 @@ HTTP/1.1 502 Bad Gateway</pre>
     <span class="st down" data-s="2">응답 없음 · 502</span>
   </div>
   <p class="big ngc" data-s="2" style="position:absolute;left:1300px;top:580px;width:508px">사용자 접속 불가</p>
-  <aside class="notes">그날 새벽의 배포는 보통 이렇게 합니다. 지금도 많은 학생 프로젝트가 이렇게 합니다. 서버에 접속해서, 코드를 받고, 설치하고, 빌드하고, 재시작합니다.
+  <aside class="notes">그 주에 하는 배포는 보통 이렇게 생겼습니다. 지금도 많은 학생 프로젝트가 이렇게 합니다. 서버에 접속해서, 코드를 받고, 설치하고, 빌드하고, 재시작합니다.
 (클릭) 그리고 아무 일 없기를 기도합니다.
 (클릭) 그런데 주소를 열어 보면 502. 서버가 응답하지 않습니다. 사용자는 아무것도 못 씁니다.</aside>
 </section>
@@ -663,8 +677,8 @@ HTTP/1.1 502 Bad Gateway</pre>
   <pre class="log" style="left:112px;top:850px;width:1000px" data-st="1">$ git push origin feat/timetable</pre>
   <p class="lead" data-u="1" style="position:absolute;left:1160px;top:868px">그다음 GitHub에서 PR 열기</p>
   <div data-s="1" style="position:absolute;left:1160px;top:856px"><span class="chip">PR 열기 → <code>on: pull_request</code></span></div>
-  <aside class="notes">이제 CI가 있으면 어떻게 되는지 보겠습니다. 시간표 기능을 고친 커밋을 올리고 PR을 엽니다.
-(클릭) 그 순간 GitHub가 PR이 열렸다는 걸 알고, 적어 둔 검사 파이프라인을 자동으로 출발시킵니다. 아무도 버튼을 누르지 않았습니다. 이 캡슐에 붙은 글자가 커밋 번호입니다.</aside>
+  <aside class="notes">이제 CI가 있으면 어떻게 되는지 보겠습니다. 하는 일은 지금과 같습니다. 시간표 기능을 고친 커밋을 올리고 PR을 엽니다.
+(클릭) 그 순간 GitHub가 PR이 열렸다는 걸 알고, 적어 둔 검사 파이프라인을 자동으로 출발시킵니다. 아무도 버튼을 누르지 않았습니다. PR은 원래 하던 그대로이고, 달라진 건 PR마다 검사가 붙었다는 것 하나입니다. 카트에 붙은 글자가 커밋 번호입니다.</aside>
 </section>
 
 <section class="page" id="gates" data-title="문을 하나씩 통과" data-steps="4" data-sec="CI · 지속적 통합">
@@ -739,9 +753,10 @@ Tests  3 failed | 3 passed (6)</pre>
     <p class="lead mono" style="margin-top:8px;font-family:var(--f-mono)">frontend-check</p>
     <p class="big" data-s="1" style="margin-top:64px">레포 주인도 우회 불가</p>
     <p class="lead" data-s="1" style="margin-top:10px">팀 규칙을 사람 대신 시스템이 지킴</p>
+    <p class="lead" data-s="1" style="margin-top:10px">main에 바로 push도 차단</p>
   </div>
   <aside class="notes">PR 화면에서는 이렇게 보입니다. 브랜치 보호를 켜 두면 빨간 X가 떠 있는 동안 머지 버튼 자체가 잠깁니다. main 보호 규칙에서 frontend-check를 필수 검사로 지정해 둔 겁니다.
-(클릭) 레포 주인도 우회하지 못하게 해 둡니다. "테스트 깨진 코드는 머지하지 말자"는 팀마다 말로는 다 합니다. 데모데이 전날 밤엔 그게 안 지켜집니다. 브랜치 보호는 그 규칙을 사람 대신 시스템이 지키게 만듭니다.</aside>
+(클릭) 레포 주인도 우회하지 못하게 해 둡니다. "테스트 깨진 코드는 머지하지 말자"는 팀마다 말로는 다 합니다. 발표 주간 새벽에는 그게 안 지켜집니다. 브랜치 보호는 그 규칙을 사람 대신 시스템이 지키게 만듭니다. 처음에 본 main에 바로 push하는 습관도 여기서 같이 막힙니다. 보호된 main에는 검사를 통과한 PR로만 들어갈 수 있습니다.</aside>
 </section>
 
 <section class="page" id="fixed" data-title="고친 커밋, 다시 초록" data-steps="2" data-sec="CI · 지속적 통합">
@@ -767,18 +782,18 @@ Tests  3 failed | 3 passed (6)</pre>
     </tbody>
   </table>
   <div data-s="2" style="position:absolute;left:112px;top:700px;width:1696px">
-    <span class="chip or">데모데이 전날 밤 그 에러의 정체</span>
+    <span class="chip or">발표 일주일 전 그 에러의 정체</span>
     <p class="big" style="margin-top:28px">윈도우와 맥은 파일 이름 대소문자를 무시, 리눅스 러너는 구분</p>
   </div>
   <aside class="notes">실습 레포에는 사고를 몇 가지 더 준비해 뒀습니다. 린트는 안 쓰는 import를 잡습니다. 실행에는 문제가 없어서 사람은 그냥 넘어갑니다.
 (클릭) 테스트는 방금 본 시간 표시를 잡습니다. 화면은 떠서 놓칩니다.
-(클릭) 빌드는 파일 이름 대소문자를 잡습니다. 데모데이 전날 밤의 그 에러가 바로 이겁니다. 파일 이름의 대문자 S를 소문자로 썼는데, 윈도우와 맥은 대소문자를 구분하지 않아서 제 컴퓨터에서는 빌드가 됩니다. 러너는 리눅스라 구분합니다. 서버도 대부분 리눅스입니다. 그래서 단계마다 잡는 게 달라서 셋 다 겁니다.</aside>
+(클릭) 빌드는 파일 이름 대소문자를 잡습니다. 발표 일주일 전 서버에서 터진 그 에러가 바로 이겁니다. 파일 이름의 대문자 S를 소문자로 썼는데, 윈도우와 맥은 대소문자를 구분하지 않아서 제 컴퓨터에서는 빌드가 됩니다. 러너는 리눅스라 구분합니다. 서버도 대부분 리눅스입니다. 그래서 단계마다 잡는 게 달라서 셋 다 겁니다.</aside>
 </section>
 
 <section class="page" id="ciSum" data-title="CI 정리" data-steps="1" data-sec="CI · 지속적 통합">
   <div class="stmt"><h2>CI = 자주 합치고<br>합칠 때마다 자동 확인</h2><p class="lead" data-s="1">문제가 생겨도 어제 이후 바뀐 한 줄만 보면 됨</p></div>
   <aside class="notes">정리하면 CI는 작게 자주 합치고, 합칠 때마다 기계가 자동으로 확인하는 겁니다.
-(클릭) 그러면 문제가 생겨도 어제 이후 바뀐 한 줄만 보면 됩니다. 데모데이 전날 밤처럼 2주치를 한 번에 뒤질 필요가 없습니다.</aside>
+(클릭) 그러면 문제가 생겨도 어제 이후 바뀐 한 줄만 보면 됩니다. 검사 없이 합치면 깨진 줄이 몇 주 동안 main에 숨어 있다가 배포하는 날 한꺼번에 드러나고, 그때는 몇 주치를 뒤져야 합니다.</aside>
 </section>
 
 <!-- ================= 4. CD ================= -->
@@ -1133,14 +1148,14 @@ steps:
   <table class="tb" style="left:112px;top:250px;width:1696px;font-size:34px">
     <thead><tr><th style="width:820px">흔한 생각</th><th>바꾸면</th></tr></thead>
     <tbody>
-      <tr><td><b>배포는 마지막 날 하는 것</b></td><td>첫날 Hello World 배포</td></tr>
+      <tr><td><b>배포는 발표 직전에 하는 것</b></td><td>첫날 Hello World 배포</td></tr>
       <tr data-s="1"><td><b>테스트가 없으니 CI는 필요 없음</b></td><td>린트와 빌드만 걸어도 사고 차단</td></tr>
-      <tr data-s="2"><td><b>팀 규칙은 말로 정하면 됨</b></td><td>브랜치 보호로 시스템이 지킴</td></tr>
+      <tr data-s="2"><td><b>main에 바로 push해도 됨</b></td><td>브랜치 보호로 검사 통과한 PR만</td></tr>
     </tbody>
   </table>
-  <aside class="notes">학생 프로젝트에서 CI/CD가 잘 안 돌아가는 이유는 대개 이 세 가지입니다. 배포를 마지막 날 하는 이벤트로 생각하는 것. 첫날 Hello World를 배포해 두면 마지막 날은 그냥 또 한 번의 배포입니다.
+  <aside class="notes">학생 프로젝트에서 CI/CD가 잘 안 돌아가는 이유는 대개 이 세 가지입니다. 배포를 발표 직전에 한 번 하는 이벤트로 생각하는 것. 첫날 Hello World를 배포해 두면 발표 주간의 배포는 그냥 또 한 번의 배포입니다.
 (클릭) 테스트가 없으니 CI가 필요 없다고 생각하는 것. 린트와 빌드만 걸어도 오늘 본 사고 두 개는 막힙니다.
-(클릭) 그리고 팀 규칙을 말로만 정하는 것.</aside>
+(클릭) 그리고 main에 바로 push하는 것. 브랜치 보호를 걸면 검사를 통과한 PR만 main에 들어갑니다. 팀 규칙을 말 대신 시스템이 지킵니다.</aside>
 </section>
 
 <section class="page" id="day1" data-title="Day 1 체크리스트" data-steps="4" data-sec="가져가기">
@@ -1201,7 +1216,7 @@ steps:
   </div>
   <p data-s="1" style="position:absolute;left:112px;top:270px;margin:0;font:800 84px/1.2 var(--f-sans);letter-spacing:-2.5px">PR 하나 = 검사 한 번 = 배포 한 번</p>
   <aside class="notes">오늘 내용을 한 줄로 줄이면, 코드 변경이 검사된 소프트웨어가 되고, 실제 서비스가 되는 길을 자동으로 만드는 것. 그게 CI/CD입니다.
-(클릭) PR 하나가 검사 한 번이고, 배포 한 번입니다. 마지막 날 몰아서 하던 일을 매일 조금씩 기계에게 맡기는 겁니다.</aside>
+(클릭) PR 하나가 검사 한 번이고, 배포 한 번입니다. 발표 직전에 몰아서 하던 검사와 배포를 매일 조금씩 기계에게 맡기는 겁니다.</aside>
 </section>
 
 <section class="page" id="qa" data-title="자료와 질문">
@@ -1579,7 +1594,7 @@ steps:
   }
   function people(n){ return n === 0 ? '전원 이전 버전' : n === 100 ? '전원 새 버전' : '새 버전 '+n+'명, 이전 버전 '+(100-n)+'명'; }
   var hooks = {
-    night:function(s, page){ $$('.tc', page).forEach(function(c, i){ c.className = 'tc' + (s >= 4 || i < s ? ' past' : i === s ? (i === 2 ? ' hot' : ' now') : ''); }); },
+    night:function(s, page){ $$('.tc', page).forEach(function(c, i){ c.className = 'tc' + (s >= 4 || i < s ? ' past' : i === s ? (i === 1 || i === 2 ? ' hot' : ' now') : ''); }); },
     canary:function(s){ var n = [0,5,25,50,100][s]; setGrid('g100a', n); document.getElementById('pctA').textContent = n+'%'; document.getElementById('g100aL').textContent = people(n); },
     rollback:function(s){ var n = s >= 2 ? 0 : 25; setGrid('g100b', n); document.getElementById('pctB').textContent = n+'%'; document.getElementById('g100bL').textContent = people(n); },
     yaml:function(s, page){
