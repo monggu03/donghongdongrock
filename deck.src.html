@@ -1,0 +1,1357 @@
+<title>CI/CD, 어떻게 하는 걸까</title>
+<style>
+/*FONTS*/
+/* 밝은 종이 위 파이프라인 지도: 고정 레이아웃 + 상단 5칸 띠 위를 커밋 캡슐이 이동. 단일 라이트 테마(발표 화면) */
+:root{
+  --frame:#E6E6E0; --bg:#FAFAF7; --card:#FFFFFF; --line:#E1E1DA; --line2:#C6C6BE;
+  --ink:#1E1E1C; --sub:#55554E; --faint:#9A9A92;
+  --or:#FF6309; --or-t:#D9530B; --or-soft:#FFEADC;
+  --ok:#1A7F37; --ok-soft:#E4F3E8; --ng:#CF222E; --ng-soft:#FDEBEC; --hanji:#F2EBDD; --val:#3D5A80;
+  --f-sans:'Pretendard','Noto Sans CJK KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --f-mono:'JetBrains Mono','Pretendard','D2Coding','Consolas',ui-monospace,monospace;
+  --f-serif:'DHDL Serif','Noto Serif CJK KR','Noto Serif KR','Batang',serif;
+  color-scheme:light;
+}
+html,body{height:100%;margin:0;background:var(--frame);overflow:hidden}
+body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialiased}
+#viewport{position:fixed;inset:0;background:var(--frame);overflow:hidden}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;background:var(--bg);transform-origin:center center;overflow:hidden;word-break:keep-all}
+.page{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .22s ease,visibility 0s linear .22s}
+.page.active{opacity:1;visibility:visible;transition:opacity .22s ease}
+.notes{display:none}
+[data-s],[data-u]{transition:opacity .25s ease}
+.hid{opacity:0!important;pointer-events:none!important}
+
+/* 글자 */
+.ttl{position:absolute;left:112px;top:200px;width:1696px;margin:0;font:800 64px/1.2 var(--f-sans);letter-spacing:-1.5px;text-wrap:balance}
+.area{position:absolute;left:112px;right:112px;top:330px;bottom:96px}
+.lead{font:500 32px/1.5 var(--f-sans);color:var(--sub);margin:0}
+.big{font:700 44px/1.3 var(--f-sans);margin:0}
+.cap{font:500 24px/1.4 var(--f-sans);color:var(--sub);margin:0}
+.mono{font-family:var(--f-mono)}
+.ink{color:var(--ink)} .sub{color:var(--sub)} .okc{color:var(--ok)} .ngc{color:var(--ng)}
+.stmt{position:absolute;left:112px;top:0;bottom:0;width:1696px;display:flex;flex-direction:column;justify-content:center;gap:28px}
+.stmt h2{margin:0;font:800 96px/1.2 var(--f-sans);letter-spacing:-2.5px;text-wrap:balance}
+#pn{position:absolute;right:56px;bottom:30px;font:500 24px var(--f-sans);color:var(--faint);font-variant-numeric:tabular-nums}
+
+/* 상단 파이프라인 띠 */
+#bar{position:absolute;left:112px;top:30px;width:1188px;height:150px;transition:opacity .3s ease;z-index:5}
+#bar .br{position:absolute;top:0;height:28px}
+#bar .br::before{content:"";position:absolute;left:0;right:0;top:13px;height:2px;background:var(--line2)}
+#bar .br::after{content:"";position:absolute;left:0;right:0;top:13px;height:14px;border-left:2px solid var(--line2);border-right:2px solid var(--line2)}
+#bar .br span{position:relative;z-index:1;display:block;width:max-content;margin:0 auto;padding:0 14px;background:var(--bg);font:700 24px/28px var(--f-sans);color:var(--sub)}
+#bar .br-ci{left:0;width:692px} #bar .br-cd{left:744px;width:444px}
+.nd{position:absolute;top:40px;width:196px;height:56px;box-sizing:border-box;border-radius:28px;display:flex;align-items:center;justify-content:center;font:600 26px/1 var(--f-sans);background:var(--card);border:2px solid var(--line2);color:var(--faint);transition:background .3s,border-color .3s,color .3s}
+.nd.n{border:3px solid var(--ink);color:var(--ink);font-weight:800}
+.nd.d{background:var(--ink);border-color:var(--ink);color:#fff}
+.nd.f{background:var(--ng);border-color:var(--ng);color:#fff;font-weight:800}
+.nd.l{border:3px dashed var(--ng);color:var(--ng);font-weight:800}
+.cn{position:absolute;top:67px;width:52px;height:2px;background:var(--line2);transition:background .3s}
+.cn.d{background:var(--ink)}
+#cap{position:absolute;top:106px;left:0;width:112px;height:40px;border-radius:20px;background:var(--ink);color:#fff;font:700 24px/40px var(--f-sans);text-align:center;transition:left .45s cubic-bezier(.5,0,.2,1),background .25s,opacity .25s}
+#cap.f{background:var(--ng)}
+#cap.bump{animation:bump .5s ease}
+@keyframes bump{0%{transform:translateX(0)}25%{transform:translateX(-26px)}50%{transform:translateX(10px)}75%{transform:translateX(-5px)}100%{transform:translateX(0)}}
+
+/* 카드·코드·로그 */
+.card{position:absolute;background:var(--card);border:1px solid var(--line);border-radius:16px}
+.code,.log{position:absolute;margin:0;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 0;font:400 24px/1.48 var(--f-mono);color:var(--ink);white-space:pre;overflow:hidden;box-sizing:border-box}
+.code .cl,.log .cl{display:flex;padding:0 30px;min-height:1.48em}
+.code .cl>.tx{flex:1;white-space:pre}
+.code.hasdim .cl{opacity:.32}
+.code.hasdim .cl.hl{opacity:1;background:var(--or-soft)}
+.code .k{color:var(--ink);font-weight:700}
+.code .v{color:var(--val)}
+.code .c{color:var(--faint)}
+.code .cl.add{background:var(--ok-soft)} .code .cl.add .tx::before{content:"+ ";color:var(--ok);font-weight:700}
+.code .cl.del{background:var(--ng-soft)} .code .cl.del .tx::before{content:"- ";color:var(--ng);font-weight:700}
+.code .cl.ctx .tx::before{content:"  "}
+.mk{flex:none;width:40px;height:40px;margin:-4px 0 0 18px;border-radius:50%;background:var(--ink);color:#fff;font:800 24px/40px var(--f-sans);text-align:center}
+.code .lab,.log .lab{display:block;padding:0 30px 14px;margin-bottom:12px;border-bottom:1px solid var(--line);font:600 24px/1.3 var(--f-sans);color:var(--sub);white-space:normal}
+.log .cl.ng{color:var(--ng);font-weight:700}
+.log .cl.ok{color:var(--ok);font-weight:700}
+.log .cl.st{font-weight:700}
+.log .cl.ln{animation:none}
+.page.active .log.type:not(.hid) .cl{opacity:0;animation:typein .01s linear forwards}
+@keyframes typein{to{opacity:1}}
+.shake{animation:shake .36s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-14px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(5px)}}
+
+/* 캡처 자리 */
+.slot{position:absolute;border:2px dashed var(--line2);border-radius:16px;background:#F2F2EE;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;box-sizing:border-box;padding:24px}
+.slot b{font:700 30px var(--f-sans);color:var(--sub)}
+.slot span{font:500 24px/1.4 var(--f-sans);color:var(--faint)}
+.shot{position:absolute;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card);box-sizing:border-box}
+.shot img{display:block;width:100%;height:100%;object-fit:contain;object-position:top center}
+
+/* 상자·화살표 다이어그램 */
+.bx{position:absolute;box-sizing:border-box;border:2px solid var(--line2);border-radius:14px;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font:700 30px/1.3 var(--f-sans);color:var(--ink);padding:10px 16px}
+.bx small{display:block;font:500 24px/1.35 var(--f-sans);color:var(--sub);margin-top:6px}
+.bx.ink{background:var(--ink);border-color:var(--ink);color:#fff} .bx.ink small{color:#D6D6D0}
+.bx.dash{border:3px dashed var(--or);background:var(--or-soft);color:var(--or-t)}
+.bx.okb{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.bx.ngb{border-color:var(--ng);background:var(--ng-soft);color:var(--ng)}
+.ar{position:absolute;height:3px;background:var(--line2)}
+.ar::after{content:"";position:absolute;right:-2px;top:-8px;border:9px solid transparent;border-left:13px solid var(--line2);border-right:0}
+.ar.ink{background:var(--ink)} .ar.ink::after{border-left-color:var(--ink)}
+.lbl{position:absolute;font:600 24px/1.3 var(--f-sans);color:var(--sub);white-space:nowrap}
+
+/* 타임라인(데모데이 전날 밤) */
+.tl{position:absolute;left:112px;top:316px;width:1696px;height:118px;display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
+.tc{box-sizing:border-box;border:2px solid var(--line2);border-radius:14px;padding:16px 22px;background:var(--card);color:var(--faint)}
+.tc i{display:block;font:600 24px/1.2 var(--f-sans);font-style:normal;margin-bottom:8px}
+.tc b{display:block;font:700 30px/1.25 var(--f-sans)}
+.tc.past{color:var(--sub)}
+.tc.now{border:3px solid var(--ink);color:var(--ink)}
+.tc.hot{border:3px solid var(--or);background:var(--or-soft);color:var(--ink)}
+.tc.hot i{color:var(--or-t)}
+
+/* 표 */
+.tb{position:absolute;border-collapse:collapse;font:500 30px/1.4 var(--f-sans);color:var(--ink)}
+.tb th{font:600 24px/1.3 var(--f-sans);color:var(--sub);text-align:left;padding:0 24px 16px 0;border-bottom:2px solid var(--ink)}
+.tb td{padding:20px 24px 20px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.tb td.m{font:500 24px/1.45 var(--f-mono);color:var(--ng)}
+.tb td b{font-weight:700}
+.tb tr.or td{background:var(--or-soft)}
+.tb .colhl{background:var(--or-soft)}
+
+/* 상태 아이콘 목록 (Actions 단계) */
+.runs{position:absolute;list-style:none;margin:0;padding:0}
+.runs li{display:flex;align-items:center;gap:22px;height:76px;border-bottom:1px solid var(--line);font:600 32px var(--f-sans);color:var(--ink)}
+.runs li .ic{flex:none;width:40px;height:40px}
+.runs li .tag{margin-left:auto;font:500 24px var(--f-sans);color:var(--sub)}
+.runs li.skip{color:var(--faint)}
+.spin{animation:spin 1s linear infinite;transform-origin:50% 50%}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* 칩 */
+.chip{display:inline-flex;align-items:center;gap:14px;padding:12px 22px;border-radius:999px;border:2px solid var(--line2);background:var(--card);font:600 28px/1.2 var(--f-sans);color:var(--ink);white-space:nowrap}
+.chip code{font:500 26px var(--f-mono);color:var(--val)}
+.badge{display:inline-block;width:56px;height:56px;border-radius:50%;background:var(--ink);color:#fff;font:800 30px/56px var(--f-sans);text-align:center}
+
+/* 버튼·인터랙션 */
+.ix{cursor:pointer}
+.approve{position:absolute;border:0;border-radius:14px;background:var(--or);color:#fff;font:800 32px/1 var(--f-sans);padding:22px 30px;box-shadow:0 6px 0 #C24A05;transition:background .2s,transform .1s,box-shadow .1s}
+.approve:active{transform:translateY(4px);box-shadow:0 2px 0 #C24A05}
+.approve.done{background:var(--ink);box-shadow:0 2px 0 #000;cursor:default}
+.approve:focus-visible,.tab:focus-visible{outline:4px solid var(--ink);outline-offset:4px}
+.tabs{position:absolute;display:flex;gap:12px}
+.tab{border:2px solid var(--line2);background:var(--card);border-radius:12px;padding:14px 26px;font:700 28px var(--f-sans);color:var(--sub)}
+.tab.on{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* 표지·구분 */
+.cover-ttl{position:absolute;left:112px;top:240px;margin:0;font:800 132px/1.08 var(--f-sans);letter-spacing:-4px}
+.cover-meta{position:absolute;left:116px;top:640px;font:600 32px/1.5 var(--f-sans);color:var(--sub)}
+.seal{position:absolute;right:112px;top:120px;writing-mode:vertical-rl;font:900 64px/1 var(--f-serif);letter-spacing:10px;color:var(--ink)}
+.divider{position:absolute;inset:0;background:var(--hanji)}
+.divider h2{position:absolute;left:112px;top:420px;margin:0;font:800 120px/1.1 var(--f-sans);letter-spacing:-3px}
+.divider p{position:absolute;left:116px;top:580px;margin:0;font:500 32px/1.5 var(--f-sans);color:var(--sub)}
+
+/* 승인 레인 */
+.lane{position:absolute;left:112px;width:1696px;height:200px}
+.lane .ln-ttl{position:absolute;left:0;top:0;font:800 36px/1.2 var(--f-sans)}
+.lane .ln-sub{position:absolute;left:0;top:50px;font:500 26px/1.3 var(--f-sans);color:var(--sub)}
+.lane .track{position:absolute;left:0;right:0;top:150px;height:3px;background:var(--line2)}
+.pill{position:absolute;height:44px;padding:0 20px;border-radius:22px;background:var(--ink);color:#fff;font:700 24px/44px var(--f-sans);transition:left .55s cubic-bezier(.5,0,.2,1),background .25s,opacity .2s ease .45s}
+.gate{position:absolute;box-sizing:border-box;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 28px/1.3 var(--f-sans);text-align:center}
+
+/* 비교 슬라이더 */
+.cmp{position:absolute;overflow:hidden;border:1px solid var(--line);border-radius:16px;background:var(--card);touch-action:none;user-select:none}
+.cmp .pane{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 72px;box-sizing:border-box}
+.cmp .pane img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.cmp .v2{clip-path:inset(0 0 0 100%);background:#FFFDF9;transition:clip-path .7s cubic-bezier(.5,0,.2,1)}
+.cmp.drag .v2{transition:none}
+.cmp .knob{position:absolute;top:0;bottom:0;width:4px;background:var(--or);left:100%;transition:left .7s cubic-bezier(.5,0,.2,1)}
+.cmp.drag .knob{transition:none}
+.cmp .knob::after{content:"";position:absolute;top:50%;left:-22px;width:48px;height:48px;margin-top:-24px;border-radius:50%;background:var(--or);box-shadow:0 0 0 6px #fff}
+.cmp .tag{font:600 24px var(--f-sans);color:var(--sub);margin-bottom:18px}
+.cmp .msg{font:700 52px/1.3 var(--f-sans)}
+
+/* 트래픽 막대 */
+.traffic{position:absolute}
+.traffic .row{display:grid;grid-template-columns:260px 1fr 110px;align-items:center;gap:24px;height:88px}
+.traffic .nm{font:700 30px var(--f-sans)}
+.traffic .tr{height:36px;border-radius:18px;background:#EDEDE8;overflow:hidden}
+.traffic .fill{height:100%;background:var(--ink);transition:width .7s cubic-bezier(.5,0,.2,1)}
+.traffic .pc{font:800 32px var(--f-sans);text-align:right;font-variant-numeric:tabular-nums}
+
+/* 체크리스트 */
+.checks{position:absolute;list-style:none;margin:0;padding:0}
+.checks li{display:flex;gap:28px;align-items:flex-start;padding:22px 0;border-bottom:1px solid var(--line);font:600 34px/1.4 var(--f-sans)}
+.checks li .bx2{flex:none;width:44px;height:44px;margin-top:2px;border:3px solid var(--ink);border-radius:8px;box-sizing:border-box;position:relative;transition:background .2s}
+.checks li .bx2::after{content:"";position:absolute;left:12px;top:3px;width:12px;height:22px;border:solid #fff;border-width:0 5px 5px 0;transform:rotate(45deg);opacity:0;transition:opacity .2s}
+.checks li.ck .bx2{background:var(--ink)} .checks li.ck .bx2::after{opacity:1}
+.checks li small{display:block;font:500 26px/1.4 var(--f-sans);color:var(--sub);margin-top:4px}
+
+/* 도움말·발표자 */
+#help{position:absolute;right:56px;bottom:80px;width:560px;padding:28px 32px;border-radius:16px;background:var(--ink);color:#fff;font:500 24px/1.6 var(--f-sans);z-index:20}
+#help b{display:inline-block;min-width:150px;font-family:var(--f-mono);color:#FFB27D}
+#black{position:absolute;inset:0;background:#000;z-index:30}
+.nolive{display:none!important}
+.pend{font:600 30px/1.35 var(--f-sans)!important;color:var(--faint)!important;letter-spacing:0!important}
+.live-dot{display:inline-block;width:16px;height:16px;border-radius:50%;background:var(--ok);margin-right:12px;vertical-align:2px}
+#jump{position:absolute;left:56px;bottom:26px;font:700 28px var(--f-mono);color:var(--sub);z-index:20}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01s!important;animation-duration:.01s!important}}
+
+/* 발표자 창 */
+body.presenter{overflow:auto;background:#141413;color:#EDEDE6}
+.pv{display:grid;grid-template-columns:1fr 360px;gap:28px;padding:24px 28px;box-sizing:border-box;min-height:100%;font-family:var(--f-sans)}
+.pv h1{margin:0 0 6px;font:800 34px/1.25 var(--f-sans)}
+.pv .meta{font:600 20px var(--f-mono);color:#A9A9A0;margin-bottom:18px}
+.pv .nt{font:500 28px/1.6 var(--f-sans);color:#F4F4EE;white-space:pre-wrap}
+.pv .side{border-left:1px solid #33332F;padding-left:24px}
+.pv .clock{font:800 64px var(--f-mono);font-variant-numeric:tabular-nums}
+.pv .nx{margin-top:24px;font:600 22px/1.4 var(--f-sans);color:#A9A9A0}
+.pv .nx b{display:block;color:#EDEDE6;font-size:26px;margin-top:6px}
+.pv .keys{margin-top:28px;font:500 18px/1.7 var(--f-sans);color:#8C8C84}
+.pv button{font:700 22px var(--f-sans);padding:12px 18px;border-radius:10px;border:0;margin-right:8px;background:#2A2A27;color:#EDEDE6;cursor:pointer}
+</style>
+
+<div id="viewport"><div id="stage">
+
+<!-- 상단 파이프라인 띠 -->
+<div id="bar" class="hid" aria-hidden="true">
+  <div class="br br-ci"><span>CI</span></div>
+  <div class="br br-cd"><span>CD</span></div>
+  <div class="nd" style="left:0" data-label="PR" data-f="PR" data-l="PR">PR</div>
+  <div class="cn" style="left:196px"></div>
+  <div class="nd" style="left:248px" data-label="검사" data-f="검사 실패" data-l="검사">검사</div>
+  <div class="cn" style="left:444px"></div>
+  <div class="nd" style="left:496px" data-label="머지" data-f="머지" data-l="머지 잠김">머지</div>
+  <div class="cn" style="left:692px"></div>
+  <div class="nd" style="left:744px" data-label="배포" data-f="배포 실패" data-l="배포">배포</div>
+  <div class="cn" style="left:940px"></div>
+  <div class="nd" style="left:992px" data-label="롤백" data-f="롤백" data-l="롤백">롤백</div>
+  <div id="cap">커밋</div>
+</div>
+
+<!-- ================= 0. 오프닝 ================= -->
+<section class="page" data-title="표지">
+  <div class="seal">東弘同樂</div>
+  <h1 class="cover-ttl">CI/CD,<br>어떻게 하는 걸까</h1>
+  <div class="cover-meta">동홍동락 in HIU · 2026.11.02 · 홍익대학교 정보통신센터 Q403<br>이도윤 · GDGoC DGU</div>
+  <svg style="position:absolute;left:112px;top:830px" width="1188" height="64" viewBox="0 0 1188 64" aria-hidden="true">
+    <g fill="none" stroke="#C6C6BE" stroke-width="2">
+      <rect x="1" y="4" width="194" height="54" rx="27"/><rect x="249" y="4" width="194" height="54" rx="27"/><rect x="497" y="4" width="194" height="54" rx="27"/><rect x="745" y="4" width="194" height="54" rx="27"/><rect x="993" y="4" width="194" height="54" rx="27"/>
+      <path d="M196 31h52M444 31h52M692 31h52M940 31h52"/>
+    </g>
+    <g font-family="Pretendard,sans-serif" font-size="26" font-weight="600" fill="#9A9A92" text-anchor="middle">
+      <text x="98" y="40">PR</text><text x="346" y="40">검사</text><text x="594" y="40">머지</text><text x="842" y="40">배포</text><text x="1090" y="40">롤백</text>
+    </g>
+  </svg>
+  <aside class="notes">안녕하세요, 동국대학교 GDGoC DGU 4기 Lead 이도윤입니다. 오늘 20분 동안 CI/CD가 실제로 어떻게 돌아가는지, 직접 깨뜨려 보면서 보여 드리겠습니다. 아래 다섯 칸이 오늘 따라갈 길입니다.</aside>
+</section>
+
+<section class="page" data-title="발표자">
+  <div style="position:absolute;left:112px;top:300px">
+    <div style="font:800 120px/1.1 var(--f-sans);letter-spacing:-3px">이도윤</div>
+    <p class="lead" style="margin-top:36px;font-size:36px;color:var(--ink);font-weight:600">GDGoC DGU 4th Lead</p>
+    <p class="lead" style="margin-top:10px;font-size:36px">동국대학교 컴퓨터공학 22학번 · 백엔드 개발 지망</p>
+  </div>
+  <aside class="notes">짧게 소개하겠습니다. 동국대 GDGoC 4기 Lead이고, 백엔드 개발자를 준비하고 있습니다. 이번 학기 G-Sprint에서 다섯 팀이 서비스를 만들고 있는데, 그 팀들에게 제일 먼저 권하는 게 오늘 이야기입니다.</aside>
+</section>
+
+<!-- ================= 1. 데모데이 전날 밤 ================= -->
+<section class="page" data-title="2주, 각자 브랜치" data-steps="1">
+  <h2 class="ttl">데모데이까지 2주, 각자 브랜치에서 작업</h2>
+  <div class="tl">
+    <div class="tc now"><i>D-14</i><b>각자 브랜치에서 작업</b></div>
+    <div class="tc"><i>D-1 밤</i><b>한꺼번에 머지</b></div>
+    <div class="tc"><i>D-1 밤</i><b>충돌 · 빌드 실패</b></div>
+    <div class="tc"><i>D-day 03:00</i><b>처음으로 서버에 배포</b></div>
+  </div>
+  <svg style="position:absolute;left:112px;top:490px" width="1696" height="460" viewBox="0 0 1696 460" aria-hidden="true">
+    <path d="M0 230H1696" stroke="#1E1E1C" stroke-width="5"/>
+    <text x="0" y="280" font-family="JetBrains Mono,monospace" font-size="26" fill="#55554E">main</text>
+    <g data-s="1" fill="none" stroke="#55554E" stroke-width="4">
+      <path d="M160 230C260 230 260 70 380 70H1560"/>
+      <path d="M200 230C300 230 300 160 420 160H1560"/>
+      <path d="M240 230C340 230 340 380 460 380H1560"/>
+    </g>
+    <g data-s="1" fill="#FAFAF7" stroke="#55554E" stroke-width="4">
+      <circle cx="620" cy="70" r="11"/><circle cx="900" cy="70" r="11"/><circle cx="1240" cy="70" r="11"/>
+      <circle cx="700" cy="160" r="11"/><circle cx="1100" cy="160" r="11"/><circle cx="1420" cy="160" r="11"/>
+      <circle cx="660" cy="380" r="11"/><circle cx="980" cy="380" r="11"/><circle cx="1300" cy="380" r="11"/>
+    </g>
+    <g data-s="1" font-family="Pretendard,sans-serif" font-size="30" font-weight="700" fill="#1E1E1C">
+      <text x="1580" y="80">로그인</text><text x="1580" y="170">결제</text><text x="1580" y="390">화면</text>
+    </g>
+  </svg>
+  <aside class="notes">팀 프로젝트에서 흔한 장면부터 보겠습니다. 데모데이까지 2주가 남았고, 각자 기능을 맡아서 자기 브랜치에서 작업합니다. 로그인, 결제, 화면. 2주 동안 main에는 아무도 합치지 않습니다.</aside>
+</section>
+
+<section class="page" data-title="전날 밤 머지" data-steps="1">
+  <h2 class="ttl">데모데이 전날 밤, 한꺼번에 머지</h2>
+  <div class="tl">
+    <div class="tc past"><i>D-14</i><b>각자 브랜치에서 작업</b></div>
+    <div class="tc now"><i>D-1 밤</i><b>한꺼번에 머지</b></div>
+    <div class="tc"><i>D-1 밤</i><b>충돌 · 빌드 실패</b></div>
+    <div class="tc"><i>D-day 03:00</i><b>처음으로 서버에 배포</b></div>
+  </div>
+  <svg style="position:absolute;left:112px;top:490px" width="980" height="460" viewBox="0 0 980 460" aria-hidden="true">
+    <path d="M0 230H980" stroke="#1E1E1C" stroke-width="5"/>
+    <text x="0" y="280" font-family="JetBrains Mono,monospace" font-size="26" fill="#55554E">main</text>
+    <g fill="none" stroke="#55554E" stroke-width="4">
+      <path d="M80 230C160 230 160 70 260 70H560C700 70 700 230 800 230"/>
+      <path d="M100 230C180 230 180 160 280 160H580C700 160 700 230 800 230"/>
+      <path d="M120 230C200 230 200 380 300 380H600C720 380 720 230 800 230"/>
+    </g>
+    <circle cx="800" cy="230" r="26" fill="#1E1E1C"/>
+    <text x="800" y="240" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="30" font-weight="800" fill="#fff">!</text>
+  </svg>
+  <pre class="code" data-lang="text" data-s="1" style="left:1140px;top:560px;width:668px" data-label="App.jsx · 머지 충돌">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+const API = 'http://localhost:8080'
+=======
+const API = import.meta.env.VITE_API_URL
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feat/deploy</pre>
+  <aside class="notes">그리고 데모데이 전날 밤, 모두가 한꺼번에 main에 합칩니다. 2주 동안 따로 고친 코드가 처음 만나니까 같은 줄을 서로 다르게 고친 곳에서 충돌이 납니다.</aside>
+</section>
+
+<section class="page" data-title="빌드 실패" data-steps="1">
+  <h2 class="ttl">충돌을 풀고 나니 빌드 실패</h2>
+  <div class="tl">
+    <div class="tc past"><i>D-14</i><b>각자 브랜치에서 작업</b></div>
+    <div class="tc past"><i>D-1 밤</i><b>한꺼번에 머지</b></div>
+    <div class="tc hot"><i>D-1 밤</i><b>충돌 · 빌드 실패</b></div>
+    <div class="tc"><i>D-day 03:00</i><b>처음으로 서버에 배포</b></div>
+  </div>
+  <pre class="log type shaker" data-s="1" style="left:112px;top:500px;width:1180px" data-label="빌드 로그" data-ng="2,4,5">$ npm run build
+✗ Build failed in 285ms
+error during build:
+[UNRESOLVED_IMPORT] Could not resolve
+'./components/sessionTable.jsx' in src/App.jsx</pre>
+  <p class="big" data-s="1" style="position:absolute;left:1360px;top:540px;width:448px">내 컴퓨터에서는<br>잘 되던 코드</p>
+  <p class="cap" data-s="1" style="position:absolute;left:1360px;top:680px;width:448px">이 에러의 정체는 뒤에서</p>
+  <aside class="notes">충돌을 겨우 풀었더니 이번엔 빌드가 실패합니다. 이상한 건 이 코드가 제 컴퓨터에서는 잘 됐다는 겁니다. 이 에러가 왜 났는지는 뒤에서 다시 보겠습니다.</aside>
+</section>
+
+<section class="page" data-title="새벽 3시 배포" data-steps="1">
+  <h2 class="ttl">새벽 3시, 처음으로 서버에 배포</h2>
+  <div class="tl">
+    <div class="tc past"><i>D-14</i><b>각자 브랜치에서 작업</b></div>
+    <div class="tc past"><i>D-1 밤</i><b>한꺼번에 머지</b></div>
+    <div class="tc past"><i>D-1 밤</i><b>충돌 · 빌드 실패</b></div>
+    <div class="tc now"><i>D-day 03:00</i><b>처음으로 서버에 배포</b></div>
+  </div>
+  <div style="position:absolute;left:104px;top:470px;font:800 260px/1 var(--f-mono);letter-spacing:-8px;color:var(--ink)">03:00</div>
+  <div data-s="1" style="position:absolute;left:1060px;top:520px;width:748px">
+    <p class="big">서버 접속, 설치, 환경 변수, DB 주소</p>
+    <p class="lead" style="margin-top:20px">배포 설정을 데모데이 당일 새벽에 처음 맞춰 봄</p>
+  </div>
+  <aside class="notes">새벽 3시, 처음으로 서버에 올려 봅니다. 서버 접속하고, 설치하고, 환경 변수 맞추고, DB 주소 바꾸고. 배포 설정을 데모데이 당일에 처음 해 보는 겁니다. 다들 한 번쯤 겪어 보셨을 겁니다.</aside>
+</section>
+
+<section class="page" data-title="원인" data-steps="1">
+  <h2 class="ttl">원인은 합치기와 배포를 마지막 날 몰아서 한 구조</h2>
+  <div class="tl">
+    <div class="tc past"><i>D-14</i><b>각자 브랜치에서 작업</b></div>
+    <div class="tc past"><i>D-1 밤</i><b>한꺼번에 머지</b></div>
+    <div class="tc past"><i>D-1 밤</i><b>충돌 · 빌드 실패</b></div>
+    <div class="tc past"><i>D-day 03:00</i><b>처음으로 서버에 배포</b></div>
+  </div>
+  <svg data-s="1" style="position:absolute;left:112px;top:446px" width="1696" height="40" viewBox="0 0 1696 40" aria-hidden="true">
+    <path d="M2 2V22H1694V2" fill="none" stroke="#FF6309" stroke-width="4"/>
+  </svg>
+  <div data-s="1" style="position:absolute;left:112px;top:520px;width:1696px">
+    <p style="margin:0;font:800 64px/1.3 var(--f-sans);letter-spacing:-1.5px">2주 동안 합친 적 0번<br>서버에 올린 적 0번</p>
+    <p class="lead" style="margin-top:28px">문제가 한꺼번에 터지면 어디서 깨졌는지 찾기 어려움</p>
+  </div>
+  <aside class="notes">이건 실력 문제가 아닙니다. 2주 동안 한 번도 합치지 않았고, 한 번도 서버에 올려 보지 않은 구조가 문제입니다. 문제가 한꺼번에 터지면 어디서 깨졌는지 찾기가 어렵습니다.</aside>
+</section>
+
+<section class="page" data-title="순서 뒤집기" data-steps="2">
+  <h2 class="ttl">CI/CD는 이 순서를 뒤집는 방법</h2>
+  <div class="area">
+    <div style="display:grid;grid-template-columns:140px 1fr;row-gap:44px;align-items:baseline;margin-top:20px">
+      <span class="mono" style="font:700 36px var(--f-mono);color:var(--faint)">CI</span><span style="font:800 64px/1.2 var(--f-sans);letter-spacing:-1.5px">작게, 자주 합치기</span>
+      <span class="mono" data-s="1" style="font:700 36px var(--f-mono);color:var(--faint)">CI</span><span data-s="1" style="font:800 64px/1.2 var(--f-sans);letter-spacing:-1.5px">합칠 때마다 기계가 검사</span>
+      <span class="mono" data-s="2" style="font:700 36px var(--f-mono);color:var(--faint)">CD</span><span data-s="2" style="font:800 64px/1.2 var(--f-sans);letter-spacing:-1.5px">통과하면 바로 배포</span>
+    </div>
+    <p class="lead" data-s="2" style="position:absolute;left:0;bottom:0">문제가 생겨도 어제 이후 바뀐 한 줄만 보면 됨</p>
+  </div>
+  <aside class="notes">CI/CD는 이 순서를 뒤집습니다. 작게, 자주 합치고. 합칠 때마다 사람 대신 기계가 검사하고. 통과하면 바로 배포합니다. 그러면 문제가 터져도 어제 이후 바뀐 한 줄만 보면 됩니다.</aside>
+</section>
+
+<!-- ================= 2. 개념 ================= -->
+<section class="page" data-title="CI 정의" data-steps="1">
+  <h2 class="ttl">CI: 합칠 때마다 자동 검사</h2>
+  <p class="lead" style="position:absolute;left:112px;top:270px">Continuous Integration · 지속적 통합</p>
+  <div class="bx" style="left:112px;top:500px;width:300px;height:140px">내 변경<small>PR</small></div>
+  <div class="ar ink" style="left:424px;top:569px;width:150px"></div>
+  <div class="bx ink" style="left:586px;top:480px;width:420px;height:180px">자동 검사<small>lint · test · build</small></div>
+  <div class="ar ink" style="left:1018px;top:569px;width:150px"></div>
+  <div class="bx" style="left:1180px;top:500px;width:340px;height:140px">main에 합침</div>
+  <div data-s="1">
+    <svg style="position:absolute;left:300px;top:660px" width="520" height="140" viewBox="0 0 520 140" aria-hidden="true"><path d="M500 2V100H12" fill="none" stroke="#CF222E" stroke-width="3"/><path d="M2 100l18-10v20z" fill="#CF222E"/></svg>
+    <p class="big ngc" style="position:absolute;left:112px;top:790px">하나라도 실패하면 합치지 않음</p>
+  </div>
+  <aside class="notes">먼저 CI입니다. Continuous Integration, 지속적 통합. 내 변경을 main에 합치기 전에 기계가 자동으로 검사합니다. 하나라도 실패하면 합치지 않고 돌려보냅니다.</aside>
+</section>
+
+<section class="page" data-title="CD 정의" data-steps="1">
+  <h2 class="ttl">CD: 검사를 통과하면 배포까지</h2>
+  <p class="lead" style="position:absolute;left:112px;top:270px">Continuous Delivery / Continuous Deployment</p>
+  <div class="bx okb" style="left:112px;top:500px;width:340px;height:140px">검사 통과</div>
+  <div class="ar ink" style="left:464px;top:569px;width:150px"></div>
+  <div class="bx ink" style="left:626px;top:480px;width:420px;height:180px">배포<small>빌드 결과를 서버에 올림</small></div>
+  <div class="ar ink" style="left:1058px;top:569px;width:150px"></div>
+  <div class="bx" style="left:1220px;top:500px;width:380px;height:140px">실제 서비스</div>
+  <p class="big" data-s="1" style="position:absolute;left:112px;top:760px">CD의 D는 두 가지, 차이는 다음 장에서</p>
+  <aside class="notes">CD는 검사를 통과한 코드를 실제 서비스까지 보내는 겁니다. 그런데 CD의 D가 두 가지입니다. Delivery와 Deployment. 차이는 딱 하나입니다.</aside>
+</section>
+
+<section class="page" id="lanes" data-title="Delivery vs Deployment" data-steps="5">
+  <h2 class="ttl">Delivery와 Deployment의 차이는 마지막 버튼 하나</h2>
+  <div class="lane" style="top:330px">
+    <div class="ln-ttl">Continuous Delivery</div>
+    <div class="ln-sub">운영 반영 직전에 사람이 버튼을 누름</div>
+    <div class="track"></div>
+    <div class="bx okb" style="left:560px;top:110px;width:220px;height:84px;font-size:26px">검사 통과</div>
+    <div class="gate" style="left:900px;top:96px;width:330px;height:112px;border:3px solid var(--ink);background:var(--card)" data-u="3">사람 승인 대기</div>
+    <div class="gate" style="left:900px;top:96px;width:330px;height:112px;border:3px solid var(--ok);background:var(--ok-soft);color:var(--ok)" data-s="3">승인 완료</div>
+    <div class="bx" style="left:1400px;top:110px;width:296px;height:84px;font-size:26px" data-u="3">운영</div>
+    <div class="bx okb" style="left:1400px;top:110px;width:296px;height:84px;font-size:26px;transition-delay:.4s" data-s="3">운영 반영</div>
+    <div class="pill" id="pillA" style="left:400px;top:128px">커밋</div>
+  </div>
+  <button class="approve ix" id="approveBtn" data-s="2" style="left:1084px;top:560px" type="button">배포 승인</button>
+  <div class="lane" style="top:700px" data-s="4">
+    <div class="ln-ttl">Continuous Deployment</div>
+    <div class="ln-sub">검사를 통과하면 사람 없이 운영까지</div>
+    <div class="track"></div>
+    <div class="bx okb" style="left:560px;top:110px;width:220px;height:84px;font-size:26px">검사 통과</div>
+    <div class="gate" style="left:900px;top:96px;width:330px;height:112px;border:3px dashed var(--line2);color:var(--faint)">버튼 없음</div>
+    <div class="bx" style="left:1400px;top:110px;width:296px;height:84px;font-size:26px" data-u="4">운영</div>
+    <div class="bx okb" style="left:1400px;top:110px;width:296px;height:84px;font-size:26px;transition-delay:.4s" data-s="4">운영 반영</div>
+    <div class="pill" id="pillB" style="left:400px;top:128px">커밋</div>
+  </div>
+  <div data-s="5" style="position:absolute;left:92px;top:680px;width:1736px;height:250px;border:4px solid var(--or);border-radius:20px;box-sizing:border-box"></div>
+  <div data-s="5" class="chip" style="position:absolute;left:1430px;top:950px;border-color:var(--or);color:var(--or-t)">오늘 실습 방식</div>
+  <aside class="notes">위 줄이 Delivery입니다. 검사를 통과한 커밋이 운영 직전에서 멈추고, 사람이 승인 버튼을 눌러야 나갑니다. (버튼을 직접 클릭) 아래 줄이 Deployment입니다. 버튼 자체가 없어서 검사를 통과하면 바로 운영까지 갑니다. 오늘 실습은 아래 방식입니다.</aside>
+</section>
+
+<section class="page" data-title="Vercel = 이미 CD" data-steps="1">
+  <h2 class="ttl">Vercel을 연결했다면 이미 CD 진행 중</h2>
+  <div class="bx" style="left:112px;top:380px;width:300px;height:120px">main에 push</div>
+  <div class="ar ink" style="left:424px;top:438px;width:110px"></div>
+  <div class="bx ink" style="left:546px;top:380px;width:300px;height:120px">Vercel 빌드</div>
+  <div class="ar ink" style="left:858px;top:438px;width:110px"></div>
+  <div class="bx" style="left:980px;top:380px;width:300px;height:120px">운영 주소</div>
+  <div class="bx" style="left:112px;top:560px;width:300px;height:120px">PR 열기</div>
+  <div class="ar ink" style="left:424px;top:618px;width:110px"></div>
+  <div class="bx ink" style="left:546px;top:560px;width:300px;height:120px">Vercel 빌드</div>
+  <div class="ar ink" style="left:858px;top:618px;width:110px"></div>
+  <div class="bx" style="left:980px;top:560px;width:300px;height:120px">미리보기 주소</div>
+  <p class="lead" style="position:absolute;left:112px;top:740px;width:1170px">레포를 Import한 순간 GitHub가 push마다 Vercel에 알려 줌(웹훅)</p>
+  <div class="slot" data-cap="vercel-bot" data-s="1" style="left:1340px;top:330px;width:468px;height:560px"><b>캡처 자리</b><span>PR에 달린 Vercel 봇 댓글<br>(미리보기 주소)</span></div>
+  <aside class="notes">사실 여러분 중 상당수는 이미 CD를 하고 있습니다. Vercel에 레포를 연결해 두면 main에 push할 때마다 자동으로 운영에 배포되고, PR을 열면 미리보기 주소까지 만들어 줍니다. 이게 Continuous Deployment입니다.</aside>
+</section>
+
+<section class="page" data-title="빠진 조각" data-steps="2">
+  <h2 class="ttl">빠진 조각은 합치기 전 검사와 백엔드 배포</h2>
+  <p class="lbl" style="left:112px;top:356px;font-size:28px;color:var(--ink);font-weight:700">프론트 레포</p>
+  <div class="bx" style="left:112px;top:410px;width:260px;height:110px">PR</div>
+  <div class="ar" style="left:384px;top:464px;width:70px"></div>
+  <div class="bx" style="left:466px;top:410px;width:300px;height:110px;color:var(--faint)" data-u="2">검사</div>
+  <div class="bx dash" style="left:466px;top:410px;width:300px;height:110px" data-s="2">검사 없음</div>
+  <div class="ar" style="left:778px;top:464px;width:70px"></div>
+  <div class="bx" style="left:860px;top:410px;width:260px;height:110px">머지</div>
+  <div class="ar" style="left:1132px;top:464px;width:70px"></div>
+  <div class="bx" style="left:1214px;top:410px;width:380px;height:110px" data-u="1">배포</div>
+  <div class="bx ink" style="left:1214px;top:410px;width:380px;height:110px" data-s="1">Vercel 자동 배포</div>
+
+  <p class="lbl" style="left:112px;top:606px;font-size:28px;color:var(--ink);font-weight:700">백엔드 레포</p>
+  <div class="bx" style="left:112px;top:660px;width:260px;height:110px">PR</div>
+  <div class="ar" style="left:384px;top:714px;width:70px"></div>
+  <div class="bx" style="left:466px;top:660px;width:300px;height:110px;color:var(--faint)" data-u="2">검사</div>
+  <div class="bx dash" style="left:466px;top:660px;width:300px;height:110px" data-s="2">검사 없음</div>
+  <div class="ar" style="left:778px;top:714px;width:70px"></div>
+  <div class="bx" style="left:860px;top:660px;width:260px;height:110px">머지</div>
+  <div class="ar" style="left:1132px;top:714px;width:70px"></div>
+  <div class="bx" style="left:1214px;top:660px;width:380px;height:110px;color:var(--faint)" data-u="2">배포</div>
+  <div class="bx dash" style="left:1214px;top:660px;width:380px;height:110px" data-s="2">손으로 배포</div>
+  <p class="lead" data-s="2" style="position:absolute;left:112px;top:840px">오늘 채울 칸: 두 레포의 검사, 백엔드 자동 배포</p>
+  <aside class="notes">그럼 지금 학생 프로젝트에 뭐가 빠져 있을까요. 프론트는 Vercel이 배포까지 해 줍니다. 그런데 합치기 전에 검사하는 칸이 비어 있고, 백엔드는 배포도 아직 손으로 합니다. 오늘 이 빈칸들을 채웁니다.</aside>
+</section>
+
+<section class="page" id="fly" data-title="오늘의 지도" data-steps="1" data-bar1="ttttt|-">
+  <h2 class="ttl">오늘 따라갈 다섯 칸</h2>
+  <div id="bigbar" style="position:absolute;left:182px;top:470px;width:1556px;height:260px;transform-origin:0 0;transition:transform .5s cubic-bezier(.5,0,.2,1),opacity .4s ease .1s">
+    <svg width="1556" height="260" viewBox="0 0 1556 260" aria-hidden="true">
+      <g fill="none" stroke="#C6C6BE" stroke-width="3">
+        <path d="M2 40V20H896V40"/><path d="M984 40V20H1554V40"/>
+        <path d="M260 150h64M584 150h64M908 150h64M1232 150h64"/>
+      </g>
+      <rect x="430" y="2" width="80" height="36" fill="#FAFAF7"/><rect x="1229" y="2" width="80" height="36" fill="#FAFAF7"/>
+      <g font-family="Pretendard,sans-serif" font-size="32" font-weight="700" fill="#55554E" text-anchor="middle"><text x="470" y="31">CI</text><text x="1269" y="31">CD</text></g>
+      <g fill="#fff" stroke="#1E1E1C" stroke-width="3">
+        <rect x="2" y="104" width="258" height="92" rx="46"/><rect x="326" y="104" width="258" height="92" rx="46"/><rect x="650" y="104" width="258" height="92" rx="46"/><rect x="974" y="104" width="258" height="92" rx="46"/><rect x="1298" y="104" width="256" height="92" rx="46"/>
+      </g>
+      <g font-family="Pretendard,sans-serif" font-size="38" font-weight="800" fill="#1E1E1C" text-anchor="middle">
+        <text x="131" y="164">PR</text><text x="455" y="164">검사</text><text x="779" y="164">머지</text><text x="1103" y="164">배포</text><text x="1426" y="164">롤백</text>
+      </g>
+      <g font-family="Pretendard,sans-serif" font-size="24" font-weight="500" fill="#55554E" text-anchor="middle">
+        <text x="131" y="244">변경 올리기</text><text x="455" y="244">GitHub Actions</text><text x="779" y="244">main에 합침</text><text x="1103" y="244">Vercel · Cloud Run</text><text x="1426" y="244">되돌리기</text>
+      </g>
+    </svg>
+  </div>
+  <p class="lead" data-s="1" style="position:absolute;left:112px;top:560px">지금 어느 칸인지 화면 위에 계속 표시</p>
+  <aside class="notes">오늘은 이 다섯 칸을 따라갑니다. PR을 올리고, 검사하고, 머지하고, 배포하고, 문제가 생기면 롤백. 이 띠는 화면 위에 계속 떠 있으면서 지금 어디쯤인지 알려 줍니다.</aside>
+</section>
+
+<!-- ================= 3. GitHub Actions 읽기 ================= -->
+<section class="page" data-title="GitHub Actions" data-steps="1" data-bar="tnttt|-">
+  <h2 class="ttl">GitHub Actions: 일이 생기면 적어 둔 단계를 실행</h2>
+  <div class="chip" style="position:absolute;left:112px;top:350px;font-size:40px;padding:20px 34px"><code style="font-size:40px">.github/workflows/ci.yml</code></div>
+  <p class="lead" style="position:absolute;left:112px;top:470px">레포 안에 이 파일 하나만 있으면 동작</p>
+  <div data-s="1">
+    <div class="bx" style="left:112px;top:600px;width:360px;height:130px">PR 열림<small>이벤트</small></div>
+    <div class="ar ink" style="left:484px;top:664px;width:120px"></div>
+    <div class="bx ink" style="left:616px;top:590px;width:460px;height:150px">워크플로 실행<small>GitHub가 빌려준 컴퓨터에서</small></div>
+    <div class="ar ink" style="left:1088px;top:664px;width:120px"></div>
+    <div class="bx" style="left:1220px;top:600px;width:420px;height:130px">결과를 PR에 표시<small>초록 체크 / 빨간 X</small></div>
+  </div>
+  <aside class="notes">검사는 GitHub Actions로 합니다. 레포 안에 .github/workflows 폴더를 만들고 yml 파일 하나를 넣으면 끝입니다. PR이 열리면 GitHub가 이 파일을 읽고, 빌려준 컴퓨터에서 적힌 단계를 실행하고, 결과를 PR에 초록 체크나 빨간 X로 붙입니다.</aside>
+</section>
+
+<section class="page" data-title="네 부품" data-steps="3" data-bar="tnttt|-">
+  <h2 class="ttl">워크플로 파일 하나에 담긴 네 가지</h2>
+  <div class="area" style="display:grid;grid-template-columns:repeat(4,1fr);gap:40px;top:380px">
+    <div><div style="font:800 80px/1.1 var(--f-sans);letter-spacing:-2px">언제</div><p class="big" style="margin-top:20px">트리거</p><p class="lead mono" style="margin-top:12px;font-family:var(--f-mono)">on:</p></div>
+    <div data-s="1"><div style="font:800 80px/1.1 var(--f-sans);letter-spacing:-2px">어디서</div><p class="big" style="margin-top:20px">러너</p><p class="lead" style="margin-top:12px;font-family:var(--f-mono)">runs-on:</p></div>
+    <div data-s="2"><div style="font:800 80px/1.1 var(--f-sans);letter-spacing:-2px">무엇을</div><p class="big" style="margin-top:20px">단계</p><p class="lead" style="margin-top:12px;font-family:var(--f-mono)">steps:</p></div>
+    <div data-s="3"><div style="font:800 80px/1.1 var(--f-sans);letter-spacing:-2px">무슨 권한</div><p class="big" style="margin-top:20px">인증</p><p class="lead" style="margin-top:12px;font-family:var(--f-mono)">permissions:</p></div>
+  </div>
+  <p class="lead" data-s="3" style="position:absolute;left:112px;top:820px">Jenkins, GitLab CI도 이름만 다르고 같은 네 가지</p>
+  <aside class="notes">이 파일에는 딱 네 가지가 들어 있습니다. 언제 돌릴지가 트리거, 어디서 돌릴지가 러너, 무엇을 할지가 단계, 무슨 권한으로 할지가 인증입니다. Jenkins든 GitLab이든 이름만 다르고 이 네 가지는 같습니다.</aside>
+</section>
+
+<section class="page" data-title="① 트리거" data-steps="1" data-bar="tnttt|-">
+  <h2 class="ttl">트리거: PR이 열리거나 main에 들어올 때</h2>
+  <pre class="code" data-lang="yaml" data-hl="2-6" data-mk="2:1" style="left:112px;top:320px;width:900px" data-label="cicd-frontend/.github/workflows/ci.yml (주석 생략)">name: Frontend CI
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+jobs:
+  check:
+    name: frontend-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build</pre>
+  <div style="position:absolute;left:1080px;top:340px;width:728px">
+    <span class="badge">1</span>
+    <p class="big" style="margin-top:22px">이벤트가 생기면<br>GitHub가 워크플로를 깨움</p>
+    <div data-s="1" style="display:flex;flex-direction:column;gap:18px;margin-top:40px;align-items:flex-start">
+      <span class="chip">PR 열기 → <code>pull_request</code></span>
+      <span class="chip">main에 머지 → <code>push</code></span>
+    </div>
+  </div>
+  <aside class="notes">첫 번째, 트리거입니다. on 아래에 적습니다. pull_request는 PR을 열거나 PR에 커밋을 더 올릴 때, push는 main에 들어올 때입니다. 사람이 하는 행동과 키워드가 이렇게 짝지어집니다.</aside>
+</section>
+
+<section class="page" data-title="② 러너" data-steps="1" data-bar="tnttt|-">
+  <h2 class="ttl">러너: 매번 새로 빌리는 깨끗한 리눅스 컴퓨터</h2>
+  <pre class="code" data-lang="yaml" data-hl="10" data-mk="10:2" style="left:112px;top:320px;width:900px" data-label="cicd-frontend/.github/workflows/ci.yml (주석 생략)">name: Frontend CI
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+jobs:
+  check:
+    name: frontend-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build</pre>
+  <div style="position:absolute;left:1080px;top:340px;width:728px">
+    <span class="badge">2</span>
+    <p class="big" style="margin-top:22px"><span class="mono" style="font-family:var(--f-mono);font-size:40px">ubuntu-latest</span><br>GitHub가 빌려주는 리눅스</p>
+    <p class="lead" data-s="1" style="margin-top:40px">실행이 끝나면 버려짐<br>그래서 매번 코드 받기와 설치부터 다시</p>
+  </div>
+  <aside class="notes">두 번째, 러너입니다. ubuntu-latest라고 적으면 GitHub가 깨끗한 리눅스 컴퓨터를 하나 빌려줍니다. 실행이 끝나면 버려지기 때문에 매번 코드를 받고 설치부터 다시 합니다. 이 리눅스라는 점이 뒤에서 중요해집니다.</aside>
+</section>
+
+<section class="page" data-title="③ 단계" data-steps="1" data-bar="tnttt|-">
+  <h2 class="ttl">단계: 설치 → Lint → Test → Build 순서로 실행</h2>
+  <pre class="code" data-lang="yaml" data-hl="11-17" data-mk="11:3" style="left:112px;top:320px;width:900px" data-label="cicd-frontend/.github/workflows/ci.yml (주석 생략)">name: Frontend CI
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+jobs:
+  check:
+    name: frontend-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build</pre>
+  <div style="position:absolute;left:1080px;top:340px;width:728px">
+    <span class="badge">3</span>
+    <p class="big" style="margin-top:22px">위에서부터 한 줄씩 차례로</p>
+    <p class="lead" style="margin-top:16px">내 컴퓨터에서 치던 명령 그대로</p>
+    <p class="big ngc" data-s="1" style="margin-top:44px">하나라도 실패하면<br>그 자리에서 멈춤</p>
+  </div>
+  <aside class="notes">세 번째, 단계입니다. 평소 제 컴퓨터에서 치던 명령을 그대로 적습니다. 설치, lint, test, build. 위에서부터 차례로 실행하다가 하나라도 실패하면 거기서 멈추고 빨간 X를 띄웁니다.</aside>
+</section>
+
+<section class="page" data-title="④ 인증" data-steps="1" data-bar="tttnt|-">
+  <h2 class="ttl">인증: 키 파일 없이 Google Cloud에 로그인</h2>
+  <pre class="code" data-lang="yaml" data-hl="4-10" data-mk="4:4" style="left:112px;top:320px;width:1030px" data-label="cicd-backend/.github/workflows/cd.yml (일부)">  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.WIF_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/deploy-cloudrun@v3
+        with:
+          source: ./</pre>
+  <div style="position:absolute;left:1200px;top:340px;width:608px">
+    <span class="badge">4</span>
+    <p class="big" style="margin-top:22px">GitHub 임시 증명서<br>→ 구글 임시 토큰</p>
+    <p class="lead" style="margin-top:20px">WIF (Workload Identity Federation)</p>
+    <p class="big" data-s="1" style="margin-top:44px">저장해 둔 비밀 키 0개</p>
+  </div>
+  <aside class="notes">네 번째, 인증입니다. 배포하려면 구글 클라우드에 로그인해야 하는데, 예전엔 키 파일을 GitHub Secrets에 넣었습니다. 지금은 WIF로 GitHub가 임시 증명서를 내고, 구글이 그걸 확인해서 잠깐 쓸 토큰을 줍니다. 저장해 둔 비밀 키가 하나도 없어서 털릴 키도 없습니다.</aside>
+</section>
+
+<!-- ================= 4. 일부러 깨뜨려 보기 ================= -->
+<section class="page" data-title="구분: 깨뜨려 보기">
+  <div class="divider">
+    <h2>일부러 깨뜨려 보기</h2>
+    <p>실습 레포 cicd-frontend에서 PR 하나로 실패부터 통과까지</p>
+  </div>
+  <aside class="notes">이제 직접 깨뜨려 보겠습니다. 실습용 프론트 레포에서 PR 하나를 열어서, 실패하고, 막히고, 고쳐서 통과하는 것까지 한 번에 보여 드리겠습니다.</aside>
+</section>
+
+<section class="page" data-title="실습 대상 함수" data-bar="ntttt|0">
+  <h2 class="ttl">실습 대상: 845분을 "14:05"로 바꾸는 함수</h2>
+  <pre class="code" data-lang="js" style="left:112px;top:340px;width:1260px" data-label="src/lib/timetable.js">export function toHHMM(totalMinutes) {
+  const h = Math.floor(totalMinutes / 60) % 24
+  const m = totalMinutes % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+}</pre>
+  <pre class="code" data-lang="js" style="left:112px;top:670px;width:1260px" data-label="src/lib/timetable.test.js">expect(toHHMM(845)).toBe('14:05')</pre>
+  <div style="position:absolute;left:1440px;top:360px;width:368px">
+    <p class="cap">입력</p><p style="margin:4px 0 30px;font:800 72px var(--f-mono)">845</p>
+    <p class="cap">결과</p><p style="margin:4px 0 0;font:800 72px var(--f-mono)">14:05</p>
+  </div>
+  <aside class="notes">실습 대상은 세미나 시간표를 만드는 작은 함수입니다. 845분을 받으면 "14:05"로 바꿔 줍니다. 그리고 845를 넣으면 "14:05"가 나와야 한다는 테스트가 하나 있습니다.</aside>
+</section>
+
+<section class="page" data-title="지운 한 줄" data-steps="2" data-bar="ntttt|0">
+  <h2 class="ttl">"굳이 필요한가" 싶어 padStart를 지운 한 줄</h2>
+  <pre class="code" data-lang="diff" style="left:112px;top:340px;width:1300px" data-label="PR 변경 내용 · src/lib/timetable.js"> const m = totalMinutes % 60
+-return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
++return `${h}:${m}`
+ }</pre>
+  <div data-s="1" style="position:absolute;left:112px;top:620px;display:flex;gap:20px">
+    <span class="chip" style="border-color:var(--ok);color:var(--ok)">Lint 통과</span>
+    <span class="chip" style="border-color:var(--ok);color:var(--ok)">Build 통과</span>
+    <span class="chip">화면도 뜸, 시간만 14:0 – 14:10</span>
+  </div>
+  <div data-s="2" style="position:absolute;left:112px;top:760px;width:1300px;padding:28px 34px;border-radius:16px;background:var(--or-soft);border:3px solid var(--or);box-sizing:border-box">
+    <p style="margin:0;font:800 44px/1.3 var(--f-sans)">Vercel만 있었다면 이대로 운영에 배포</p>
+  </div>
+  <aside class="notes">누군가 padStart가 굳이 필요한가 싶어서 이렇게 지웠다고 해 보겠습니다. lint도 통과하고 빌드도 됩니다. 화면도 뜹니다. 시간만 14:0처럼 이상하게 나옵니다. Vercel만 있었다면 이 코드가 그대로 운영에 나갑니다.</aside>
+</section>
+
+<section class="page" id="runs" data-title="검사 시작" data-steps="2" data-bar="dnttt|1" data-bar2="dfttt|1f">
+  <h2 class="ttl">PR을 올리면 검사가 자동으로 시작</h2>
+  <ul class="runs" style="left:112px;top:330px;width:1100px">
+    <li data-r="0"><svg class="ic" viewBox="0 0 40 40"></svg>코드 내려받기</li>
+    <li data-r="0"><svg class="ic" viewBox="0 0 40 40"></svg>Node.js 준비</li>
+    <li data-r="0"><svg class="ic" viewBox="0 0 40 40"></svg>의존성 설치 (package-lock.json 그대로)</li>
+    <li data-r="0"><svg class="ic" viewBox="0 0 40 40"></svg>Lint</li>
+    <li data-r="1"><svg class="ic" viewBox="0 0 40 40"></svg>Test<span class="tag"></span></li>
+    <li data-r="2"><svg class="ic" viewBox="0 0 40 40"></svg>Build<span class="tag"></span></li>
+  </ul>
+  <div style="position:absolute;left:1300px;top:350px;width:508px">
+    <p class="cap">frontend-check</p>
+    <p class="big" data-u="2" style="margin-top:8px">실행 중</p>
+    <p class="big ngc" data-s="2" style="margin-top:-58px">Test에서 실패</p>
+    <p class="lead" data-s="2" style="margin-top:24px">뒤 단계 Build는 건너뜀</p>
+  </div>
+  <aside class="notes">PR을 올리면 몇 초 안에 검사가 시작됩니다. ci.yml에 적은 단계 그대로 하나씩 실행됩니다. 코드 받고, 설치하고, lint 통과. 그리고 Test에서 걸립니다. 뒤의 Build는 아예 실행하지 않습니다.</aside>
+</section>
+
+<section class="page" data-title="실패 로그" data-steps="1" data-bar="dfttt|1f">
+  <h2 class="ttl">Test 단계에서 걸림: 기대 14:05, 실제 14:5</h2>
+  <pre class="log type" style="left:112px;top:330px;width:1180px" data-label="Actions 로그 · frontend-check › Test" data-ng="1,2,5" data-st="4,7">FAIL  src/lib/timetable.test.js > 시간 변환
+      > 845분은 "14:05"로 표시한다
+AssertionError: expected '14:5' to be '14:05'
+
+Expected: "14:05"
+Received: "14:5"
+
+Tests  3 failed | 3 passed (6)</pre>
+  <div data-s="1" style="position:absolute;left:1340px;top:330px;width:468px">
+    <div style="border-bottom:1px solid var(--line);padding:18px 0"><p class="cap">입력</p><p style="margin:4px 0 0;font:700 52px var(--f-mono)">845</p></div>
+    <div style="border-bottom:1px solid var(--line);padding:18px 0"><p class="cap">기대</p><p style="margin:4px 0 0;font:700 52px var(--f-mono)">"14:05"</p></div>
+    <div style="padding:18px 20px;margin:0 -20px;background:var(--or-soft);border-radius:12px"><p class="cap" style="color:var(--or-t)">실제</p><p style="margin:4px 0 0;font:800 52px var(--f-mono)">"14:5"</p></div>
+  </div>
+  <aside class="notes">로그를 열어 보면 이렇게 나옵니다. 기대한 값은 "14:05", 실제로 나온 값은 "14:5". 사람이 리뷰로는 놓치기 쉬운 한 글자 차이를 기계가 정확히 짚어 줍니다. 실습 레포에서 실제로 돌린 결과입니다.</aside>
+</section>
+
+<section class="page" data-title="머지 잠김" data-steps="1" data-bar="dfltt|1f">
+  <h2 class="ttl">브랜치 보호: 빨간 X면 머지 버튼 잠김</h2>
+  <div class="slot" data-cap="pr-blocked" style="left:112px;top:330px;width:1060px;height:600px"><b>캡처 자리</b><span>PR 화면 아래쪽<br>빨간 X · Merging is blocked · 회색 Merge 버튼</span></div>
+  <div style="position:absolute;left:1230px;top:340px;width:578px">
+    <p class="cap">Settings → Branches → main</p>
+    <p class="big" style="margin-top:14px">Require status checks to pass</p>
+    <p class="lead" style="margin-top:8px">필수 검사: <span class="mono" style="font-family:var(--f-mono)">frontend-check</span></p>
+    <p class="big" data-s="1" style="margin-top:56px">레포 주인도 못 뚫게</p>
+    <p class="lead" data-s="1" style="margin-top:8px">Do not allow bypassing</p>
+  </div>
+  <aside class="notes">여기서 끝이 아닙니다. 브랜치 보호를 켜 두면 빨간 X가 떠 있는 동안 머지 버튼 자체가 잠깁니다. main 보호 규칙에서 필수 검사로 frontend-check를 지정하고, 레포 주인도 우회하지 못하게 해 둡니다.</aside>
+</section>
+
+<section class="page" data-title="시스템이 지킴" data-bar="dfltt|1f">
+  <div class="stmt"><h2>팀 규칙을 사람 대신<br>시스템이 지킴</h2><p class="lead">"테스트 깨진 코드는 머지하지 말자"가 말이 아니라 설정</p></div>
+  <aside class="notes">"테스트 깨진 코드는 머지하지 말자"는 팀마다 말로는 다 합니다. 데모데이 전날 밤엔 그게 안 지켜집니다. 브랜치 보호는 그 규칙을 사람 대신 시스템이 지키게 만듭니다.</aside>
+</section>
+
+<section class="page" data-title="고친 커밋" data-steps="1" data-bar="dnltt|1" data-bar1="ddntt|2">
+  <h2 class="ttl">원래대로 고친 커밋 하나 push</h2>
+  <pre class="code" data-lang="diff" style="left:112px;top:340px;width:1300px" data-label="같은 PR에 커밋 추가 · src/lib/timetable.js"> const m = totalMinutes % 60
+-return `${h}:${m}`
++return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+ }</pre>
+  <div style="position:absolute;left:112px;top:620px;display:flex;gap:20px;flex-wrap:wrap;width:1300px" data-s="1">
+    <span class="chip" style="border-color:var(--ok);color:var(--ok)">Lint 통과</span>
+    <span class="chip" style="border-color:var(--ok);color:var(--ok)">Test 통과</span>
+    <span class="chip" style="border-color:var(--ok);color:var(--ok)">Build 통과</span>
+  </div>
+  <p class="lead" style="position:absolute;left:112px;top:760px;width:1300px">PR을 새로 만들 필요 없음, 같은 브랜치에 push하면 검사가 다시 돎</p>
+  <aside class="notes">고치는 건 간단합니다. 원래대로 돌린 커밋을 같은 브랜치에 push하면 됩니다. PR을 새로 만들 필요 없이 검사가 자동으로 다시 돌고, 이번엔 전부 통과합니다.</aside>
+</section>
+
+<section class="page" data-title="다시 초록" data-bar="ddntt|2">
+  <h2 class="ttl">같은 PR에서 다시 초록, 머지 버튼 열림</h2>
+  <div class="slot" data-cap="pr-green" style="left:112px;top:330px;width:1060px;height:600px"><b>캡처 자리</b><span>같은 PR 화면 아래쪽<br>All checks have passed · 초록 Merge 버튼</span></div>
+  <div style="position:absolute;left:1240px;top:330px;width:568px">
+    <div style="border-bottom:1px solid var(--line);padding:18px 0"><p class="cap">입력</p><p style="margin:4px 0 0;font:700 52px var(--f-mono)">845</p></div>
+    <div style="border-bottom:1px solid var(--line);padding:18px 0"><p class="cap">기대</p><p style="margin:4px 0 0;font:700 52px var(--f-mono)">"14:05"</p></div>
+    <div style="padding:18px 20px;margin:0 -20px;background:var(--or-soft);border-radius:12px"><p class="cap" style="color:var(--or-t)">실제</p><p style="margin:4px 0 0;font:800 52px var(--f-mono)">"14:05"</p></div>
+  </div>
+  <aside class="notes">같은 PR 화면입니다. All checks have passed, 머지 버튼이 다시 초록색으로 열렸습니다. 아까 "14:5"였던 실제 값이 "14:05"로 돌아왔습니다.</aside>
+</section>
+
+<section class="page" data-title="단계별 사고" data-steps="2" data-bar="dnttt|-">
+  <h2 class="ttl">단계마다 잡아내는 사고가 다름</h2>
+  <table class="tb" style="left:112px;top:340px;width:1696px">
+    <thead><tr><th style="width:220px">잡은 단계</th><th>실제 로그</th><th style="width:380px">사람이 놓치는 이유</th></tr></thead>
+    <tbody>
+      <tr><td><b>Lint</b></td><td class="m">Identifier 'useMemo' is imported but never used.</td><td>실행엔 문제없어서</td></tr>
+      <tr data-s="1"><td><b>Test</b></td><td class="m">Expected: "14:05" Received: "14:5"</td><td>화면은 떠서</td></tr>
+      <tr data-s="2"><td><b>Build</b></td><td class="m">Could not resolve './components/sessionTable.jsx'</td><td>내 컴퓨터에선 돼서</td></tr>
+    </tbody>
+  </table>
+  <aside class="notes">실습 레포에는 사고를 몇 가지 더 준비해 뒀습니다. lint는 안 쓰는 import를, test는 방금 본 시간 표시를, build는 파일 이름 대소문자를 잡습니다. 단계마다 잡는 게 달라서 셋 다 거는 겁니다.</aside>
+</section>
+
+<section class="page" data-title="백엔드 약속 테스트" data-steps="1" data-bar="dnttt|-">
+  <h2 class="ttl">백엔드 테스트가 프론트와의 약속을 지킴</h2>
+  <pre class="code" data-lang="diff" style="left:112px;top:330px;width:1696px" data-label="cicd-backend · Session.java  (title이 name보다 낫겠다 싶어 바꾼 상황)">-public record Session(int order, String title, String speaker, String school, int minutes) {
++public record Session(int order, String name, String speaker, String school, int minutes) {</pre>
+  <div style="position:absolute;left:112px;top:540px;display:flex;gap:20px">
+    <span class="chip" style="border-color:var(--ok);color:var(--ok)">컴파일 통과</span>
+    <span class="chip" style="border-color:var(--ok);color:var(--ok)">서버도 정상</span>
+    <span class="chip">프론트 표의 세션 이름은 전부 빈칸</span>
+  </div>
+  <pre class="log" data-s="1" style="left:112px;top:660px;width:1696px" data-label="Actions 로그 · backend-test" data-ng="1,2">SessionControllerTest > 세션_목록_API는_프론트가_쓰는_필드를_모두_돌려준다() FAILED
+    java.lang.AssertionError: No value at JSON path "$[0].title"</pre>
+  <p class="lead" data-s="1" style="position:absolute;left:112px;top:870px">레포가 나뉘면 이 테스트가 두 레포 사이의 유일한 경보</p>
+  <aside class="notes">백엔드도 하나 보겠습니다. 백엔드 개발자가 title보다 name이 낫겠다 싶어서 필드 이름을 바꿨습니다. 컴파일도 되고 서버도 잘 뜹니다. 그런데 JSON 키가 바뀌어서 프론트 표의 세션 이름이 전부 빈칸이 됩니다. 프론트가 쓰는 필드를 지키는 테스트가 이걸 잡습니다. 레포가 나뉘어 있으면 이 테스트가 두 레포 사이의 유일한 경보입니다.</aside>
+</section>
+
+<section class="page" data-title="러너는 리눅스" data-steps="1" data-bar="dnttt|-">
+  <h2 class="ttl">"내 컴퓨터에선 되는데요"의 정체: 러너는 리눅스</h2>
+  <pre class="log" style="left:112px;top:330px;width:1100px" data-label="5장의 그 에러 · Actions 로그 › Build" data-ng="1,2">✗ Build failed
+[UNRESOLVED_IMPORT] Could not resolve
+'./components/sessionTable.jsx' in src/App.jsx</pre>
+  <pre class="code" data-lang="diff" style="left:112px;top:600px;width:1100px" data-label="src/App.jsx">-import SessionTable from './components/SessionTable.jsx'
++import SessionTable from './components/sessionTable.jsx'</pre>
+  <div data-s="1" style="position:absolute;left:1270px;top:340px;width:538px">
+    <p class="cap">윈도우·맥</p><p class="big" style="margin:6px 0 34px">대소문자 구분 안 함<br><span class="okc">로컬 빌드 통과</span></p>
+    <p class="cap">리눅스 러너</p><p class="big" style="margin:6px 0 34px">대소문자 구분<br><span class="ngc">빌드 실패</span></p>
+    <p class="lead">Vercel도 리눅스에서 빌드</p>
+  </div>
+  <aside class="notes">아까 데모데이 전날 밤의 그 빌드 에러입니다. 파일 이름의 대문자 S 하나를 소문자로 썼습니다. 윈도우와 맥은 대소문자를 구분하지 않아서 제 컴퓨터에선 빌드가 됩니다. 그런데 러너는 리눅스라 구분합니다. Vercel도 리눅스에서 빌드하니까, CI가 먼저 잡아 주면 배포 전에 알 수 있습니다.</aside>
+</section>
+
+<!-- ================= 5. 머지하면 배포까지 ================= -->
+<section class="page" data-title="머지 = 배포 시작" data-steps="1" data-bar="ddntt|2" data-bar1="dddnt|3">
+  <h2 class="ttl">머지 = main에 push = 배포 시작</h2>
+  <pre class="code" data-lang="yaml" data-hl="2-4,9-11" style="left:112px;top:330px;width:900px" data-label="cicd-backend/.github/workflows/cd.yml (일부)">name: Backend CD
+on:
+  push:
+    branches: [main]
+jobs:
+  test:
+    name: backend-test
+    # (테스트 단계 생략)
+  deploy:
+    name: deploy-cloud-run
+    needs: test</pre>
+  <div style="position:absolute;left:1080px;top:340px;width:728px">
+    <p class="big">PR을 머지하면 main에 push가 일어남</p>
+    <p class="lead" style="margin-top:16px">그 push가 배포 워크플로의 트리거</p>
+    <p class="big" data-s="1" style="margin-top:50px"><span class="mono" style="font-family:var(--f-mono);font-size:40px">needs: test</span><br>테스트가 끝나야 배포 시작</p>
+  </div>
+  <aside class="notes">이번엔 백엔드입니다. 백엔드 레포에는 배포용 cd.yml이 하나 더 있습니다. 트리거가 main에 push인데, PR을 머지하는 게 곧 main에 push하는 겁니다. 그리고 needs: test가 있어서 테스트가 끝나야 배포를 시작합니다.</aside>
+</section>
+
+<section class="page" data-title="테스트 → 배포" data-steps="1" data-bar="dddnt|3">
+  <h2 class="ttl">테스트가 초록일 때만 배포 단계로</h2>
+  <div class="bx" style="left:112px;top:420px;width:400px;height:150px;font-family:var(--f-mono);font-size:30px">backend-test</div>
+  <div class="ar ink" style="left:524px;top:494px;width:200px"></div>
+  <p class="lbl" style="left:540px;top:440px;font-family:var(--f-mono)">needs: test</p>
+  <div class="bx ink" style="left:736px;top:420px;width:440px;height:150px;font-family:var(--f-mono);font-size:30px">deploy-cloud-run</div>
+  <div style="position:absolute;left:112px;top:640px;width:1064px">
+    <p class="big">테스트가 빨간 X면 배포는 Skipped</p>
+    <p class="lead" style="margin-top:14px">깨진 코드가 운영에 나갈 길이 없음</p>
+  </div>
+  <div class="slot" data-cap="cd-graph" data-s="1" style="left:1240px;top:330px;width:568px;height:600px"><b>캡처 자리</b><span>Actions › Backend CD 실행 화면<br>두 상자가 화살표로 이어진 그래프</span></div>
+  <aside class="notes">Actions 화면에서 보면 이렇게 두 상자가 화살표로 이어져 있습니다. 왼쪽 테스트가 초록이어야 오른쪽 배포가 시작됩니다. 테스트가 깨지면 배포는 Skipped로 건너뜁니다.</aside>
+</section>
+
+<section class="page" data-title="Cloud Run이 하는 일" data-steps="2" data-bar="dddnt|3">
+  <h2 class="ttl">Cloud Run이 소스를 받아 새 리비전까지</h2>
+  <div class="bx" style="left:112px;top:400px;width:300px;height:150px">소스 업로드</div>
+  <div class="ar ink" style="left:418px;top:474px;width:46px"></div>
+  <div class="bx" style="left:470px;top:400px;width:300px;height:150px">빌드팩이<br>이미지 생성</div>
+  <div class="ar ink" style="left:776px;top:474px;width:46px"></div>
+  <div class="bx" style="left:828px;top:400px;width:300px;height:150px">Artifact<br>Registry 보관</div>
+  <div class="ar ink" style="left:1134px;top:474px;width:46px"></div>
+  <div class="bx ink" style="left:1186px;top:400px;width:300px;height:150px">새 리비전</div>
+  <div class="ar ink" style="left:1492px;top:474px;width:46px"></div>
+  <div class="bx" style="left:1544px;top:400px;width:264px;height:150px">트래픽<br>100% 전환</div>
+  <p class="big" data-s="1" style="position:absolute;left:112px;top:640px">Dockerfile 없이 소스만 올려도 이미지가 만들어짐</p>
+  <p class="lead" data-s="2" style="position:absolute;left:112px;top:730px">배포할 때마다 번호 붙은 리비전이 쌓임, 롤백은 이 번호로</p>
+  <aside class="notes">배포 단계에서 Cloud Run이 하는 일입니다. 소스를 올리면 빌드팩이 Dockerfile 없이 이미지를 만들고, 보관소에 넣고, 새 리비전을 만들어서 트래픽을 옮깁니다. 리비전은 배포할 때마다 번호가 붙어 쌓이는데, 이게 뒤에서 롤백할 때 쓰입니다.</aside>
+</section>
+
+<section class="page" data-title="머지 버튼 하나" data-bar="ddddt|3">
+  <div class="stmt"><h2>사람이 한 일은<br>머지 버튼 하나</h2><p class="lead">PR 머지 → 테스트 → 이미지 → 새 리비전 → 운영 반영</p></div>
+  <aside class="notes">정리하면, 여기까지 사람이 한 일은 머지 버튼 하나입니다. 나머지는 전부 파이프라인이 했습니다. 이게 Continuous Deployment입니다.</aside>
+</section>
+
+<section class="page" id="slider" data-title="v1 → v2" data-steps="1" data-bar="ddddt|3">
+  <h2 class="ttl">프론트는 그대로인데 화면이 v2로</h2>
+  <div class="cmp ix" id="cmp" style="left:112px;top:330px;width:1696px;height:440px">
+    <div class="pane v1"><img data-cap-img="site-v1" alt="">
+      <div class="tag">운영 사이트 · 배포 전</div>
+      <div class="msg">안녕하세요, 동홍동락 서버입니다 · v1</div></div>
+    <div class="pane v2"><img data-cap-img="site-v2" alt="">
+      <div class="tag">운영 사이트 · 머지 후</div>
+      <div class="msg">안녕하세요, 동홍동락 서버입니다 · v2</div></div>
+    <div class="knob"></div>
+  </div>
+  <p class="lead" style="position:absolute;left:112px;top:800px">바뀐 건 백엔드 코드 한 줄. 같은 주소 뒤의 리비전만 교체</p>
+  <p class="lead nolive" data-live-show="revision" style="position:absolute;left:112px;top:870px;color:var(--ink)"><span class="live-dot"></span>지금 이 순간 서버 응답: <b data-live="message"></b> · <span class="mono" style="font-family:var(--f-mono)" data-live="revision"></span></p>
+  <aside class="notes">백엔드 인사말을 v1에서 v2로 바꾼 PR을 머지했습니다. 프론트 레포는 하나도 건드리지 않았는데 화면이 v2로 바뀝니다. 프론트는 같은 주소를 부르고, 그 뒤의 백엔드 리비전만 바뀌었기 때문입니다. (슬라이더를 끌어서 비교)</aside>
+</section>
+
+<section class="page" data-title="두 레포 두 배포" data-steps="1" data-bar="ddddt|-">
+  <h2 class="ttl">레포 두 개, 배포 길 두 개</h2>
+  <div class="bx" style="left:112px;top:400px;width:380px;height:130px;font-family:var(--f-mono);font-size:30px">cicd-frontend</div>
+  <div class="ar ink" style="left:504px;top:464px;width:120px"></div>
+  <div class="bx" style="left:636px;top:400px;width:460px;height:130px">Vercel</div>
+  <div class="ar ink" style="left:1108px;top:464px;width:120px"></div>
+  <div class="bx ink" style="left:1240px;top:400px;width:300px;height:130px">화면</div>
+  <div class="bx" style="left:112px;top:590px;width:380px;height:130px;font-family:var(--f-mono);font-size:30px">cicd-backend</div>
+  <div class="ar ink" style="left:504px;top:654px;width:120px"></div>
+  <div class="bx" style="left:636px;top:590px;width:460px;height:130px">GitHub Actions<small>→ Cloud Run</small></div>
+  <div class="ar ink" style="left:1108px;top:654px;width:120px"></div>
+  <div class="bx ink" style="left:1240px;top:590px;width:300px;height:130px">API</div>
+  <p class="big" data-s="1" style="position:absolute;left:112px;top:790px">한쪽 배포가 실패해도 다른 쪽은 그대로</p>
+  <aside class="notes">정리하면 레포가 두 개고 배포 길도 두 개입니다. 프론트는 Vercel이, 백엔드는 GitHub Actions가 Cloud Run으로 보냅니다. 서로 독립이라 한쪽 배포가 실패해도 다른 쪽은 그대로 돕니다.</aside>
+</section>
+
+<!-- ================= 6. 롤백 ================= -->
+<section class="page" id="traffic" data-title="트래픽 롤백" data-steps="1" data-bar="ddddn|4" data-bar1="ddddd|4">
+  <h2 class="ttl">급할 때: 트래픽만 v1 리비전으로</h2>
+  <div class="traffic" style="left:112px;top:360px;width:1080px">
+    <div class="row"><div class="nm">v2 리비전</div><div class="tr"><div class="fill" id="tf2" style="width:100%"></div></div><div class="pc" id="tp2">100%</div></div>
+    <div class="row"><div class="nm">v1 리비전</div><div class="tr"><div class="fill" id="tf1" style="width:0%"></div></div><div class="pc" id="tp1">0%</div></div>
+  </div>
+  <div style="position:absolute;left:112px;top:600px;width:1080px">
+    <p class="big">다시 빌드하지 않아서 초 단위</p>
+    <p class="lead" style="margin-top:14px">이미 만들어 둔 v1 이미지로 트래픽만 옮김</p>
+  </div>
+  <div class="slot" data-cap="revisions" style="left:1250px;top:330px;width:558px;height:600px"><b>캡처 자리</b><span>Cloud Run › 리비전 탭<br>v1 리비전에 트래픽 100%</span></div>
+  <aside class="notes">그런데 v2가 알고 보니 문제였다면요. 급할 때는 Cloud Run 리비전 탭에서 트래픽만 v1 리비전으로 옮깁니다. 다시 빌드하지 않고 이미 있는 이미지로 바꾸는 거라 몇 초면 됩니다.</aside>
+</section>
+
+<section class="page" data-title="Revert PR" data-steps="1" data-bar="ddddd|4">
+  <h2 class="ttl">그다음: Revert PR로 main 코드도 되돌림</h2>
+  <table class="tb" style="left:112px;top:340px;width:1696px;font-size:34px">
+    <thead><tr><th style="width:520px">방법</th><th style="width:420px">속도</th><th>언제</th></tr></thead>
+    <tbody>
+      <tr><td><b>리비전 트래픽 전환</b></td><td>초 단위</td><td>사용자 피해부터 멈출 때</td></tr>
+      <tr data-s="1"><td><b>Revert PR</b></td><td>CI·CD 한 바퀴</td><td>원인 코드를 main에서 제거</td></tr>
+    </tbody>
+  </table>
+  <p class="lead" data-s="1" style="position:absolute;left:112px;top:700px">다음 머지 때 v2가 다시 나가지 않게</p>
+  <aside class="notes">트래픽만 돌려 두면 main에는 아직 v2 코드가 남아 있어서, 다음에 누가 머지하면 v2가 다시 나갑니다. 그래서 GitHub의 Revert 버튼으로 되돌리는 PR을 올립니다. 이것도 CI와 CD를 똑같이 한 바퀴 돕니다.</aside>
+</section>
+
+<!-- ================= 7. 도구가 달라도 ================= -->
+<section class="page" id="tools" data-title="도구별 문법" data-steps="2">
+  <h2 class="ttl">도구가 달라도 구조는 동일</h2>
+  <div class="tabs" style="left:112px;top:310px">
+    <button class="tab ix on" data-tab="0" type="button">GitHub Actions</button>
+    <button class="tab ix" data-tab="1" type="button">Jenkins</button>
+    <button class="tab ix" data-tab="2" type="button">GitLab CI</button>
+  </div>
+  <pre class="code tabp" data-lang="yaml" data-tabp="0" data-mk="1:1,2:2,3:3" style="left:112px;top:410px;width:1180px" data-label=".github/workflows/ci.yml">on: pull_request
+runs-on: ubuntu-latest
+steps:
+  - run: npm ci
+  - run: npm run lint
+  - run: npm test
+  - run: npm run build</pre>
+  <pre class="code tabp hid" data-lang="groovy" data-tabp="1" data-mk="2:2,3:3" style="left:112px;top:410px;width:1180px" data-label="Jenkinsfile">pipeline {
+  agent any
+  stages {
+    stage('Install') { steps { sh 'npm ci' } }
+    stage('Lint')    { steps { sh 'npm run lint' } }
+    stage('Test')    { steps { sh 'npm test' } }
+    stage('Build')   { steps { sh 'npm run build' } }
+  }
+}</pre>
+  <pre class="code tabp hid" data-lang="yaml" data-tabp="2" data-mk="2:1,4:2,5:3" style="left:112px;top:410px;width:1180px" data-label=".gitlab-ci.yml">frontend-check:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  image: node:24
+  script:
+    - npm ci
+    - npm run lint
+    - npm test
+    - npm run build</pre>
+  <div style="position:absolute;left:1350px;top:420px;width:458px">
+    <p style="margin:0 0 22px;font:600 28px/1.5 var(--f-sans)"><span class="badge" style="width:44px;height:44px;line-height:44px;font-size:24px;margin-right:14px">1</span>트리거</p>
+    <p style="margin:0 0 22px;font:600 28px/1.5 var(--f-sans)"><span class="badge" style="width:44px;height:44px;line-height:44px;font-size:24px;margin-right:14px">2</span>러너</p>
+    <p style="margin:0 0 22px;font:600 28px/1.5 var(--f-sans)"><span class="badge" style="width:44px;height:44px;line-height:44px;font-size:24px;margin-right:14px">3</span>단계</p>
+    <p class="lead" data-s="1" style="margin-top:30px">Jenkins 트리거는 파일 밖 웹훅 설정</p>
+  </div>
+  <aside class="notes">회사에 가면 GitHub Actions 대신 Jenkins나 GitLab CI를 쓰는 곳이 많습니다. 그런데 탭을 바꿔 보면 문법만 다르고 트리거, 러너, 단계는 같은 자리에 있습니다. Jenkins는 트리거를 파일 밖 웹훅으로 설정합니다.</aside>
+</section>
+
+<section class="page" data-title="회사 도구 대응">
+  <h2 class="ttl">회사에서는 칸마다 도구 이름만 바뀜</h2>
+  <table class="tb" style="left:112px;top:340px;width:1696px;font-size:32px">
+    <thead><tr><th style="width:300px">칸</th><th class="colhl" style="width:440px;padding-left:20px">이 실습</th><th style="width:440px">AWS</th><th>사내·금융권</th></tr></thead>
+    <tbody>
+      <tr><td><b>CI 실행기</b></td><td class="colhl" style="padding-left:20px">GitHub Actions</td><td>CodeBuild</td><td>Jenkins</td></tr>
+      <tr><td><b>결과물 보관</b></td><td class="colhl" style="padding-left:20px">Artifact Registry</td><td>ECR</td><td>Nexus</td></tr>
+      <tr><td><b>실행 환경</b></td><td class="colhl" style="padding-left:20px">Cloud Run</td><td>ECS, EC2</td><td>사내 쿠버네티스</td></tr>
+      <tr><td><b>배포 인증</b></td><td class="colhl" style="padding-left:20px">WIF</td><td>IAM 역할 + OIDC</td><td>사내 계정, 결재</td></tr>
+    </tbody>
+  </table>
+  <aside class="notes">칸별로 보면 이렇습니다. AWS로 하면 결과물은 ECR에, 실행은 ECS나 EC2에. 사내나 금융권에서는 Jenkins, Nexus, 사내 쿠버네티스를 많이 씁니다. 특히 금융권은 배포 전에 승인 절차를 거치는 Delivery 형태가 흔합니다. 회사와 시기마다 다르니 면접에서 물어보시면 그 회사 개발 문화를 알 수 있습니다.</aside>
+</section>
+
+<!-- ================= 8. 가져가기 ================= -->
+<section class="page" data-title="안 돌아가는 이유" data-steps="2">
+  <h2 class="ttl">학생 프로젝트에서 잘 안 돌아가는 이유</h2>
+  <table class="tb" style="left:112px;top:340px;width:1696px;font-size:34px">
+    <thead><tr><th style="width:820px">흔한 생각</th><th>바꾸면</th></tr></thead>
+    <tbody>
+      <tr><td><b>배포는 마지막 날 하는 것</b></td><td>첫날 Hello World 배포</td></tr>
+      <tr data-s="1"><td><b>테스트가 없으니 CI는 필요 없음</b></td><td>lint와 build만 걸어도 사고 차단</td></tr>
+      <tr data-s="2"><td><b>팀 규칙은 말로 정하면 됨</b></td><td>브랜치 보호로 시스템이 지킴</td></tr>
+    </tbody>
+  </table>
+  <aside class="notes">학생 프로젝트에서 CI/CD가 잘 안 돌아가는 이유는 대개 이 세 가지입니다. 배포를 마지막 날 하는 이벤트로 생각하는 것. 첫날 Hello World를 배포해 두면 마지막 날은 그냥 또 한 번의 배포입니다. 테스트가 없으니 CI가 필요 없다고 생각하는 것. lint와 build만 걸어도 오늘 본 사고 두 개는 막힙니다. 그리고 팀 규칙을 말로만 정하는 것.</aside>
+</section>
+
+<section class="page" id="day1" data-title="Day 1 체크리스트" data-steps="4">
+  <h2 class="ttl">첫날 한 시간 체크리스트</h2>
+  <ul class="checks" style="left:112px;top:320px;width:1500px">
+    <li data-c="1"><span class="bx2"></span><div>두 레포에 ci.yml 복사<small>명령만 프로젝트에 맞게</small></div></li>
+    <li data-c="2"><span class="bx2"></span><div>프론트는 Vercel 연결<small>레포 Import 한 번</small></div></li>
+    <li data-c="3"><span class="bx2"></span><div>백엔드는 WIF 연결 후 Hello World를 Cloud Run에 첫 배포<small>실습 레포의 gcp-setup.sh</small></div></li>
+    <li data-c="4"><span class="bx2"></span><div>두 레포 main 브랜치 보호 + 필수 검사 지정<small>팀이면 승인 1명</small></div></li>
+  </ul>
+  <aside class="notes">그래서 프로젝트 첫날 한 시간 안에 이것만 해 두시길 권합니다. ci.yml 복사, Vercel 연결, 백엔드 Hello World를 Cloud Run에 첫 배포, 그리고 브랜치 보호. 이후로는 PR 하나가 검사 한 번, 배포 한 번이 됩니다.</aside>
+</section>
+
+<section class="page" data-title="동지톤">
+  <h2 class="ttl">1월 동지톤 첫 한 시간에 바로 적용</h2>
+  <div style="position:absolute;left:112px;top:360px">
+    <p style="margin:0;font:800 96px/1.1 var(--f-sans);letter-spacing:-2.5px">2027.01.30 – 31</p>
+    <p class="big" style="margin-top:24px">동국대·홍익대 연합 해커톤, 동지톤</p>
+    <p class="lead" style="margin-top:40px">레포 만들자마자 Day 1 체크리스트부터<br>마지막 날 밤은 발표 준비에 쓰기</p>
+  </div>
+  <aside class="notes">마침 1월 30일, 31일에 동국대와 홍익대가 함께하는 연합 해커톤, 동지톤이 있습니다. 레포를 만들자마자 오늘 체크리스트부터 해 두면, 마지막 날 밤을 배포가 아니라 발표 준비에 쓸 수 있습니다.</aside>
+</section>
+
+<section class="page" id="sweep" data-title="정리" data-steps="1" data-bar="ttttt|-" data-bar1="ddddd|-">
+  <div class="tl" style="top:300px">
+    <div class="tc past"><i>D-14</i><b>각자 브랜치에서 작업</b></div>
+    <div class="tc past"><i>D-1 밤</i><b>한꺼번에 머지</b></div>
+    <div class="tc past"><i>D-1 밤</i><b>충돌 · 빌드 실패</b></div>
+    <div class="tc past"><i>D-day 03:00</i><b>처음으로 서버에 배포</b></div>
+  </div>
+  <svg data-s="1" style="position:absolute;left:112px;top:300px" width="1696" height="118" viewBox="0 0 1696 118" aria-hidden="true">
+    <path d="M10 59H1686" stroke="#FF6309" stroke-width="6" stroke-linecap="round"/>
+  </svg>
+  <h2 style="position:absolute;left:112px;top:560px;margin:0;font:800 104px/1.15 var(--f-sans);letter-spacing:-3px">PR 하나 = 검사 한 번<br>= 배포 한 번</h2>
+  <aside class="notes">처음에 본 데모데이 전날 밤 장면, 이제 지울 수 있습니다. PR 하나가 검사 한 번이고, 배포 한 번입니다. 마지막 날 몰아서 하던 일을 매일 조금씩 기계에게 맡기는 것, 그게 오늘 말씀드린 CI/CD입니다.</aside>
+</section>
+
+<section class="page" id="self" data-title="이 페이지도 배포" data-steps="2" data-bar="ddddd|-">
+  <h2 class="ttl">이 발표 페이지도 같은 다섯 칸으로 배포</h2>
+  <div class="bx" style="left:112px;top:380px;width:420px;height:130px;font-family:var(--f-mono);font-size:30px">donghongdongrock<small>발표 페이지 레포</small></div>
+  <div class="ar ink" style="left:544px;top:444px;width:80px"></div>
+  <div class="bx" style="left:636px;top:380px;width:380px;height:130px">GitHub Actions<small>deck-check 검사</small></div>
+  <div class="ar ink" style="left:1028px;top:444px;width:80px"></div>
+  <div class="bx ink" style="left:1120px;top:380px;width:260px;height:130px">Vercel</div>
+  <div style="position:absolute;left:1420px;top:384px;width:388px" data-s="1">
+    <p class="cap">이 화면을 만든 커밋</p>
+    <p class="pend" style="margin:6px 0 0;font:800 52px var(--f-mono)" data-live="commit">배포된 주소에서 실시간 표시</p>
+  </div>
+  <div class="bx" style="left:112px;top:580px;width:420px;height:130px;font-family:var(--f-mono);font-size:30px">cicd-backend<small>실습 백엔드 레포</small></div>
+  <div class="ar ink" style="left:544px;top:644px;width:80px"></div>
+  <div class="bx" style="left:636px;top:580px;width:380px;height:130px">GitHub Actions<small>테스트 후 배포 · WIF</small></div>
+  <div class="ar ink" style="left:1028px;top:644px;width:80px"></div>
+  <div class="bx ink" style="left:1120px;top:580px;width:260px;height:130px">Cloud Run</div>
+  <div style="position:absolute;left:1420px;top:584px;width:388px" data-s="2">
+    <p class="cap">지금 응답 중인 리비전</p>
+    <p class="pend" style="margin:6px 0 0;font:800 40px/1.25 var(--f-mono);word-break:break-all" data-live="revision">배포된 주소에서 실시간 표시</p>
+  </div>
+  <p class="lead" data-s="2" style="position:absolute;left:112px;top:800px">지금 보고 계신 화면이 PR, 검사, 머지, 배포를 거쳐 올라온 결과</p>
+  <aside class="notes">마지막으로 하나만 더 보여 드리겠습니다. 지금 보고 계신 이 발표 페이지도 오늘 말씀드린 다섯 칸으로 배포됐습니다. 대본 하나를 고칠 때도 PR을 올리고, GitHub Actions가 화면 넘침과 문구를 검사하고, 머지하면 Vercel이 배포합니다. 오른쪽 숫자는 지금 이 화면을 만든 커밋과, 지금 응답하고 있는 Cloud Run 리비전입니다.</aside>
+</section>
+
+<section class="page" data-title="자료와 질문">
+  <h2 class="ttl">자료와 질문</h2>
+  <div class="slot" data-cap="qr" style="left:112px;top:330px;width:420px;height:420px"><b>QR 자리</b><span>이 발표 페이지 주소</span></div>
+  <div style="position:absolute;left:620px;top:350px;width:1188px">
+    <p class="big">이 발표 페이지</p>
+    <p class="lead" style="margin-top:12px">폰으로 열어 오늘 화면을 다시 보기, 실습 가이드북은 발표 후 공유</p>
+    <p style="margin:110px 0 0;font:800 120px/1 var(--f-sans);letter-spacing:-3px">Q&amp;A</p>
+  </div>
+  <aside class="notes">오늘 화면은 QR로 열면 폰에서 다시 보실 수 있습니다. 실습 가이드북은 발표 끝나고 공유하겠습니다. 질문 받겠습니다. 감사합니다.</aside>
+</section>
+
+<div id="pn"></div>
+<div id="help" class="hid">
+  <b>→ 스페이스</b>다음<br><b>← </b>이전<br><b>숫자 + Enter</b>그 장으로<br><b>F</b>전체 화면<br><b>P</b>발표자 창<br><b>B</b>화면 가리기<br><b>H</b>이 도움말
+</div>
+<div id="jump"></div>
+<div id="black" class="hid"></div>
+</div></div>
+
+<script>window.DHDL = /*LIVE*/{};</script>
+<script>
+(function(){
+  'use strict';
+  var isPresenter = /[?&]presenter/.test(location.search);
+  var stage = document.getElementById('stage');
+  var pages = Array.prototype.slice.call(stage.querySelectorAll('.page'));
+  var N = pages.length, P = 0, S = 0;
+  pages.forEach(function(p,i){ if(!p.id) p.id = 'p'+(i+1); });
+
+  /* ---------- 코드·로그 카드 준비 ---------- */
+  function parseList(str){
+    var out = {};
+    (str||'').split(',').forEach(function(part){
+      part = part.trim(); if(!part) return;
+      var m = part.split('-');
+      var a = +m[0], b = m.length>1 ? +m[1] : a;
+      for(var i=a;i<=b;i++) out[i]=true;
+    });
+    return out;
+  }
+  function hlYaml(line, tx){
+    var m = line.match(/^(\s*-?\s*)([A-Za-z0-9_\-\.\$]+:)(.*)$/);
+    if(/^\s*#/.test(line)){ var c=document.createElement('span'); c.className='c'; c.textContent=line; tx.appendChild(c); return; }
+    if(m){
+      tx.appendChild(document.createTextNode(m[1]));
+      var k=document.createElement('span'); k.className='k'; k.textContent=m[2]; tx.appendChild(k);
+      var v=document.createElement('span'); v.className='v'; v.textContent=m[3]; tx.appendChild(v);
+    } else {
+      var mm = line.match(/^(\s*-\s*)(.*)$/);
+      if(mm){ tx.appendChild(document.createTextNode(mm[1])); var v2=document.createElement('span'); v2.className='v'; v2.textContent=mm[2]; tx.appendChild(v2); }
+      else tx.textContent = line;
+    }
+  }
+  function hlJs(line, tx){
+    var re = /(`[^`]*`|'[^']*'|\b(?:export|function|const|return|import|from)\b)/g, last=0, m;
+    while((m=re.exec(line))){
+      if(m.index>last) tx.appendChild(document.createTextNode(line.slice(last,m.index)));
+      var s=document.createElement('span'); s.className = /^[`']/.test(m[0]) ? 'v' : 'k'; s.textContent=m[0]; tx.appendChild(s);
+      last = m.index+m[0].length;
+    }
+    if(last<line.length) tx.appendChild(document.createTextNode(line.slice(last)));
+  }
+  Array.prototype.forEach.call(stage.querySelectorAll('pre.code, pre.log'), function(pre){
+    var lang = pre.dataset.lang||'text';
+    var lines = pre.textContent.replace(/^\n+|\n+$/g,'').split('\n');
+    var hl = parseList(pre.dataset.hl), ng = parseList(pre.dataset.ng), ok = parseList(pre.dataset.ok), st = parseList(pre.dataset.st);
+    var mk = {}; (pre.dataset.mk||'').split(',').forEach(function(p){ if(!p) return; var a=p.split(':'); mk[+a[0]]=a[1]; });
+    pre.textContent='';
+    if(pre.dataset.label){ var lb=document.createElement('span'); lb.className='lab'; lb.textContent=pre.dataset.label; pre.appendChild(lb); }
+    if(pre.dataset.hl) pre.classList.add('hasdim');
+    lines.forEach(function(line, i){
+      var n=i+1, row=document.createElement('div'); row.className='cl';
+      var tx=document.createElement('span'); tx.className='tx';
+      if(lang==='diff'){
+        var c0=line.charAt(0);
+        if(c0==='+'){ row.classList.add('add'); line=line.slice(1); }
+        else if(c0==='-'){ row.classList.add('del'); line=line.slice(1); }
+        else { row.classList.add('ctx'); line=line.slice(1); }
+        hlJs(line, tx);
+      } else if(lang==='yaml'){ hlYaml(line, tx); }
+      else if(lang==='js' || lang==='groovy'){ hlJs(line, tx); }
+      else { tx.textContent=line; }
+      if(hl[n]) row.classList.add('hl');
+      if(ng[n]) row.classList.add('ng');
+      if(ok[n]) row.classList.add('ok');
+      if(st[n]) row.classList.add('st');
+      row.appendChild(tx);
+      if(mk[n]){ var b=document.createElement('span'); b.className='mk'; b.textContent=mk[n]; row.appendChild(b); }
+      if(pre.classList.contains('type')) row.style.animationDelay = (0.15 + i*0.12)+'s';
+      pre.appendChild(row);
+    });
+  });
+
+  /* ---------- 상태 아이콘 ---------- */
+  var ICON = {
+    wait:'<circle cx="20" cy="20" r="16" stroke="#C6C6BE" stroke-width="3" fill="none"/>',
+    run:'<g class="spin"><circle cx="20" cy="20" r="16" stroke="#E6D3A8" stroke-width="4" fill="none"/><path d="M20 4a16 16 0 0 1 16 16" stroke="#BF8700" stroke-width="4" fill="none" stroke-linecap="round"/></g>',
+    ok:'<circle cx="20" cy="20" r="18" fill="#1A7F37"/><path d="M12 20.5l5.5 5.5L28.5 14" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+    ng:'<circle cx="20" cy="20" r="18" fill="#CF222E"/><path d="M13.5 13.5l13 13M26.5 13.5l-13 13" stroke="#fff" stroke-width="4" stroke-linecap="round"/>',
+    skip:'<circle cx="20" cy="20" r="16" stroke="#C6C6BE" stroke-width="3" fill="none" stroke-dasharray="4 5"/>'
+  };
+  function setRuns(page, s){
+    Array.prototype.forEach.call(page.querySelectorAll('.runs li'), function(li){
+      var r=+li.dataset.r, state, tag=li.querySelector('.tag');
+      if(s===0) state='wait';
+      else if(s===1) state = r===0 ? 'ok' : (r===1 ? 'run' : 'wait');
+      else state = r===0 ? 'ok' : (r===1 ? 'ng' : 'skip');
+      li.querySelector('.ic').innerHTML = ICON[state];
+      li.classList.toggle('skip', state==='skip');
+      if(tag) tag.textContent = state==='ng' ? '실패' : state==='skip' ? '건너뜀' : state==='run' ? '실행 중' : '';
+    });
+  }
+
+  /* ---------- 상단 띠 ---------- */
+  var bar=document.getElementById('bar'), nodes=Array.prototype.slice.call(bar.querySelectorAll('.nd')),
+      cons=Array.prototype.slice.call(bar.querySelectorAll('.cn')), cap=document.getElementById('cap');
+  var NODE_X=[0,248,496,744,992], lastCapFail=false;
+  function barSpec(page, s){
+    var spec = page.dataset.bar;
+    for(var k=1;k<=s;k++){ if(page.dataset['bar'+k]!==undefined) spec = page.dataset['bar'+k]; }
+    return spec;
+  }
+  function applyBar(page, s, sweep){
+    var spec = barSpec(page, s);
+    if(!spec){ bar.classList.add('hid'); lastCapFail=false; return; }
+    bar.classList.remove('hid');
+    var parts = spec.split('|'), st = parts[0], cp = parts[1]||'-';
+    nodes.forEach(function(n,i){
+      var c = st.charAt(i)||'t';
+      var apply = function(){ n.className='nd '+c; n.textContent = c==='f' ? n.dataset.f : c==='l' ? n.dataset.l : n.dataset.label; };
+      if(sweep && c==='d'){ setTimeout(apply, 140*i); } else apply();
+    });
+    cons.forEach(function(cn,i){
+      var on = st.charAt(i)==='d';
+      if(sweep && on) setTimeout(function(){cn.classList.add('d');}, 140*i+70); else cn.classList.toggle('d', on);
+    });
+    if(cp==='-'){ cap.style.opacity='0'; lastCapFail=false; return; }
+    cap.style.opacity='1';
+    var idx=+cp.charAt(0), fail=cp.charAt(1)==='f';
+    cap.style.left = (NODE_X[idx]+98-56)+'px';
+    cap.classList.toggle('f', fail);
+    if(fail && !lastCapFail){ cap.classList.remove('bump'); void cap.offsetWidth; cap.classList.add('bump'); }
+    lastCapFail = fail;
+  }
+
+  /* ---------- 장별 동작 ---------- */
+  var cmpPos = 100;
+  function setCmp(pct, animate){
+    var c=document.getElementById('cmp'); if(!c) return;
+    cmpPos = Math.max(0, Math.min(100, pct));
+    c.classList.toggle('drag', !animate);
+    c.querySelector('.v2').style.clipPath = 'inset(0 0 0 '+cmpPos+'%)';
+    c.querySelector('.knob').style.left = cmpPos+'%';
+  }
+  var hooks = {
+    lanes: function(s){
+      var A=document.getElementById('pillA'), B=document.getElementById('pillB'), btn=document.getElementById('approveBtn');
+      A.style.left = (s>=3 ? 1440 : s>=1 ? 760 : 400)+'px';
+      A.style.opacity = s>=3 ? '0' : '1';
+      B.style.left = (s>=4 ? 1440 : 400)+'px';
+      B.style.opacity = s>=4 ? '0' : '1';
+      btn.classList.toggle('done', s>=3);
+      btn.textContent = s>=3 ? '승인됨' : '배포 승인';
+    },
+    fly: function(s){
+      var bb=document.getElementById('bigbar');
+      bb.style.transform = s>=1 ? 'translate(-70px,-440px) scale(.765)' : '';
+      bb.style.opacity = s>=1 ? '0' : '1';
+    },
+    runs: function(s, page){ setRuns(page, s); },
+    slider: function(s){ setCmp(s>=1 ? 0 : 100, true); },
+    traffic: function(s){
+      document.getElementById('tf2').style.width = s>=1 ? '0%' : '100%';
+      document.getElementById('tf1').style.width = s>=1 ? '100%' : '0%';
+      document.getElementById('tp2').textContent = s>=1 ? '0%' : '100%';
+      document.getElementById('tp1').textContent = s>=1 ? '100%' : '0%';
+    },
+    tools: function(s, page){
+      Array.prototype.forEach.call(page.querySelectorAll('.tab'), function(t){ t.classList.toggle('on', +t.dataset.tab===s); });
+      Array.prototype.forEach.call(page.querySelectorAll('.tabp'), function(t){ t.classList.toggle('hid', +t.dataset.tabp!==s); });
+    },
+    day1: function(s, page){
+      Array.prototype.forEach.call(page.querySelectorAll('.checks li'), function(li){ li.classList.toggle('ck', +li.dataset.c<=s); });
+    }
+  };
+
+  /* ---------- 렌더 ---------- */
+  var pn=document.getElementById('pn');
+  function nsteps(p){ return +(pages[p].dataset.steps||0); }
+  function render(fromP){
+    pages.forEach(function(p,i){ p.classList.toggle('active', i===P); });
+    var page=pages[P];
+    page.dataset.step = S;
+    Array.prototype.forEach.call(page.querySelectorAll('[data-s],[data-u]'), function(n){
+      var s0 = n.dataset.s!==undefined ? +n.dataset.s : 0, u = n.dataset.u!==undefined ? +n.dataset.u : 1e9;
+      n.classList.toggle('hid', !(S>=s0 && S<u));
+    });
+    var shaker = page.querySelector('.shaker');
+    if(shaker){ shaker.classList.remove('shake'); if(S>=1 && fromP===P){ void shaker.offsetWidth; shaker.classList.add('shake'); } }
+    applyBar(page, S, page.id==='sweep' && S>=1 && fromP===P);
+    if(hooks[page.id]) hooks[page.id](S, page);
+    pn.textContent = (P+1)+' / '+N;
+    try{ history.replaceState(null,'','#p'+(P+1)+'-'+S); }catch(e){}
+    sendState();
+  }
+  function next(){ var f=P; if(S<nsteps(P)) S++; else if(P<N-1){ P++; S=0; } else return; render(f); }
+  function prev(){ var f=P; if(S>0) S--; else if(P>0){ P--; S=nsteps(P); } else return; render(f===P?P:-1); }
+  function go(p, s){ P=Math.max(0,Math.min(N-1,p)); S=Math.max(0,Math.min(nsteps(P), s||0)); render(-1); }
+
+  /* ---------- 화면 맞춤 ---------- */
+  function fit(){ var k=Math.min(window.innerWidth/1920, window.innerHeight/1080); stage.style.transform='translate(-50%,-50%) scale('+k+')'; }
+  window.addEventListener('resize', fit);
+
+  /* ---------- 입력 ---------- */
+  var jumpBuf='', jumpEl=document.getElementById('jump'), help=document.getElementById('help'), black=document.getElementById('black');
+  function onKey(e, fromPresenter){
+    var k=e.key;
+    if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='ArrowDown'){ e.preventDefault&&e.preventDefault(); if(jumpBuf){ jumpBuf=''; jumpEl.textContent=''; } next(); }
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='ArrowUp'||k==='Backspace'){ e.preventDefault&&e.preventDefault(); prev(); }
+    else if(k==='Home'){ go(0,0); } else if(k==='End'){ go(N-1,0); }
+    else if(/^[0-9]$/.test(k)){ jumpBuf+=k; jumpEl.textContent='→ '+jumpBuf; }
+    else if(k==='Enter'){ if(jumpBuf){ go(+jumpBuf-1,0); jumpBuf=''; jumpEl.textContent=''; } else next(); }
+    else if(k==='Escape'){ jumpBuf=''; jumpEl.textContent=''; help.classList.add('hid'); }
+    else if(!fromPresenter && (k==='f'||k==='F')){ var d=document.documentElement; try{ if(document.fullscreenElement) document.exitFullscreen(); else if(d.requestFullscreen) d.requestFullscreen().catch(function(){}); }catch(err){} }
+    else if(k==='b'||k==='B'||k==='.'){ black.classList.toggle('hid'); }
+    else if(k==='h'||k==='H'||k==='?'){ help.classList.toggle('hid'); }
+    else if(!fromPresenter && (k==='p'||k==='P')){ openPresenter(); }
+  }
+
+  /* ---------- 발표자 창 ---------- */
+  var pres=null;
+  function openPresenter(){
+    try{ pres = window.open(location.href.split('#')[0].split('?')[0]+'?presenter', 'cicd-presenter', 'width=1180,height=760'); }catch(e){ pres=null; }
+    setTimeout(sendState, 600);
+  }
+  function sendState(){ if(pres && !pres.closed){ try{ pres.postMessage({t:'st',P:P,S:S}, '*'); }catch(e){} } }
+
+  if(isPresenter){
+    document.body.classList.add('presenter');
+    document.getElementById('viewport').style.display='none';
+    var wrap=document.createElement('div'); wrap.className='pv';
+    wrap.innerHTML='<div><h1 id="pvT"></h1><div class="meta" id="pvM"></div><div class="nt" id="pvN"></div></div>'+
+      '<div class="side"><div class="clock" id="pvC">00:00</div><div><button type="button" id="pvPrev">이전</button><button type="button" id="pvNext">다음</button><button type="button" id="pvReset">시계 0</button></div>'+
+      '<div class="nx">다음 장<b id="pvX"></b></div><div class="keys">→ 스페이스 다음 · ← 이전 · 숫자+Enter 이동 · B 가리기</div></div>';
+    document.body.appendChild(wrap);
+    var t0=null;
+    function tick(){ if(t0===null){ document.getElementById('pvC').textContent='00:00'; return; } var s=Math.floor((Date.now()-t0)/1000); document.getElementById('pvC').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+    setInterval(tick, 500);
+    function show(p, s){
+      var pg=pages[p], nt=pg.querySelector('.notes');
+      document.getElementById('pvT').textContent=(p+1)+'. '+(pg.dataset.title||'');
+      document.getElementById('pvM').textContent='단계 '+s+' / '+nsteps(p)+'   ·   '+(p+1)+' / '+N;
+      document.getElementById('pvN').textContent= nt ? nt.textContent : '';
+      document.getElementById('pvX').textContent= p<N-1 ? (p+2)+'. '+(pages[p+1].dataset.title||'') : '끝';
+    }
+    function send(k){ if(t0===null) t0=Date.now(); try{ window.opener && window.opener.postMessage({t:'key',k:k}, '*'); }catch(e){} }
+    window.addEventListener('message', function(e){ var d=e.data; if(d && d.t==='st') show(d.P, d.S); });
+    window.addEventListener('keydown', function(e){ if(['ArrowRight',' ','PageDown','ArrowDown','ArrowLeft','PageUp','ArrowUp','Backspace','Enter','Home','End','b','B','.'].indexOf(e.key)>=0 || /^[0-9]$/.test(e.key)){ e.preventDefault(); send(e.key); } });
+    document.getElementById('pvNext').onclick=function(){ send('ArrowRight'); };
+    document.getElementById('pvPrev').onclick=function(){ send('ArrowLeft'); };
+    document.getElementById('pvReset').onclick=function(){ t0=Date.now(); };
+    show(0,0);
+    try{ window.opener && window.opener.postMessage({t:'hello'}, '*'); }catch(e){}
+    return;
+  }
+
+  window.addEventListener('message', function(e){
+    var d=e.data; if(!d) return;
+    if(d.t==='key') onKey({key:d.k}, true);
+    if(d.t==='hello'){ pres = e.source; sendState(); }
+  });
+  window.addEventListener('keydown', function(e){ if(e.altKey||e.ctrlKey||e.metaKey) return; onKey(e, false); });
+  stage.addEventListener('click', function(e){
+    if(e.target.closest('.ix')) return;
+    if(e.shiftKey) prev(); else next();
+  });
+  document.getElementById('approveBtn').addEventListener('click', function(e){ e.stopPropagation(); if(pages[P].id==='lanes' && S===2) next(); });
+  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(t){
+    t.addEventListener('click', function(e){ e.stopPropagation(); var pg=pages[P]; if(pg.id==='tools'){ S=+t.dataset.tab; render(P); } });
+  });
+  (function(){
+    var c=document.getElementById('cmp'), down=false;
+    function at(e){ var r=c.getBoundingClientRect(); setCmp((e.clientX-r.left)/r.width*100, false); }
+    c.addEventListener('pointerdown', function(e){ down=true; c.setPointerCapture(e.pointerId); at(e); e.stopPropagation(); });
+    c.addEventListener('pointermove', function(e){ if(down) at(e); });
+    c.addEventListener('pointerup', function(e){ down=false; e.stopPropagation(); });
+    c.addEventListener('click', function(e){ e.stopPropagation(); });
+  })();
+
+  /* ---------- 실시간 배포 정보 (배포된 주소에서만) ---------- */
+  var LIVE = window.DHDL || {};
+  function setLive(key, val){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-live="'+key+'"]'), function(e){ e.textContent = val; e.classList.remove('pend'); });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-live-show="'+key+'"]'), function(e){ e.classList.remove('nolive'); });
+  }
+  if(LIVE.commit) setLive('commit', LIVE.commit);
+  if(LIVE.api && /^https?:$/.test(location.protocol) && window.fetch){
+    var ctl = window.AbortController ? new AbortController() : null;
+    var to = setTimeout(function(){ if(ctl) ctl.abort(); }, 5000);
+    fetch(LIVE.api.replace(/\/$/,'') + '/api/hello', ctl ? {signal: ctl.signal} : {})
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){ clearTimeout(to); if(d && d.revision){ setLive('message', d.message||''); setLive('revision', d.revision); } })
+      .catch(function(){ clearTimeout(to); });
+  }
+
+  var m = location.hash.match(/^#p(\d+)(?:-(\d+))?$/);
+  fit();
+  if(m) go(+m[1]-1, +(m[2]||0)); else render(-1);
+})();
+</script>

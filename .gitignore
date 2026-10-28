@@ -1,0 +1,6 @@
+out/
+shots/
+_check/
+__pycache__/
+.DS_Store
+.vercel

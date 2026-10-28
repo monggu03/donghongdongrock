@@ -1,0 +1,50 @@
+# ─────────────────────────────────────────────────────────────
+# Deck CI : PR을 열거나 main에 올라올 때마다 발표 페이지를 검사합니다.
+#   빌드(폰트·캡처 넣기) → 화면 검사(넘침·작은 글자·물음표·스크립트 오류)
+# 배포(CD)는 Vercel이 GitHub 연결만으로 알아서 하므로 여기서는 "검사"만 합니다.
+# (cicd-frontend 실습 레포의 ci.yml과 같은 구조)
+# ─────────────────────────────────────────────────────────────
+name: Deck CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    # 브랜치 보호 규칙에서 "필수 검사"로 고를 때 이 이름으로 찾습니다.
+    name: deck-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: 코드 내려받기
+        uses: actions/checkout@v7
+
+      - name: Python 준비
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: 의존성 설치
+        run: pip install -r requirements.txt
+
+      - name: 검사용 크롬 설치
+        run: python -m playwright install --with-deps chromium
+
+      - name: Build
+        run: python build.py
+
+      - name: 화면 검사
+        run: python check.py --shots shots
+
+      - name: 실패하면 화면 남기기
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deck-shots
+          path: shots/

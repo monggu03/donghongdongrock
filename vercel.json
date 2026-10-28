@@ -1,0 +1,7 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "python3 -m pip install fonttools brotli segno || echo 'pip 설치 실패: 원본 폰트로 빌드'",
+  "buildCommand": "python3 build.py",
+  "outputDirectory": "out"
+}
