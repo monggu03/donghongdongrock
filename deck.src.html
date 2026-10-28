@@ -250,6 +250,11 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 
 /* ================= 파이프라인 기계 (world/build.mjs가 그린 아이소메트릭 SVG) ================= */
 /*ISO_CSS*/
+/* 카메라 창: 가까이 찍을 때 제목과 아래 글 사이 띠만 보이게(위아래 가장자리는 부드럽게 흐림) */
+@property --v0{syntax:"<length>";inherits:false;initial-value:-80px}
+@property --v1{syntax:"<length>";inherits:false;initial-value:1160px}
+#wview{position:absolute;inset:0;z-index:1;pointer-events:none;--v0:-80px;--v1:1160px;-webkit-mask-image:linear-gradient(to bottom,transparent var(--v0),#000 calc(var(--v0) + 36px),#000 calc(var(--v1) - 36px),transparent var(--v1));mask-image:linear-gradient(to bottom,transparent var(--v0),#000 calc(var(--v0) + 36px),#000 calc(var(--v1) - 36px),transparent var(--v1));transition:--v0 1.15s cubic-bezier(.65,0,.25,1),--v1 1.15s cubic-bezier(.65,0,.25,1)}
+#wview.inst{transition:none}
 #world{position:absolute;left:0;top:0;z-index:1;transform-origin:0 0;opacity:0;pointer-events:none;transition:transform 1.15s cubic-bezier(.65,0,.25,1),opacity .45s ease;
   --anatomy-paper:#FAFAF7;--anatomy-card:#FAFAF7;--anatomy-weight:1.25px;--anatomy-hi:#1E1E1C;--anatomy-lit:#1E1E1C;--anatomy-dot:#2E2E2B;
   --anatomy-red:#CF222E;--anatomy-green:#1A7F37;--anatomy-blue:#2F5BD3}
@@ -311,7 +316,8 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 #world [data-st="run"] .stg-led{fill:#E3B341}
 #world [data-v="v2"] .led{fill:var(--new)}
 #world .blade-g.ng .led{fill:var(--ng)!important}
-#world .blade-g.ng .blade{stroke:var(--ng)}
+#world .blade{transition:stroke .3s,fill .3s}
+#world .blade-g.ng .blade{stroke:var(--ng);fill:#F9D7DA;stroke-width:2.6px}
 #world .cells .blade-g:nth-child(1) .led{transition-delay:0s}#world .cells .blade-g:nth-child(2) .led{transition-delay:.06s}#world .cells .blade-g:nth-child(3) .led{transition-delay:.12s}
 #world .cells .blade-g:nth-child(4) .led{transition-delay:.18s}#world .cells .blade-g:nth-child(5) .led{transition-delay:.24s}#world .cells .blade-g:nth-child(6) .led{transition-delay:.3s}
 #world .cells .blade-g:nth-child(7) .led{transition-delay:.36s}#world .cells .blade-g:nth-child(8) .led{transition-delay:.42s}#world .cells .blade-g:nth-child(9) .led{transition-delay:.48s}
@@ -360,6 +366,8 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 .wrun small{display:block;font:600 calc(26px*var(--fs))/1.3 var(--f-mono);color:var(--sub)}
 .wver{position:absolute;transform:translate(-50%,-100%);padding:0 .65em;border-radius:999px;background:var(--old);font:800 calc(34px*var(--fs))/1.6 var(--f-sans);color:var(--ink)}
 .wver.v2{background:var(--new);color:#fff}
+.wcv{font-size:calc(24px*var(--fs));opacity:0;transition:opacity .4s ease,font-size 1.15s cubic-bezier(.65,0,.25,1)}
+.wcv.on{opacity:1}
 #wTag{position:absolute;left:0;top:0;height:1.9em;padding:0 .7em;border-radius:999px;background:var(--ink);color:#fff;font:700 calc(24px*var(--fs))/1.9em var(--f-mono);white-space:nowrap;translate:-50% 0}
 #world.fast #wTag{transition-duration:1.15s,.3s,.3s,.3s,.3s,.42s}
 #world.vfast #wTag{transition-duration:1.15s,.2s,.2s,.2s,.2s,.3s}
@@ -401,6 +409,7 @@ body.presenter{overflow:auto;background:#141413;color:#EDEDE6}
 <div id="sec"></div>
 
 <!-- ================= 파이프라인 기계: world/build.mjs가 그린 SVG + 글자 덧붙임. 모든 장이 같은 기계 위에서 상태만 바뀜 ================= -->
+<div id="wview">
 <div id="world" class="iso" data-theme="light" aria-hidden="true">
   <!--WORLD_SVG-->
   <div class="wbr w" data-w="brCI" id="wbrCI"><span>CI · 지속적 통합</span></div>
@@ -417,8 +426,11 @@ body.presenter{overflow:auto;background:#141413;color:#EDEDE6}
   <div class="wl w" data-w="appr" data-at="appr"><b id="wApprB">승인</b><small id="wApprS">사람이 버튼</small></div>
   <div class="wl w" data-w="prod" data-at="prod"><b>운영</b><small>실제 사용자</small></div>
   <div class="wver w" data-w="prod" id="wVer">v1</div>
+  <div class="wver wcv" id="wcv1">v1</div>
+  <div class="wver wcv v2" id="wcv2">v2</div>
   <div id="wTag"></div>
   <div id="wOut" class="gone"></div>
+</div>
 </div>
 
 <!-- ================= 0. 열기 ================= -->
@@ -1332,7 +1344,7 @@ steps:
      그림과 좌표는 world/build.mjs가 만든 world.svg, world.json (build.py가 넣어 줌)
      ===================================================================== */
   var WD = /*WORLD_JSON*/{};
-  var world = document.getElementById('world'), cartEl = document.getElementById('wCart'), loopEl = document.getElementById('wLoop'),
+  var view = document.getElementById('wview'), world = document.getElementById('world'), cartEl = document.getElementById('wCart'), loopEl = document.getElementById('wLoop'),
       tagEl = document.getElementById('wTag'), outEl = document.getElementById('wOut'), verEl = document.getElementById('wVer'),
       apprB = document.getElementById('wApprB'), apprS = document.getElementById('wApprS'), mergeB = document.getElementById('wMergeB');
   var W = {}; $$('[data-w]', world).forEach(function(e){ (W[e.dataset.w] = W[e.dataset.w] || []).push(e); });
@@ -1354,8 +1366,20 @@ steps:
       all: fitCam(padR(RG.all, 120, 90), [30, 230, 1860, 560]),
       allLow: fitCam(padR(RG.all, 120, 90), [30, 452, 1860, 520]),
       cover: fitCam(padR(RG.all, 120, 90), [30, 556, 1860, 480]),
-      prod: fitCam(padR(RG.prod, 90, 120), [420, 290, 1080, 540])
     };
+    /* 가까이 찍기: 제목 아래부터 아래 글 위까지(BZ) 한 장면을 꽉 채움. 창 밖(VZ 바깥)은 흐리게 가림 */
+    var BZ = [40, 196, 1840, 630], VZ = [186, 836];
+    var Z = function(x0, y0, x1, y1){ var c = fitCam({x0:x0, y0:y0, x1:x1, y1:y1}, BZ); c.v = VZ; return c; };
+    CAM.testZ = Z(760, 100, 1460, 490);      // 테스트 다이얼과 멈춘 카트
+    CAM.mergeZ = Z(1250, 200, 1950, 560);    // 머지 문
+    CAM.failMergeZ = Z(1000, 210, 1700, 580); // 테스트에서 멈춘 카트와 잠긴 머지 문
+    CAM.imageZ = Z(1820, 250, 2480, 640);    // 포장 성형기
+    CAM.regZ = Z(2120, 220, 2700, 600);      // 보관 선반
+    CAM.stgZ = Z(2380, 250, 2960, 620);      // 스테이징
+    CAM.apprZ = Z(2560, 380, 3240, 700);     // 승인 스토퍼와 버튼
+    CAM.shipZ = Z(2600, 200, 3700, 700);     // 승인부터 운영까지
+    CAM.prodZ = Z(3100, 170, 3720, 670);     // 운영 서버 랙
+    CAM.regProdZ = Z(2230, 200, 3700, 700);  // 보관소부터 운영까지(되돌리기)
     world.style.width = WD.width+'px'; world.style.height = WD.height+'px';
     $$('.wl', world).forEach(function(e){ var a = ANCH[e.dataset.at]; if(!a) return; e.style.left = a.label[0]+'px'; e.style.top = (a.label[1] + 16)+'px'; });
     [['wbrCI', WD.brackets.ci], ['wbrCD', WD.brackets.cd]].forEach(function(p){
@@ -1364,6 +1388,7 @@ steps:
       e.style.transform = 'rotate('+Math.atan2(dy, dx)+'rad)';
     });
     verEl.style.left = WD.ver[0]+'px'; verEl.style.top = (WD.ver[1] - 8)+'px';
+    ['v1','v2'].forEach(function(v){ var e = document.getElementById('wcv'+v.slice(1)), q = WD.crates[v]; e.style.left = q[0]+'px'; e.style.top = (q[1] - 6)+'px'; });
     loopEl.style.setProperty('--l0x', WD.loop.from[0]+'px'); loopEl.style.setProperty('--l0y', WD.loop.from[1]+'px');
     loopEl.style.setProperty('--l1x', WD.loop.to[0]+'px'); loopEl.style.setProperty('--l1y', WD.loop.to[1]+'px');
     Object.keys(WD.loop.at).forEach(function(n){ (W[n]||[]).forEach(function(e){ if(e instanceof SVGElement){ e.setAttribute('data-ld', ''); e.style.setProperty('--ld', (WD.loop.at[n]*9).toFixed(2)+'s'); } }); });
@@ -1393,7 +1418,7 @@ steps:
   function posOf(name){ return CART[name] || CART.dev || [0, 0]; }
   function applyW(st, inst){
     if(STATIC) inst = true;
-    if(inst) world.classList.add('inst');
+    if(inst){ world.classList.add('inst'); view.classList.add('inst'); }
     world.classList.toggle('on', !!st.on);
     world.classList.toggle('dim', !!st.dim);
     world.classList.toggle('loop', !!st.loop);
@@ -1402,6 +1427,7 @@ steps:
     var c = CAM[st.cam] || CAM.ci;
     world.style.transform = 'translate('+c.tx+'px,'+c.ty+'px) scale('+c.s+')';
     world.classList.toggle('cam-all', c.s < .7);
+    view.style.setProperty('--v0', (c.v ? c.v[0] : -80)+'px'); view.style.setProperty('--v1', (c.v ? c.v[1] : 1160)+'px');
     world.style.setProperty('--fs', Math.max(1, 1/c.s).toFixed(3));
     Object.keys(W).forEach(function(name){
       var v = st.show[name]; if(v === undefined) v = 1;
@@ -1420,7 +1446,8 @@ steps:
     each('prod', function(e){ e.setAttribute('data-v', st.prod.v); });
     verEl.textContent = st.prod.v; verEl.classList.toggle('v2', st.prod.v === 'v2');
     blades.forEach(function(b, i){ var k = FAIL_CELLS.indexOf(i); b.classList.toggle('ng', k >= 0 && k < (st.prod.fail||0)); });
-    ['v1','v2'].forEach(function(v){ var e = shelfBox[v]; if(!e) return; e.classList.toggle('off', st.stack.indexOf(v) < 0); e.classList.toggle('hi', st.hi === v); });
+    ['v1','v2'].forEach(function(v){ var e = shelfBox[v]; if(!e) return; e.classList.toggle('off', st.stack.indexOf(v) < 0); e.classList.toggle('hi', st.hi === v);
+      var b = document.getElementById('wcv'+v.slice(1)); if(b) b.classList.toggle('on', st.stack.indexOf(v) >= 0 && c.s >= .7 && st.show.reg !== 0 && st.show.reg !== 'f'); });
     var cp = st.cap, p = posOf(cp.x), pc = prevW && prevW.cap;
     var jump = !inst && (!pc || p[0] < posOf(pc.x)[0] - 1 || cp.t !== pc.t || (cp.show && !pc.show));
     if(jump){ cartEl.classList.add('notr'); tagEl.classList.add('notr'); }
@@ -1429,7 +1456,10 @@ steps:
     tagEl.style.transform = 'translate('+(p[0] + tg[0])+'px,'+(p[1] + tg[1])+'px)';
     tagEl.textContent = label;
     tagEl.classList.toggle('ng', cp.st === 'ng');
-    tagEl.classList.toggle('gone', !cp.show || !label);
+    var tagOut = false;  // 가까이 찍을 때 이름표가 창 가장자리에 걸리면 숨김
+    if(c.v){ var ty0 = c.ty + (p[1] + tg[1])*c.s, ty1 = ty0 + tagEl.offsetHeight*c.s, tx0 = c.tx + (p[0] + tg[0])*c.s;
+      tagOut = ty0 < c.v[0] + 36 || ty1 > c.v[1] - 36 || tx0 < 60 || tx0 > 1860; }
+    tagEl.classList.toggle('gone', !cp.show || !label || tagOut);
     cartEl.classList.toggle('ng', cp.st === 'ng');
     cartEl.classList.toggle('cube', cp.kind === 'cube');
     cartEl.classList.toggle('old', cp.kind === 'cube' && cp.v === 'v1');
@@ -1446,7 +1476,7 @@ steps:
       outEl.className = (o.st||'') + (o.ko ? ' ko' : '');
       if(!inst && (!po || po.t !== o.t || po.at !== o.at)){ void outEl.offsetWidth; outEl.classList.add('pop'); }
     } else outEl.className = 'gone';
-    if(inst){ void world.offsetWidth; world.classList.remove('inst'); }
+    if(inst){ void world.offsetWidth; world.classList.remove('inst'); view.classList.remove('inst'); }
     prevW = st;
   }
   var tok = 0;
@@ -1508,9 +1538,9 @@ steps:
       base:{on:1, cam:'all', show:{tube:0, rail:0, install:0, lint:0, test:0, build:0, merge:0, image:0, reg:0, stg:0}, cap:{x:'dev', t:'커밋', show:0}},
       enter:[{t:400, show:{tube:1}}, {t:140, show:{install:1}}, {t:110, show:{lint:1}}, {t:110, show:{test:1}}, {t:110, show:{build:1}},
              {t:110, show:{merge:1}}, {t:140, show:{rail:1}}, {t:110, show:{image:1}}, {t:110, show:{reg:1}}, {t:110, show:{stg:1}},
-             {t:350, cap:{show:1}, spd:'vfast'}]
-        .concat(ciRun({fast:2, out:false, t:150}), [{t:120, cap:{x:'merge'}}, {t:300, g:{merge:'open'}}, {t:150, cap:{x:'after'}}],
-                cdPack({fast:2, out:false}), cdStore({fast:2}), cdStage({fast:2, out:false}), cdShip('v2', {fast:1, t:150, out:false}), [{t:0, spd:''}]),
+             {t:350, cam:'ci'}, {t:650, cap:{show:1}, spd:'vfast'}]
+        .concat(ciRun({fast:2, out:false, t:150}), [{t:120, cap:{x:'merge'}}, {t:300, g:{merge:'open'}, cam:'cd'}, {t:150, cap:{x:'after'}}],
+                cdPack({fast:2, out:false}), cdStore({fast:2}), cdStage({fast:2, out:false}), cdShip('v2', {fast:1, t:150, out:false}), [{t:700, cam:'all', spd:''}]),
       steps:{1:[{show:{brCI:1, rail:'f', image:'f', reg:'f', stg:'f', prod:'f'}}],
              2:[{show:M({brCD:1, rail:1, image:1, reg:1, stg:1, prod:1}, FADE_CI)}]}
     },
@@ -1528,32 +1558,32 @@ steps:
     fail:{ base:M(ONCI, {cap:{x:'dev', t:'7d3f0b8', show:1}}),
       steps:{1:[{cap:{x:'entry'}}].concat(gate('install','ok',{t:500}), gate('lint','ok'), [
                 {t:120, cap:{x:'test'}}, {t:720, g:{test:'run'}},
-                {t:800, g:{test:'ng'}, cap:{st:'ng'}, out:{at:'test', t:'Tests 3 failed | 3 passed (6)', st:'ng'}, fx:'shake'},
+                {t:800, g:{test:'ng'}, cap:{st:'ng'}, out:{at:'test', t:'Tests 3 failed | 3 passed (6)', st:'ng'}, fx:'shake', cam:'testZ'},
                 {t:600, g:{build:'skip'}}]),
-             2:[{g:{merge:'lock'}}]} },
+             2:[{cam:'failMergeZ', out:null}, {t:700, g:{merge:'lock'}}]} },
 
     fixed:{ base:M(ONCI, {g:{merge:'lock'}, cap:{x:'dev', t:'3f9a2c1', show:1}}),
       steps:{1:[{cap:{x:'entry'}, spd:'fast'}].concat(ciRun({fast:1, t:450}), [{t:400, cap:{x:'merge'}, g:{merge:'open'}, out:null, spd:''}]),
-             2:[{cap:{x:'after'}, out:{at:'merge', t:'main에 합쳐짐', ko:1, st:'ok'}}]} },
+             2:[{cam:'mergeZ', out:null}, {t:600, cap:{x:'after'}, out:{at:'merge', t:'main에 합쳐짐', ko:1, st:'ok'}}]} },
 
     env:{ base:MERGED, enter:[{t:900, cap:{x:'rail'}}], steps:{1:[{show:{image:'f', reg:'f'}}]} },
-    pack:{ base:ONRAIL, steps:{1:cdPack()} },
-    store:{ base:PACKED, steps:{1:cdStore(), 2:[{hi:'v1'}]} },
-    staging:{ base:STORED, steps:{1:cdStage()} },
+    pack:{ base:ONRAIL, steps:{1:[{cam:'imageZ'}].concat(cdPack())} },
+    store:{ base:PACKED, steps:{1:[{cam:'regZ'}].concat(cdStore()), 2:[{hi:'v1'}]} },
+    staging:{ base:STORED, steps:{1:[{cam:'stgZ'}].concat(cdStage())} },
     delivery:{ base:M(STAGED, {show:{appr:1}, appr:'human'}),
-      enter:[{t:500, cap:{x:'pre'}, out:{at:'appr', t:'승인 대기', ko:1}}],
-      steps:{1:[{appr:'up', out:null}].concat(cdShip('v2', {t:650}))} },
-    deploy:{ base:M(STAGED, {show:{appr:1}, appr:'none', out:null}),
+      enter:[{t:700, cam:'apprZ'}, {t:300, cap:{x:'pre'}, out:{at:'appr', t:'승인 대기', ko:1}}],
+      steps:{1:[{appr:'up', out:null}, {t:650, cam:'shipZ'}].concat(cdShip('v2', {t:250}))} },
+    deploy:{ base:M(STAGED, {show:{appr:1}, appr:'none', out:null, cam:'shipZ'}),
       steps:{1:cdShip('v2', {t:0})} },
 
     full:{ base:{on:1, cam:'all', show:{brCI:1, brCD:1, appr:1}, appr:'none', cap:{x:'dev', t:'3f9a2c1', show:1}},
-      steps:{1:[{cap:{x:'entry'}, spd:'fast'}].concat(ciRun({fast:1, out:false, t:420}), [{t:300, cap:{x:'merge'}, g:{merge:'open'}}]),
-             2:[{cap:{x:'after'}, spd:'fast'}].concat(cdPack({fast:1, out:false}), cdStore({fast:1}), cdStage({fast:1, out:false}), cdShip('v2', {fast:1, t:250}), [{t:0, spd:''}])} },
+      steps:{1:[{cam:'ci', show:{brCI:0, brCD:0}}, {t:500, cap:{x:'entry'}, spd:'fast'}].concat(ciRun({fast:1, out:false, t:420}), [{t:300, cap:{x:'merge'}, g:{merge:'open'}}]),
+             2:[{cam:'cd'}, {t:450, cap:{x:'after'}, spd:'fast'}].concat(cdPack({fast:1, out:false}), cdStore({fast:1}), cdStage({fast:1, out:false}), cdShip('v2', {fast:1, t:250}), [{t:1100, cam:'all', spd:'', out:null, show:{brCI:1, brCD:1}}])} },
 
-    prodFail:{ base:M(SHIPPED, {cam:'prod'}),
+    prodFail:{ base:M(SHIPPED, {cam:'prodZ'}),
       steps:{1:[{prod:{fail:3}, out:{at:'prod', t:'서버 12대 중 3대 오류', ko:1, st:'ng'}}]} },
 
-    revert:{ base:SHIPPED,
+    revert:{ base:M(SHIPPED, {cam:'regProdZ'}),
       steps:{1:[{hi:'v1'}, {t:700, cap:{x:'reg', t:'v1', kind:'cube', v:'v1', show:1}}, {t:500, cap:{x:'door'}, spd:'fast'},
                 {t:600, cap:{show:0}, prod:{v:'v1'}}, {t:700, out:{at:'prod', t:'v1로 복귀', ko:1, st:'ok'}, spd:''}]} },
 
