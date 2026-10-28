@@ -1,64 +1,51 @@
 <title>CI/CD, 어떻게 하는 걸까</title>
 <style>
 /*FONTS*/
-/* 밝은 종이 위 파이프라인 지도: 고정 레이아웃 + 상단 5칸 띠 위를 커밋 캡슐이 이동. 단일 라이트 테마(발표 화면) */
+/* v2: 밝은 종이 위 파이프라인 세계 하나. 커밋 캡슐이 문을 지나고, 카메라가 따라감. 장은 그 위에 글자만 얹음 */
 :root{
-  --frame:#E6E6E0; --bg:#FAFAF7; --card:#FFFFFF; --line:#E1E1DA; --line2:#C6C6BE;
+  --frame:#E6E6E0; --bg:#FAFAF7; --card:#FFFFFF; --line:#E1E1DA; --line2:#C6C6BE; --tube:#EEEEE8;
   --ink:#1E1E1C; --sub:#55554E; --faint:#9A9A92;
   --or:#FF6309; --or-t:#D9530B; --or-soft:#FFEADC;
-  --ok:#1A7F37; --ok-soft:#E4F3E8; --ng:#CF222E; --ng-soft:#FDEBEC; --hanji:#F2EBDD; --val:#3D5A80;
+  --ok:#1A7F37; --ok-soft:#E1F2E6; --ng:#CF222E; --ng-soft:#FDEBEC; --run:#BF8700;
+  --new:#2F5BD3; --new-soft:#E4EBFB; --old:#CFCFC7; --hanji:#F2EBDD; --val:#3D5A80;
   --f-sans:'Pretendard','Noto Sans CJK KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
   --f-mono:'JetBrains Mono','Pretendard','D2Coding','Consolas',ui-monospace,monospace;
   --f-serif:'DHDL Serif','Noto Serif CJK KR','Noto Serif KR','Batang',serif;
+  --ease:cubic-bezier(.55,0,.25,1);
   color-scheme:light;
 }
 html,body{height:100%;margin:0;background:var(--frame);overflow:hidden}
 body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialiased}
 #viewport{position:fixed;inset:0;background:var(--frame);overflow:hidden}
 #stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;background:var(--bg);transform-origin:center center;overflow:hidden;word-break:keep-all}
-.page{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .22s ease,visibility 0s linear .22s}
-.page.active{opacity:1;visibility:visible;transition:opacity .22s ease}
+.page{position:absolute;inset:0;z-index:2;opacity:0;visibility:hidden;transition:opacity .25s ease,visibility 0s linear .25s}
+.page.active{opacity:1;visibility:visible;transition:opacity .25s ease}
 .notes{display:none}
-[data-s],[data-u]{transition:opacity .25s ease}
+[data-s],[data-u]{transition:opacity .3s ease}
 .hid{opacity:0!important;pointer-events:none!important}
 
-/* 글자 */
-.ttl{position:absolute;left:112px;top:200px;width:1696px;margin:0;font:800 64px/1.2 var(--f-sans);letter-spacing:-1.5px;text-wrap:balance}
-.area{position:absolute;left:112px;right:112px;top:330px;bottom:96px}
+/* 공통 글자 */
+#sec{position:absolute;left:112px;top:44px;z-index:3;display:flex;align-items:center;gap:14px;font:700 24px/32px var(--f-sans);color:var(--sub);transition:opacity .3s}
+#sec::before{content:"";width:30px;height:4px;border-radius:2px;background:var(--ink)}
+#prog{position:absolute;left:0;top:0;height:6px;z-index:3;background:var(--ink);transition:width .4s var(--ease)}
+.ttl{position:absolute;left:112px;top:100px;width:1696px;margin:0;font:800 62px/1.22 var(--f-sans);letter-spacing:-1.5px;text-wrap:balance}
 .lead{font:500 32px/1.5 var(--f-sans);color:var(--sub);margin:0}
 .big{font:700 44px/1.3 var(--f-sans);margin:0}
 .cap{font:500 24px/1.4 var(--f-sans);color:var(--sub);margin:0}
 .mono{font-family:var(--f-mono)}
-.ink{color:var(--ink)} .sub{color:var(--sub)} .okc{color:var(--ok)} .ngc{color:var(--ng)}
-.stmt{position:absolute;left:112px;top:0;bottom:0;width:1696px;display:flex;flex-direction:column;justify-content:center;gap:28px}
+.okc{color:var(--ok)} .ngc{color:var(--ng)} .orc{color:var(--or-t)} .newc{color:var(--new)}
+.abs{position:absolute}
+.stmt{position:absolute;left:112px;top:0;bottom:0;width:1696px;display:flex;flex-direction:column;justify-content:center;gap:32px}
 .stmt h2{margin:0;font:800 96px/1.2 var(--f-sans);letter-spacing:-2.5px;text-wrap:balance}
-#pn{position:absolute;right:56px;bottom:30px;font:500 24px var(--f-sans);color:var(--faint);font-variant-numeric:tabular-nums}
-
-/* 상단 파이프라인 띠 */
-#bar{position:absolute;left:112px;top:30px;width:1188px;height:150px;transition:opacity .3s ease;z-index:5}
-#bar .br{position:absolute;top:0;height:28px}
-#bar .br::before{content:"";position:absolute;left:0;right:0;top:13px;height:2px;background:var(--line2)}
-#bar .br::after{content:"";position:absolute;left:0;right:0;top:13px;height:14px;border-left:2px solid var(--line2);border-right:2px solid var(--line2)}
-#bar .br span{position:relative;z-index:1;display:block;width:max-content;margin:0 auto;padding:0 14px;background:var(--bg);font:700 24px/28px var(--f-sans);color:var(--sub)}
-#bar .br-ci{left:0;width:692px} #bar .br-cd{left:744px;width:444px}
-.nd{position:absolute;top:40px;width:196px;height:56px;box-sizing:border-box;border-radius:28px;display:flex;align-items:center;justify-content:center;font:600 26px/1 var(--f-sans);background:var(--card);border:2px solid var(--line2);color:var(--faint);transition:background .3s,border-color .3s,color .3s}
-.nd.n{border:3px solid var(--ink);color:var(--ink);font-weight:800}
-.nd.d{background:var(--ink);border-color:var(--ink);color:#fff}
-.nd.f{background:var(--ng);border-color:var(--ng);color:#fff;font-weight:800}
-.nd.l{border:3px dashed var(--ng);color:var(--ng);font-weight:800}
-.cn{position:absolute;top:67px;width:52px;height:2px;background:var(--line2);transition:background .3s}
-.cn.d{background:var(--ink)}
-#cap{position:absolute;top:106px;left:0;width:112px;height:40px;border-radius:20px;background:var(--ink);color:#fff;font:700 24px/40px var(--f-sans);text-align:center;transition:left .45s cubic-bezier(.5,0,.2,1),background .25s,opacity .25s}
-#cap.f{background:var(--ng)}
-#cap.bump{animation:bump .5s ease}
-@keyframes bump{0%{transform:translateX(0)}25%{transform:translateX(-26px)}50%{transform:translateX(10px)}75%{transform:translateX(-5px)}100%{transform:translateX(0)}}
+#pn{position:absolute;right:56px;bottom:30px;z-index:3;font:500 24px var(--f-sans);color:var(--faint);font-variant-numeric:tabular-nums}
+.foot{position:absolute;margin:0;font:500 24px/1.3 var(--f-sans);color:var(--faint)}
 
 /* 카드·코드·로그 */
-.card{position:absolute;background:var(--card);border:1px solid var(--line);border-radius:16px}
-.code,.log{position:absolute;margin:0;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 0;font:400 24px/1.48 var(--f-mono);color:var(--ink);white-space:pre;overflow:hidden;box-sizing:border-box}
-.code .cl,.log .cl{display:flex;padding:0 30px;min-height:1.48em}
+.card{position:absolute;box-sizing:border-box;background:var(--card);border:1px solid var(--line);border-radius:18px}
+.code,.log{position:absolute;margin:0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 0;font:400 24px/1.48 var(--f-mono);color:var(--ink);white-space:pre;overflow:hidden;box-sizing:border-box}
+.code .cl,.log .cl{display:flex;padding:0 30px;min-height:1.48em;transition:opacity .3s,background .3s}
 .code .cl>.tx{flex:1;white-space:pre}
-.code.hasdim .cl{opacity:.32}
+.code.hasdim .cl{opacity:.3}
 .code.hasdim .cl.hl{opacity:1;background:var(--or-soft)}
 .code .k{color:var(--ink);font-weight:700}
 .code .v{color:var(--val)}
@@ -71,34 +58,58 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 .log .cl.ng{color:var(--ng);font-weight:700}
 .log .cl.ok{color:var(--ok);font-weight:700}
 .log .cl.st{font-weight:700}
-.log .cl.ln{animation:none}
 .page.active .log.type:not(.hid) .cl{opacity:0;animation:typein .01s linear forwards}
 @keyframes typein{to{opacity:1}}
-.shake{animation:shake .36s ease}
+.shake{animation:shake .4s ease}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-14px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(5px)}}
 
-/* 캡처 자리 */
-.slot{position:absolute;border:2px dashed var(--line2);border-radius:16px;background:#F2F2EE;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;box-sizing:border-box;padding:24px}
+/* 캡처 */
+.slot{position:absolute;border:2px dashed var(--line2);border-radius:18px;background:#F2F2EE;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;box-sizing:border-box;padding:24px}
 .slot b{font:700 30px var(--f-sans);color:var(--sub)}
 .slot span{font:500 24px/1.4 var(--f-sans);color:var(--faint)}
-.shot{position:absolute;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card);box-sizing:border-box}
+.shot{position:absolute;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--card);box-sizing:border-box}
 .shot img{display:block;width:100%;height:100%;object-fit:contain;object-position:top center}
 
-/* 상자·화살표 다이어그램 */
-.bx{position:absolute;box-sizing:border-box;border:2px solid var(--line2);border-radius:14px;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font:700 30px/1.3 var(--f-sans);color:var(--ink);padding:10px 16px}
+/* 상자·화살표 */
+.bx{position:absolute;box-sizing:border-box;border:2px solid var(--line2);border-radius:16px;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font:700 30px/1.3 var(--f-sans);color:var(--ink);padding:10px 16px}
 .bx small{display:block;font:500 24px/1.35 var(--f-sans);color:var(--sub);margin-top:6px}
 .bx.ink{background:var(--ink);border-color:var(--ink);color:#fff} .bx.ink small{color:#D6D6D0}
-.bx.dash{border:3px dashed var(--or);background:var(--or-soft);color:var(--or-t)}
-.bx.okb{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
-.bx.ngb{border-color:var(--ng);background:var(--ng-soft);color:var(--ng)}
-.ar{position:absolute;height:3px;background:var(--line2)}
-.ar::after{content:"";position:absolute;right:-2px;top:-8px;border:9px solid transparent;border-left:13px solid var(--line2);border-right:0}
-.ar.ink{background:var(--ink)} .ar.ink::after{border-left-color:var(--ink)}
-.lbl{position:absolute;font:600 24px/1.3 var(--f-sans);color:var(--sub);white-space:nowrap}
+.ar{position:absolute;height:3px;background:var(--ink)}
+.ar::after{content:"";position:absolute;right:-2px;top:-8px;border:9px solid transparent;border-left:13px solid var(--ink);border-right:0}
 
-/* 타임라인(데모데이 전날 밤) */
-.tl{position:absolute;left:112px;top:316px;width:1696px;height:118px;display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
-.tc{box-sizing:border-box;border:2px solid var(--line2);border-radius:14px;padding:16px 22px;background:var(--card);color:var(--faint)}
+/* 칩 */
+.chip{display:inline-flex;align-items:center;gap:14px;padding:12px 24px;border-radius:999px;border:2px solid var(--line2);background:var(--card);font:600 28px/1.2 var(--f-sans);color:var(--ink);white-space:nowrap;box-sizing:border-box}
+.chip code{font:500 26px var(--f-mono);color:var(--val)}
+.chip.ok{border-color:var(--ok);color:var(--ok)} .chip.ng{border-color:var(--ng);color:var(--ng)} .chip.or{border-color:var(--or);color:var(--or-t);background:var(--or-soft)}
+.chip.ink{background:var(--ink);border-color:var(--ink);color:#fff}
+.badge{display:inline-block;flex:none;width:52px;height:52px;border-radius:50%;background:var(--ink);color:#fff;font:800 28px/52px var(--f-sans);text-align:center}
+
+/* 등장 효과 */
+.stg>*{opacity:1}
+.page.active .stg:not(.hid)>*{animation:rise .5s var(--ease) both;animation-delay:calc(var(--i,0)*.22s + .1s)}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.pop{animation:pop .4s var(--ease) both}
+@keyframes pop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+.drw path,.drw line,.drw polyline,.drw circle.ln{stroke-dasharray:1;stroke-dashoffset:0;transition:stroke-dashoffset 1s var(--ease)}
+.drw.undrawn path,.drw.undrawn line,.drw.undrawn polyline,.drw.undrawn circle.ln{stroke-dashoffset:1}
+
+/* 표지·장 표지 */
+.cover-ttl{position:absolute;left:112px;top:118px;margin:0;font:800 140px/1.04 var(--f-sans);letter-spacing:-4.5px}
+.cover-meta{position:absolute;left:116px;top:438px;font:600 32px/1.5 var(--f-sans);color:var(--sub)}
+.seal{position:absolute;right:112px;top:110px;writing-mode:vertical-rl;font:900 64px/1 var(--f-serif);letter-spacing:10px;color:var(--ink)}
+.chap{position:absolute;inset:0;background:var(--hanji)}
+.chap .k{position:absolute;left:104px;top:190px;font:800 340px/1 var(--f-sans);letter-spacing:-14px}
+.chap .bar{position:absolute;left:112px;top:560px;width:220px;height:14px;background:var(--or)}
+.chap h2{position:absolute;left:112px;top:620px;margin:0;font:800 84px/1.15 var(--f-sans);letter-spacing:-2px}
+.chap p{position:absolute;left:116px;top:740px;margin:0;font:500 34px/1.5 var(--f-sans);color:var(--sub)}
+.page.active .chap .k{animation:chapk .7s var(--ease) both}
+.page.active .chap .bar{animation:chapbar .6s var(--ease) .25s both;transform-origin:0 50%}
+@keyframes chapk{from{opacity:0;transform:translateY(60px)}to{opacity:1;transform:none}}
+@keyframes chapbar{from{transform:scaleX(0)}to{transform:none}}
+
+/* 타임라인(전날 밤) */
+.tl{position:absolute;left:112px;top:226px;width:1696px;height:118px;display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
+.tc{box-sizing:border-box;border:2px solid var(--line2);border-radius:16px;padding:16px 22px;background:var(--card);color:var(--faint);transition:border-color .3s,background .3s,color .3s}
 .tc i{display:block;font:600 24px/1.2 var(--f-sans);font-style:normal;margin-bottom:8px}
 .tc b{display:block;font:700 30px/1.25 var(--f-sans)}
 .tc.past{color:var(--sub)}
@@ -109,29 +120,50 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 /* 표 */
 .tb{position:absolute;border-collapse:collapse;font:500 30px/1.4 var(--f-sans);color:var(--ink)}
 .tb th{font:600 24px/1.3 var(--f-sans);color:var(--sub);text-align:left;padding:0 24px 16px 0;border-bottom:2px solid var(--ink)}
-.tb td{padding:20px 24px 20px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.tb td{padding:20px 24px 20px 0;border-bottom:1px solid var(--line);vertical-align:top;transition:background .3s}
 .tb td.m{font:500 24px/1.45 var(--f-mono);color:var(--ng)}
-.tb td b{font-weight:700}
 .tb tr.or td{background:var(--or-soft)}
 .tb .colhl{background:var(--or-soft)}
 
-/* 상태 아이콘 목록 (Actions 단계) */
-.runs{position:absolute;list-style:none;margin:0;padding:0}
-.runs li{display:flex;align-items:center;gap:22px;height:76px;border-bottom:1px solid var(--line);font:600 32px var(--f-sans);color:var(--ink)}
-.runs li .ic{flex:none;width:40px;height:40px}
-.runs li .tag{margin-left:auto;font:500 24px var(--f-sans);color:var(--sub)}
-.runs li.skip{color:var(--faint)}
-.spin{animation:spin 1s linear infinite;transform-origin:50% 50%}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* 터미널·서버 상태(손 배포) */
+.srv{position:absolute;box-sizing:border-box;border:3px solid var(--ink);border-radius:22px;background:var(--card);padding:30px 34px}
+.srv .st{display:inline-flex;align-items:center;gap:14px;margin-top:22px;padding:12px 22px;border-radius:999px;font:700 30px/1 var(--f-sans)}
+.srv .st::before{content:"";width:18px;height:18px;border-radius:50%;background:currentColor}
+.srv .st.up{background:var(--ok-soft);color:var(--ok)}
+.srv .st.down{background:var(--ng-soft);color:var(--ng)}
+.page.active .srv .st.up:not(.hid)::before{animation:blink 1.6s ease-in-out infinite}
+@keyframes blink{50%{opacity:.25}}
 
-/* 칩 */
-.chip{display:inline-flex;align-items:center;gap:14px;padding:12px 22px;border-radius:999px;border:2px solid var(--line2);background:var(--card);font:600 28px/1.2 var(--f-sans);color:var(--ink);white-space:nowrap}
-.chip code{font:500 26px var(--f-mono);color:var(--val)}
-.badge{display:inline-block;width:56px;height:56px;border-radius:50%;background:var(--ink);color:#fff;font:800 30px/56px var(--f-sans);text-align:center}
+/* 8단계 목록 */
+.st8{position:absolute;list-style:none;margin:0;padding:0}
+.st8 li{position:relative;display:flex;align-items:center;gap:24px;height:70px;padding:0 24px;border-bottom:1px solid var(--line);font:600 32px var(--f-sans);transition:background .3s}
+.st8 li .n{width:56px;font:700 28px var(--f-mono);color:var(--faint)}
+.st8 li .ck{margin-left:auto;width:34px;height:34px}
+.st8 li .tag{display:none;margin-left:auto;padding:6px 16px;border-radius:999px;background:var(--ng);color:#fff;font:800 26px/1.2 var(--f-sans)}
+.st8.missable.on li.m4{background:var(--ng-soft);color:var(--ng)}
+.st8.missable.on li.m4 .ck{display:none} .st8.missable.on li.m4 .tag{display:block}
+.st8 li::after{content:"";position:absolute;left:16px;right:16px;top:50%;height:5px;margin-top:-2px;background:var(--or);border-radius:3px;transform:scaleX(0);transform-origin:0 50%;transition:transform .45s var(--ease);transition-delay:calc(var(--i,0)*.16s)}
+.st8.strike.on li::after{transform:none}
+.st8.strike.on li{color:var(--faint)}
 
-/* 버튼·인터랙션 */
+/* 다섯 명 */
+.av{position:absolute;width:72px;height:72px;margin:-36px 0 0 -36px;border-radius:50%;background:var(--ink);color:#fff;font:800 32px/72px var(--f-sans);text-align:center}
+.flow{position:absolute;left:0;top:0;width:1696px;height:600px}
+.flow i{position:absolute;left:0;top:0;width:22px;height:22px;border-radius:50%;background:var(--ink);offset-rotate:0deg;opacity:0}
+.page.active .flow:not(.hid) i{animation:along 2.6s var(--ease) infinite;animation-delay:var(--d)}
+@keyframes along{0%{offset-distance:0%;opacity:0}8%{opacity:1}92%{opacity:1}100%{offset-distance:100%;opacity:0}}
+
+/* 리뷰 대기·확인 목록 */
+.rq{position:absolute;list-style:none;margin:0;padding:0}
+.rq li{display:flex;gap:20px;align-items:center;height:62px;padding:0 22px;margin-bottom:12px;border:2px solid var(--line2);border-radius:14px;background:var(--card);font:600 28px var(--f-sans)}
+.rq li .mono{font:600 26px var(--f-mono);color:var(--faint)}
+.q5{position:absolute;list-style:none;margin:0;padding:0}
+.q5 li{display:flex;align-items:center;gap:26px;height:96px;border-bottom:1px solid var(--line);font:700 38px var(--f-sans)}
+.q5 li code{margin-left:auto;font:500 28px var(--f-mono);color:var(--val)}
+
+/* 버튼·탭 */
 .ix{cursor:pointer}
-.approve{position:absolute;border:0;border-radius:14px;background:var(--or);color:#fff;font:800 32px/1 var(--f-sans);padding:22px 30px;box-shadow:0 6px 0 #C24A05;transition:background .2s,transform .1s,box-shadow .1s}
+.approve{position:absolute;border:0;border-radius:16px;background:var(--or);color:#fff;font:800 34px/1 var(--f-sans);padding:24px 34px;box-shadow:0 6px 0 #C24A05;transition:background .2s,transform .1s,box-shadow .1s}
 .approve:active{transform:translateY(4px);box-shadow:0 2px 0 #C24A05}
 .approve.done{background:var(--ink);box-shadow:0 2px 0 #000;cursor:default}
 .approve:focus-visible,.tab:focus-visible{outline:4px solid var(--ink);outline-offset:4px}
@@ -139,41 +171,52 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 .tab{border:2px solid var(--line2);background:var(--card);border-radius:12px;padding:14px 26px;font:700 28px var(--f-sans);color:var(--sub)}
 .tab.on{background:var(--ink);border-color:var(--ink);color:#fff}
 
-/* 표지·구분 */
-.cover-ttl{position:absolute;left:112px;top:240px;margin:0;font:800 132px/1.08 var(--f-sans);letter-spacing:-4px}
-.cover-meta{position:absolute;left:116px;top:640px;font:600 32px/1.5 var(--f-sans);color:var(--sub)}
-.seal{position:absolute;right:112px;top:120px;writing-mode:vertical-rl;font:900 64px/1 var(--f-serif);letter-spacing:10px;color:var(--ink)}
-.divider{position:absolute;inset:0;background:var(--hanji)}
-.divider h2{position:absolute;left:112px;top:420px;margin:0;font:800 120px/1.1 var(--f-sans);letter-spacing:-3px}
-.divider p{position:absolute;left:116px;top:580px;margin:0;font:500 32px/1.5 var(--f-sans);color:var(--sub)}
+/* PR 머지 상자(설명용) */
+.prbox{position:absolute;box-sizing:border-box;border:2px solid var(--line2);border-radius:20px;background:var(--card);padding:34px 40px;overflow:hidden}
+.prbox .h{font:700 36px/1.3 var(--f-sans);padding-bottom:24px;border-bottom:1px solid var(--line)}
+.prbox .h span{font-family:var(--f-mono);color:var(--faint);margin-right:14px}
+.prbox .r{display:flex;gap:24px;align-items:center;padding:26px 0;border-bottom:1px solid var(--line)}
+.prbox .r svg{flex:none;width:52px;height:52px}
+.prbox .r b{display:block;font:700 32px/1.3 var(--f-sans)}
+.prbox .r small{display:block;font:500 26px/1.35 var(--f-sans);color:var(--sub);margin-top:4px}
+.prbox .btn{display:inline-block;margin-top:30px;padding:18px 30px;border-radius:12px;font:700 28px/1 var(--f-sans);background:#EDEDE8;color:var(--faint)}
+.prbox .btn.go{background:var(--ok);color:#fff}
+.prbox img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff}
 
-/* 승인 레인 */
-.lane{position:absolute;left:112px;width:1696px;height:200px}
-.lane .ln-ttl{position:absolute;left:0;top:0;font:800 36px/1.2 var(--f-sans)}
-.lane .ln-sub{position:absolute;left:0;top:50px;font:500 26px/1.3 var(--f-sans);color:var(--sub)}
-.lane .track{position:absolute;left:0;right:0;top:150px;height:3px;background:var(--line2)}
-.pill{position:absolute;height:44px;padding:0 20px;border-radius:22px;background:var(--ink);color:#fff;font:700 24px/44px var(--f-sans);transition:left .55s cubic-bezier(.5,0,.2,1),background .25s,opacity .2s ease .45s}
-.gate{position:absolute;box-sizing:border-box;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 28px/1.3 var(--f-sans);text-align:center}
+/* 배포 전략 미니 그림 */
+.strat{position:absolute;left:112px;width:1696px;height:200px;border-bottom:1px solid var(--line)}
+.strat h3{position:absolute;left:0;top:34px;margin:0;font:800 50px/1.2 var(--f-sans)}
+.strat p{position:absolute;left:0;top:108px;margin:0;font:500 32px/1.4 var(--f-sans);color:var(--sub)}
+.strat .fig{position:absolute;left:880px;top:30px;width:816px;height:140px}
+.sv{position:absolute;top:30px;width:96px;height:80px;border-radius:14px;background:var(--old)}
+.page.active .roll .sv{animation:roll 6s steps(1) infinite;animation-delay:calc(var(--i)*.7s)}
+@keyframes roll{0%{background:var(--old)}12%,84%{background:var(--new)}100%{background:var(--old)}}
+.bg-box{position:absolute;top:20px;width:300px;height:100px;border-radius:16px;display:flex;align-items:center;justify-content:center;font:700 30px var(--f-sans)}
+.bg-box.o{left:0;background:#EDEDE8;color:var(--sub)} .bg-box.n{left:480px;background:var(--new-soft);color:var(--new)}
+.bg-sw{position:absolute;top:44px;left:330px;width:120px;height:52px;border-radius:26px;background:#EDEDE8}
+.bg-sw i{position:absolute;top:6px;left:6px;width:40px;height:40px;border-radius:50%;background:var(--ink)}
+.page.active .bg .bg-sw i{animation:sw 3.2s var(--ease) infinite alternate}
+@keyframes sw{0%,30%{left:6px}70%,100%{left:74px}}
+.cn20{position:absolute;left:0;top:20px;display:grid;grid-template-columns:repeat(10,44px);gap:14px}
+.cn20 i{width:44px;height:44px;border-radius:50%;background:var(--old)}
+.cn20 i.b{background:var(--new)}
+.page.active .cn20 i.b{animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.2)}}
 
-/* 비교 슬라이더 */
-.cmp{position:absolute;overflow:hidden;border:1px solid var(--line);border-radius:16px;background:var(--card);touch-action:none;user-select:none}
-.cmp .pane{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 72px;box-sizing:border-box}
-.cmp .pane img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
-.cmp .v2{clip-path:inset(0 0 0 100%);background:#FFFDF9;transition:clip-path .7s cubic-bezier(.5,0,.2,1)}
-.cmp.drag .v2{transition:none}
-.cmp .knob{position:absolute;top:0;bottom:0;width:4px;background:var(--or);left:100%;transition:left .7s cubic-bezier(.5,0,.2,1)}
-.cmp.drag .knob{transition:none}
-.cmp .knob::after{content:"";position:absolute;top:50%;left:-22px;width:48px;height:48px;margin-top:-24px;border-radius:50%;background:var(--or);box-shadow:0 0 0 6px #fff}
-.cmp .tag{font:600 24px var(--f-sans);color:var(--sub);margin-bottom:18px}
-.cmp .msg{font:700 52px/1.3 var(--f-sans)}
+/* 카나리 격자·차트 */
+.grid100{position:absolute;display:grid;grid-template-columns:repeat(10,40px);gap:16px}
+.grid100 i{width:40px;height:40px;border-radius:50%;background:var(--old);transition:background .35s ease,transform .35s ease}
+.grid100 i.b{background:var(--new)}
+.grid100.rb i.b{background:var(--old)}
+.pct{position:absolute;margin:0;font:800 150px/1 var(--f-sans);letter-spacing:-5px;font-variant-numeric:tabular-nums}
+.chart{position:absolute}
+.chart .seg{transition:opacity .3s}
 
-/* 트래픽 막대 */
-.traffic{position:absolute}
-.traffic .row{display:grid;grid-template-columns:260px 1fr 110px;align-items:center;gap:24px;height:88px}
-.traffic .nm{font:700 30px var(--f-sans)}
-.traffic .tr{height:36px;border-radius:18px;background:#EDEDE8;overflow:hidden}
-.traffic .fill{height:100%;background:var(--ink);transition:width .7s cubic-bezier(.5,0,.2,1)}
-.traffic .pc{font:800 32px var(--f-sans);text-align:right;font-variant-numeric:tabular-nums}
+/* 숫자 타일 */
+.tile{position:absolute;box-sizing:border-box;border:1px solid var(--line);border-radius:20px;background:var(--card);padding:30px 36px}
+.tile .cap{font-size:28px}
+.tile .val{margin-top:10px;font:800 92px/1 var(--f-sans);letter-spacing:-3px}
+.tile svg{position:absolute;right:36px;bottom:36px}
 
 /* 체크리스트 */
 .checks{position:absolute;list-style:none;margin:0;padding:0}
@@ -183,7 +226,21 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 .checks li.ck .bx2{background:var(--ink)} .checks li.ck .bx2::after{opacity:1}
 .checks li small{display:block;font:500 26px/1.4 var(--f-sans);color:var(--sub);margin-top:4px}
 
-/* 도움말·발표자 */
+
+/* 장별 보조 */
+.yl{opacity:.28;transition:opacity .35s}
+.yl.on{opacity:1}
+.sl{transform-origin:0 50%}
+.page.active .sl:not(.hid){animation:chapbar .5s var(--ease) both}
+.rp{display:flex;align-items:center;gap:30px;height:100px;border-bottom:1px solid var(--line)}
+.rp .cap{width:210px;font-size:28px;font-weight:700;color:var(--ink)}
+.ch5{display:flex;gap:14px}
+.ch5 span{padding:12px 24px;border-radius:12px;background:var(--ok-soft);color:var(--ok);font:700 28px/1.2 var(--f-sans)}
+.notr .drw *{transition:none!important}
+#wCap.popin{animation:capin .35s ease}
+@keyframes capin{from{opacity:0}to{opacity:1}}
+
+/* 도움말·발표자·라이브 */
 #help{position:absolute;right:56px;bottom:80px;width:560px;padding:28px 32px;border-radius:16px;background:var(--ink);color:#fff;font:500 24px/1.6 var(--f-sans);z-index:20}
 #help b{display:inline-block;min-width:150px;font-family:var(--f-mono);color:#FFB27D}
 #black{position:absolute;inset:0;background:#000;z-index:30}
@@ -191,6 +248,117 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 .pend{font:600 30px/1.35 var(--f-sans)!important;color:var(--faint)!important;letter-spacing:0!important}
 .live-dot{display:inline-block;width:16px;height:16px;border-radius:50%;background:var(--ok);margin-right:12px;vertical-align:2px}
 #jump{position:absolute;left:56px;bottom:26px;font:700 28px var(--f-mono);color:var(--sub);z-index:20}
+
+/* ================= 파이프라인 세계 (3400×1080) ================= */
+#world{position:absolute;left:0;top:0;z-index:1;width:3400px;height:1080px;transform-origin:0 0;opacity:0;pointer-events:none;transition:transform 1.1s cubic-bezier(.65,0,.25,1),opacity .45s ease}
+#world.on{opacity:1}
+#world.on.dim{opacity:.13}
+#world.inst,#world.inst *{transition:none!important}
+.w{position:absolute;transition:opacity .4s ease}
+.w.off{opacity:0}
+.w.fade{opacity:.2}
+.w-dev{box-sizing:border-box;border:3px solid var(--ink);border-radius:26px;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:18px 0 16px}
+.w-dev svg{width:110px;height:70px}
+.w-dev .dt{display:flex;flex-direction:column;align-items:center;gap:2px}
+.cam-all .w-dev svg{width:84px;height:54px}
+.cam-all .w-dev small{display:none}
+.w-dev b{font:800 34px/1.2 var(--f-sans)}
+.w-dev small{font:500 24px/1.3 var(--f-sans);color:var(--sub)}
+.w-tube{box-sizing:border-box;border-radius:36px;background:var(--tube);border:2px solid #D3D3CB;overflow:hidden}
+.w-fill{position:absolute;left:0;top:0;bottom:0;width:0;background:#CDEBD5;transition:width .75s var(--ease),background .3s}
+.w-fill.ng{background:#F7CFD2}
+.w-rail{box-sizing:border-box;border-top:4px solid var(--line2);border-bottom:4px solid var(--line2);background:repeating-linear-gradient(90deg,transparent 0 36px,#DADAD2 36px 44px)}
+.w-g,.w-st,.w-appr{top:0;width:0;height:0}
+.w-g .ring{position:absolute;left:-24px;top:516px;width:48px;height:168px;box-sizing:border-box;border:5px solid #C9C9C1;border-radius:24px;background:#fff;transition:border-color .3s,background .3s,opacity .3s}
+.w-g.mg .ring{left:-32px;width:64px;border-radius:16px}
+.w-st .box{position:absolute;left:-96px;top:504px;width:192px;height:192px;box-sizing:border-box;border:4px solid #C9C9C1;border-radius:26px;background:rgba(255,255,255,.75);transition:border-color .3s,background .3s}
+.w-st .press{position:absolute;left:-70px;top:516px;width:140px;height:14px;border-radius:7px;background:var(--line2)}
+.w-st[data-st="run"] .press{animation:press .5s var(--ease) 2}
+@keyframes press{50%{transform:translateY(54px);background:var(--ink)}}
+.w .ic{position:absolute;left:-26px;top:440px;width:52px;height:52px}
+.w-g b,.w-st b,.w-appr b{position:absolute;left:-160px;width:320px;top:712px;text-align:center;font:800 34px/1.2 var(--f-sans);color:var(--ink);transition:color .3s}
+.w-g small,.w-st small,.w-appr small{position:absolute;left:-160px;width:320px;top:758px;text-align:center;font:500 24px/1.3 var(--f-mono);color:var(--sub);transition:opacity .3s}
+.w-st small,.w-appr small{font-family:var(--f-sans)}
+.w-g[data-st="run"] .ring,.w-st[data-st="run"] .box{border-color:var(--run)}
+.w-g[data-st="ok"] .ring,.w-g[data-st="open"] .ring,.w-st[data-st="ok"] .box{border-color:var(--ok);background:var(--ok-soft)}
+.w-g[data-st="ng"] .ring,.w-g[data-st="lock"] .ring{border-color:var(--ng);background:var(--ng-soft)}
+.w-g[data-st="ng"] b,.w-g[data-st="lock"] b{color:var(--ng)}
+.w-g[data-st="skip"] .ring{border-style:dashed;opacity:.55}
+.w-g[data-st="skip"] b,.w-g[data-st="skip"] small{color:var(--faint)}
+.w-st .stack{position:absolute;left:-96px;top:380px;width:192px;display:flex;justify-content:center;gap:12px}
+.vc{width:78px;height:50px;border-radius:12px;background:var(--old);color:var(--ink);font:800 28px/50px var(--f-sans);text-align:center;transition:opacity .3s,box-shadow .3s,transform .3s}
+.vc.v2{background:var(--new);color:#fff}
+.vc.off{display:none}
+.vc.hi{box-shadow:0 0 0 6px var(--or)}
+.vc.in{animation:pop .45s var(--ease) both}
+.w-appr .bar{position:absolute;left:-17px;top:504px;width:34px;height:192px;border-radius:17px;background:var(--or);box-sizing:border-box;transition:transform .6s var(--ease),opacity .4s,background .3s,border-color .3s}
+.w-appr .cap{position:absolute;left:-30px;top:482px;width:60px;height:22px;border-radius:8px;background:var(--ink)}
+.w-appr[data-st="up"] .bar{transform:translateY(-150px);opacity:.3}
+.w-appr[data-st="none"] .bar{background:transparent;border:4px dashed var(--line2)}
+.w-appr[data-st="none"] .cap{background:var(--line2)}
+.w-appr[data-st="none"] b{color:var(--faint)}
+.w-prod{box-sizing:border-box;border:4px solid var(--ink);border-radius:28px;background:var(--card)}
+.w-prod b{position:absolute;left:32px;top:24px;font:800 36px/1.2 var(--f-sans)}
+.w-prod small{position:absolute;left:32px;top:72px;font:500 24px/1.3 var(--f-sans);color:var(--sub);transition:opacity .3s}
+.w-prod .ver{position:absolute;right:28px;top:24px;padding:0 20px;height:52px;border-radius:26px;background:var(--old);font:800 32px/52px var(--f-sans);transition:background .3s,color .3s}
+.w-prod[data-v="v2"] .ver{background:var(--new);color:#fff}
+.w-prod .cells{position:absolute;left:30px;top:124px;display:grid;grid-template-columns:repeat(4,96px);gap:14px}
+.w-prod .cells i{height:60px;border-radius:12px;background:var(--old);transition:background .35s ease}
+.w-prod[data-v="v2"] .cells i{background:var(--new)}
+.w-prod .cells i.ng{background:var(--ng)!important}
+.w-prod .cells i:nth-child(1){transition-delay:0s}.w-prod .cells i:nth-child(2){transition-delay:.05s}.w-prod .cells i:nth-child(3){transition-delay:.1s}.w-prod .cells i:nth-child(4){transition-delay:.15s}
+.w-prod .cells i:nth-child(5){transition-delay:.2s}.w-prod .cells i:nth-child(6){transition-delay:.25s}.w-prod .cells i:nth-child(7){transition-delay:.3s}.w-prod .cells i:nth-child(8){transition-delay:.35s}
+.w-prod .cells i:nth-child(9){transition-delay:.4s}.w-prod .cells i:nth-child(10){transition-delay:.45s}.w-prod .cells i:nth-child(11){transition-delay:.5s}.w-prod .cells i:nth-child(12){transition-delay:.55s}
+.w-br{height:46px}
+.w-br::before{content:"";position:absolute;left:0;right:0;top:21px;height:3px;background:var(--line2)}
+.w-br::after{content:"";position:absolute;left:0;right:0;top:21px;height:24px;border-left:3px solid var(--line2);border-right:3px solid var(--line2)}
+.w-br span{position:relative;z-index:1;display:block;width:max-content;margin:0 auto;padding:0 22px;background:var(--bg);font:800 36px/46px var(--f-sans);color:var(--ink)}
+.w-runner{box-sizing:border-box;border:4px dashed var(--ink);border-radius:32px;background:rgba(30,30,28,.035)}
+.w-runner b{position:absolute;left:32px;top:14px;font:800 36px/1.2 var(--f-sans)}
+.w-runner small{position:absolute;left:32px;top:58px;font:600 26px/1.3 var(--f-mono);color:var(--sub)}
+#wCap,#wLoop{position:absolute;left:0;top:572px;width:172px;height:56px;margin-left:-86px;border-radius:28px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;box-sizing:border-box;font:700 26px/1 var(--f-mono);z-index:4;transition:transform .75s var(--ease),background .3s,width .4s,height .4s,top .4s,margin .4s,border-radius .4s,opacity .35s}
+#world.fast #wCap{transition-duration:.42s,.3s,.4s,.4s,.4s,.4s,.4s,.35s}
+#world.vfast #wCap{transition-duration:.3s,.2s,.3s,.3s,.3s,.3s,.3s,.3s}
+#world.vfast .w-fill{transition-duration:.3s,.3s}
+#world.fast .w-fill{transition-duration:.42s,.3s}
+#wCap.ng{background:var(--ng)}
+#wCap .v{display:none;font:800 50px/1 var(--f-sans)}
+#wCap.cube{width:126px;height:126px;top:537px;margin-left:-63px;border-radius:24px;background:var(--new)}
+#wCap.cube.old{background:#8E8E86}
+#wCap.cube .t{display:none} #wCap.cube .v{display:block}
+#wCap.gone{opacity:0}
+#wCap.notr{transition:none!important}
+#wCap.shk{animation:capshk .45s ease}
+@keyframes capshk{0%,100%{margin-left:-86px}20%{margin-left:-110px}40%{margin-left:-66px}60%{margin-left:-98px}80%{margin-left:-80px}}
+#wLoop{display:none;transition:none}
+#world.loop #wLoop{display:flex;animation:loopx 9s linear infinite}
+@keyframes loopx{from{transform:translateX(380px)}to{transform:translateX(2900px)}}
+#world.loop .w-g .ring,#world.loop .w-st .box{animation:flash 9s linear infinite;animation-delay:var(--ld)}
+@keyframes flash{0%{border-color:#C9C9C1;background:#fff}1.5%,28%{border-color:var(--ok);background:var(--ok-soft)}32%,100%{border-color:#C9C9C1;background:#fff}}
+#wOut{position:absolute;left:0;top:366px;height:58px;padding:0 24px;transform:translateX(-50%);border-radius:16px;background:var(--card);border:3px solid var(--line2);font:600 26px/52px var(--f-mono);color:var(--ink);white-space:nowrap;box-sizing:border-box;z-index:4;transition:opacity .25s}
+#wOut.ok{border-color:var(--ok);color:var(--ok)}
+#wOut.ng{border-color:var(--ng);color:var(--ng);background:var(--ng-soft)}
+#wOut.ko{font-family:var(--f-sans);font-weight:700}
+#wOut.gone{opacity:0}
+#wOut.pop{animation:outpop .35s var(--ease)}
+@keyframes outpop{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translateX(-50%)}}
+/* 멀리서 볼 때(축소)는 글자를 키우고 보조 글자는 숨김 */
+.cam-all .w-g b,.cam-all .w-st b,.cam-all .w-appr b{font-size:56px;top:716px}
+.cam-all .w-g small,.cam-all .w-st small,.cam-all .w-appr small,.cam-all .w-dev small,.cam-all .w-prod small{opacity:0}
+.cam-all .w-dev b{font-size:48px}
+.cam-all .w-prod b{font-size:54px}
+.cam-all .w-dev b{margin-top:8px}
+.cam-all .w-prod .ver{font-size:52px;height:72px;line-height:72px;top:18px}
+.cam-all .w-br span{font-size:66px;line-height:80px;margin-top:-18px}
+.cam-all #wCap,.cam-all #wLoop{height:84px;top:558px;width:260px;margin-left:-130px;border-radius:42px;font-size:46px}
+.cam-all #wCap.cube{width:156px;height:156px;top:522px;margin-left:-78px}
+.cam-all #wOut{font-size:46px;height:86px;line-height:80px;top:330px;padding:0 30px}
+.cam-all .vc{width:86px;height:64px;font-size:46px;line-height:64px}
+.cam-all .w-st .stack{top:362px;gap:8px}
+
+/* 정적 모드(검사용): 모든 움직임을 끝 상태로 */
+.static *,.static *::before,.static *::after{transition:none!important;animation-duration:0s!important;animation-delay:0s!important;animation-iteration-count:1!important}
+.static #world.loop #wLoop{display:none}
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01s!important;animation-duration:.01s!important}}
 
 /* 발표자 창 */
@@ -208,495 +376,328 @@ body.presenter{overflow:auto;background:#141413;color:#EDEDE6}
 </style>
 
 <div id="viewport"><div id="stage">
+<div id="prog"></div>
+<div id="sec"></div>
 
-<!-- 상단 파이프라인 띠 -->
-<div id="bar" class="hid" aria-hidden="true">
-  <div class="br br-ci"><span>CI</span></div>
-  <div class="br br-cd"><span>CD</span></div>
-  <div class="nd" style="left:0" data-label="PR" data-f="PR" data-l="PR">PR</div>
-  <div class="cn" style="left:196px"></div>
-  <div class="nd" style="left:248px" data-label="검사" data-f="검사 실패" data-l="검사">검사</div>
-  <div class="cn" style="left:444px"></div>
-  <div class="nd" style="left:496px" data-label="머지" data-f="머지" data-l="머지 잠김">머지</div>
-  <div class="cn" style="left:692px"></div>
-  <div class="nd" style="left:744px" data-label="배포" data-f="배포 실패" data-l="배포">배포</div>
-  <div class="cn" style="left:940px"></div>
-  <div class="nd" style="left:992px" data-label="롤백" data-f="롤백" data-l="롤백">롤백</div>
-  <div id="cap">커밋</div>
+<!-- ================= 파이프라인 세계: 모든 장이 같은 지도 위에서 상태만 바뀜 ================= -->
+<div id="world" aria-hidden="true">
+  <div class="w w-br" data-w="brCI" style="left:340px;width:1440px;top:248px"><span>CI · 지속적 통합</span></div>
+  <div class="w w-br" data-w="brCD" style="left:1840px;width:1450px;top:248px"><span>CD · 지속적 전달과 배포</span></div>
+  <div class="w w-runner" data-w="runner" style="left:468px;top:318px;width:1014px;height:494px"><b>러너</b><small>runs-on: ubuntu-latest</small></div>
+
+  <div class="w w-dev" data-w="dev" style="left:70px;top:470px;width:270px;height:260px">
+    <svg viewBox="0 0 110 70" aria-hidden="true"><rect x="16" y="4" width="78" height="50" rx="6" fill="none" stroke="#1E1E1C" stroke-width="5"/><path d="M4 62h102" stroke="#1E1E1C" stroke-width="6" stroke-linecap="round"/><path d="M40 22l-8 7 8 7M70 22l8 7-8 7" fill="none" stroke="#1E1E1C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div class="dt"><b>내 컴퓨터</b><small>코드 수정, 커밋</small></div>
+  </div>
+  <div class="w w-tube" data-w="tube" style="left:340px;top:566px;width:1440px;height:68px"><i class="w-fill" id="wFill"></i></div>
+  <div class="w w-rail" data-w="rail" style="left:1780px;top:584px;width:1040px;height:32px"></div>
+
+  <div class="w w-g" data-w="install" style="left:600px"><i class="ring"></i><svg class="ic" viewBox="0 0 40 40"></svg><b>설치</b><small>npm ci</small></div>
+  <div class="w w-g" data-w="lint" style="left:850px"><i class="ring"></i><svg class="ic" viewBox="0 0 40 40"></svg><b>린트</b><small>npm run lint</small></div>
+  <div class="w w-g" data-w="test" style="left:1100px"><i class="ring"></i><svg class="ic" viewBox="0 0 40 40"></svg><b>테스트</b><small>npm test</small></div>
+  <div class="w w-g" data-w="build" style="left:1350px"><i class="ring"></i><svg class="ic" viewBox="0 0 40 40"></svg><b>빌드</b><small>npm run build</small></div>
+  <div class="w w-g mg" data-w="merge" style="left:1620px"><i class="ring"></i><svg class="ic" viewBox="0 0 40 40"></svg><b>머지</b><small>main</small></div>
+
+  <div class="w w-st" data-w="image" style="left:1960px"><i class="box"></i><i class="press"></i><svg class="ic" viewBox="0 0 40 40"></svg><b>포장</b><small>이미지 만들기</small></div>
+  <div class="w w-st" data-w="reg" style="left:2200px"><i class="box"></i><div class="stack"><span class="vc" data-v="v1">v1</span><span class="vc v2" data-v="v2">v2</span></div><svg class="ic" viewBox="0 0 40 40"></svg><b>보관</b><small>이미지 보관소</small></div>
+  <div class="w w-st" data-w="stg" style="left:2440px"><i class="box"></i><svg class="ic" viewBox="0 0 40 40"></svg><b>스테이징</b><small>리허설 환경</small></div>
+  <div class="w w-appr" data-w="appr" style="left:2680px"><i class="cap"></i><i class="bar"></i><b id="wApprB">승인</b><small id="wApprS">사람이 버튼</small></div>
+  <div class="w w-prod" data-w="prod" style="left:2820px;top:422px;width:470px;height:356px">
+    <b>운영</b><small>실제 사용자</small><span class="ver" id="wVer">v1</span>
+    <div class="cells"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
+
+  <div id="wCap"><span class="t"></span><span class="v"></span></div>
+  <div id="wLoop">커밋</div>
+  <div id="wOut" class="gone"></div>
 </div>
 
-<!-- ================= 0. 오프닝 ================= -->
-<section class="page" data-title="표지">
+<!-- ================= 0. 열기 ================= -->
+<section class="page" id="cover" data-title="표지">
   <div class="seal">東弘同樂</div>
   <h1 class="cover-ttl">CI/CD,<br>어떻게 하는 걸까</h1>
-  <div class="cover-meta">동홍동락 in HIU · 2026.11.02 · 홍익대학교 정보통신센터 Q403<br>이도윤 · GDGoC DGU</div>
-  <svg style="position:absolute;left:112px;top:830px" width="1188" height="64" viewBox="0 0 1188 64" aria-hidden="true">
-    <g fill="none" stroke="#C6C6BE" stroke-width="2">
-      <rect x="1" y="4" width="194" height="54" rx="27"/><rect x="249" y="4" width="194" height="54" rx="27"/><rect x="497" y="4" width="194" height="54" rx="27"/><rect x="745" y="4" width="194" height="54" rx="27"/><rect x="993" y="4" width="194" height="54" rx="27"/>
-      <path d="M196 31h52M444 31h52M692 31h52M940 31h52"/>
-    </g>
-    <g font-family="Pretendard,sans-serif" font-size="26" font-weight="600" fill="#9A9A92" text-anchor="middle">
-      <text x="98" y="40">PR</text><text x="346" y="40">검사</text><text x="594" y="40">머지</text><text x="842" y="40">배포</text><text x="1090" y="40">롤백</text>
-    </g>
-  </svg>
-  <aside class="notes">안녕하세요, 동국대학교 GDGoC DGU 4기 Lead 이도윤입니다. 오늘 20분 동안 CI/CD가 실제로 어떻게 돌아가는지, 직접 깨뜨려 보면서 보여 드리겠습니다. 아래 다섯 칸이 오늘 따라갈 길입니다.</aside>
+  <div class="cover-meta">동홍동락 in HIU · 2026.11.02 · 홍익대학교 정보통신센터 Q403<br>이도윤 · GDGoC DGU 4th Lead</div>
+  <aside class="notes">안녕하세요, 동국대학교 GDGoC DGU 4th Lead 이도윤입니다. 오늘 20분 동안 CI/CD가 무엇인지, 코드 한 줄이 실제 서비스에 나가기까지 어떤 길을 지나는지 처음부터 끝까지 보여 드리겠습니다. 아래에서 계속 지나가는 작은 캡슐이 오늘의 주인공, 커밋 하나입니다.</aside>
 </section>
 
-<section class="page" data-title="발표자">
+<section class="page" id="me" data-title="발표자">
   <div style="position:absolute;left:112px;top:300px">
     <div style="font:800 120px/1.1 var(--f-sans);letter-spacing:-3px">이도윤</div>
     <p class="lead" style="margin-top:36px;font-size:36px;color:var(--ink);font-weight:600">GDGoC DGU 4th Lead</p>
-    <p class="lead" style="margin-top:10px;font-size:36px">동국대학교 컴퓨터공학 22학번 · 백엔드 개발 지망</p>
+    <p class="lead" style="margin-top:10px;font-size:36px">동국대학교 컴퓨터공학 22학번, 백엔드 개발 지망</p>
   </div>
-  <aside class="notes">짧게 소개하겠습니다. 동국대 GDGoC 4기 Lead이고, 백엔드 개발자를 준비하고 있습니다. 이번 학기 G-Sprint에서 다섯 팀이 서비스를 만들고 있는데, 그 팀들에게 제일 먼저 권하는 게 오늘 이야기입니다.</aside>
+  <aside class="notes">짧게 소개하겠습니다. 동국대 GDGoC 4th Lead이고, 백엔드 개발자를 준비하고 있습니다. 이번 학기 G-Sprint에서 다섯 팀이 서비스를 만들고 있는데, 그 팀들에게 제일 먼저 권하는 게 오늘 이야기입니다.</aside>
 </section>
 
-<!-- ================= 1. 데모데이 전날 밤 ================= -->
-<section class="page" data-title="2주, 각자 브랜치" data-steps="1">
-  <h2 class="ttl">데모데이까지 2주, 각자 브랜치에서 작업</h2>
+<!-- ================= 1. 손으로 하던 배포 ================= -->
+<section class="page" id="night" data-title="데모데이 전날 밤" data-steps="4" data-sec="손으로 하던 배포">
+  <h2 class="ttl">데모데이 전날 밤, 합치기와 배포를 한꺼번에</h2>
   <div class="tl">
-    <div class="tc now"><i>D-14</i><b>각자 브랜치에서 작업</b></div>
+    <div class="tc"><i>D-14</i><b>각자 브랜치에서 작업</b></div>
     <div class="tc"><i>D-1 밤</i><b>한꺼번에 머지</b></div>
-    <div class="tc"><i>D-1 밤</i><b>충돌 · 빌드 실패</b></div>
+    <div class="tc"><i>D-1 밤</i><b>충돌, 빌드 실패</b></div>
     <div class="tc"><i>D-day 03:00</i><b>처음으로 서버에 배포</b></div>
   </div>
-  <svg style="position:absolute;left:112px;top:490px" width="1696" height="460" viewBox="0 0 1696 460" aria-hidden="true">
-    <path d="M0 230H1696" stroke="#1E1E1C" stroke-width="5"/>
-    <text x="0" y="280" font-family="JetBrains Mono,monospace" font-size="26" fill="#55554E">main</text>
-    <g data-s="1" fill="none" stroke="#55554E" stroke-width="4">
-      <path d="M160 230C260 230 260 70 380 70H1560"/>
-      <path d="M200 230C300 230 300 160 420 160H1560"/>
-      <path d="M240 230C340 230 340 380 460 380H1560"/>
+
+  <svg class="drw" data-u="1" style="position:absolute;left:112px;top:420px" width="1696" height="460" viewBox="0 0 1696 460" aria-hidden="true">
+    <path pathLength="1" d="M0 230H1696" stroke="#1E1E1C" stroke-width="5" fill="none"/>
+    <text x="0" y="282" font-family="JetBrains Mono,monospace" font-size="26" fill="#55554E">main</text>
+    <g fill="none" stroke="#55554E" stroke-width="4">
+      <path pathLength="1" d="M160 230C260 230 260 70 380 70H1520"/>
+      <path pathLength="1" d="M200 230C300 230 300 160 420 160H1520"/>
+      <path pathLength="1" d="M240 230C340 230 340 380 460 380H1520"/>
     </g>
-    <g data-s="1" fill="#FAFAF7" stroke="#55554E" stroke-width="4">
+    <g fill="#FAFAF7" stroke="#55554E" stroke-width="4">
       <circle cx="620" cy="70" r="11"/><circle cx="900" cy="70" r="11"/><circle cx="1240" cy="70" r="11"/>
       <circle cx="700" cy="160" r="11"/><circle cx="1100" cy="160" r="11"/><circle cx="1420" cy="160" r="11"/>
       <circle cx="660" cy="380" r="11"/><circle cx="980" cy="380" r="11"/><circle cx="1300" cy="380" r="11"/>
     </g>
-    <g data-s="1" font-family="Pretendard,sans-serif" font-size="30" font-weight="700" fill="#1E1E1C">
-      <text x="1580" y="80">로그인</text><text x="1580" y="170">결제</text><text x="1580" y="390">화면</text>
+    <g font-family="Pretendard,sans-serif" font-size="30" font-weight="700" fill="#1E1E1C">
+      <text x="1550" y="80">로그인</text><text x="1550" y="170">결제</text><text x="1550" y="390">화면</text>
     </g>
   </svg>
-  <aside class="notes">팀 프로젝트에서 흔한 장면부터 보겠습니다. 데모데이까지 2주가 남았고, 각자 기능을 맡아서 자기 브랜치에서 작업합니다. 로그인, 결제, 화면. 2주 동안 main에는 아무도 합치지 않습니다.</aside>
-</section>
 
-<section class="page" data-title="전날 밤 머지" data-steps="1">
-  <h2 class="ttl">데모데이 전날 밤, 한꺼번에 머지</h2>
-  <div class="tl">
-    <div class="tc past"><i>D-14</i><b>각자 브랜치에서 작업</b></div>
-    <div class="tc now"><i>D-1 밤</i><b>한꺼번에 머지</b></div>
-    <div class="tc"><i>D-1 밤</i><b>충돌 · 빌드 실패</b></div>
-    <div class="tc"><i>D-day 03:00</i><b>처음으로 서버에 배포</b></div>
-  </div>
-  <svg style="position:absolute;left:112px;top:490px" width="980" height="460" viewBox="0 0 980 460" aria-hidden="true">
-    <path d="M0 230H980" stroke="#1E1E1C" stroke-width="5"/>
-    <text x="0" y="280" font-family="JetBrains Mono,monospace" font-size="26" fill="#55554E">main</text>
-    <g fill="none" stroke="#55554E" stroke-width="4">
-      <path d="M80 230C160 230 160 70 260 70H560C700 70 700 230 800 230"/>
-      <path d="M100 230C180 230 180 160 280 160H580C700 160 700 230 800 230"/>
-      <path d="M120 230C200 230 200 380 300 380H600C720 380 720 230 800 230"/>
-    </g>
-    <circle cx="800" cy="230" r="26" fill="#1E1E1C"/>
-    <text x="800" y="240" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="30" font-weight="800" fill="#fff">!</text>
-  </svg>
-  <pre class="code" data-lang="text" data-s="1" style="left:1140px;top:560px;width:668px" data-label="App.jsx · 머지 충돌">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+  <div data-s="1" data-u="2">
+    <svg class="drw" data-s="1" data-u="2" style="position:absolute;left:112px;top:420px" width="980" height="460" viewBox="0 0 980 460" aria-hidden="true">
+      <path pathLength="1" d="M0 230H980" stroke="#1E1E1C" stroke-width="5" fill="none"/>
+      <text x="0" y="282" font-family="JetBrains Mono,monospace" font-size="26" fill="#55554E">main</text>
+      <g fill="none" stroke="#55554E" stroke-width="4">
+        <path pathLength="1" d="M80 230C160 230 160 70 260 70H560C700 70 700 230 800 230"/>
+        <path pathLength="1" d="M100 230C180 230 180 160 280 160H580C700 160 700 230 800 230"/>
+        <path pathLength="1" d="M120 230C200 230 200 380 300 380H600C720 380 720 230 800 230"/>
+      </g>
+      <circle cx="800" cy="230" r="28" fill="#1E1E1C"/>
+      <text x="800" y="241" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="32" font-weight="800" fill="#fff">!</text>
+    </svg>
+    <pre class="code" data-lang="text" style="left:1140px;top:500px;width:668px" data-label="App.jsx 머지 충돌">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
 const API = 'http://localhost:8080'
 =======
 const API = import.meta.env.VITE_API_URL
 &gt;&gt;&gt;&gt;&gt;&gt;&gt; feat/deploy</pre>
-  <aside class="notes">그리고 데모데이 전날 밤, 모두가 한꺼번에 main에 합칩니다. 2주 동안 따로 고친 코드가 처음 만나니까 같은 줄을 서로 다르게 고친 곳에서 충돌이 납니다.</aside>
-</section>
-
-<section class="page" data-title="빌드 실패" data-steps="1">
-  <h2 class="ttl">충돌을 풀고 나니 빌드 실패</h2>
-  <div class="tl">
-    <div class="tc past"><i>D-14</i><b>각자 브랜치에서 작업</b></div>
-    <div class="tc past"><i>D-1 밤</i><b>한꺼번에 머지</b></div>
-    <div class="tc hot"><i>D-1 밤</i><b>충돌 · 빌드 실패</b></div>
-    <div class="tc"><i>D-day 03:00</i><b>처음으로 서버에 배포</b></div>
   </div>
-  <pre class="log type shaker" data-s="1" style="left:112px;top:500px;width:1180px" data-label="빌드 로그" data-ng="2,4,5">$ npm run build
+
+  <div data-s="2" data-u="3">
+    <pre class="log type" data-shake="2" style="left:112px;top:430px;width:1180px" data-label="빌드 로그" data-ng="2,4,5">$ npm run build
 ✗ Build failed in 285ms
 error during build:
 [UNRESOLVED_IMPORT] Could not resolve
 './components/sessionTable.jsx' in src/App.jsx</pre>
-  <p class="big" data-s="1" style="position:absolute;left:1360px;top:540px;width:448px">내 컴퓨터에서는<br>잘 되던 코드</p>
-  <p class="cap" data-s="1" style="position:absolute;left:1360px;top:680px;width:448px">이 에러의 정체는 뒤에서</p>
-  <aside class="notes">충돌을 겨우 풀었더니 이번엔 빌드가 실패합니다. 이상한 건 이 코드가 제 컴퓨터에서는 잘 됐다는 겁니다. 이 에러가 왜 났는지는 뒤에서 다시 보겠습니다.</aside>
+    <p class="big" style="position:absolute;left:1360px;top:460px;width:448px">내 컴퓨터에서는<br>잘 되던 코드</p>
+    <p class="cap" style="position:absolute;left:1360px;top:600px;width:448px">이 에러의 정체는 뒤에서</p>
+  </div>
+
+  <div data-s="3" data-u="4">
+    <div style="position:absolute;left:104px;top:400px;font:800 260px/1 var(--f-mono);letter-spacing:-8px">03:00</div>
+    <div style="position:absolute;left:1060px;top:450px;width:748px">
+      <p class="big">서버 접속, 설치, 환경 변수, DB 주소</p>
+      <p class="lead" style="margin-top:20px">배포 설정을 데모데이 당일 새벽에 처음 맞춰 봄</p>
+    </div>
+  </div>
+
+  <div data-s="4">
+    <svg style="position:absolute;left:112px;top:366px" width="1696" height="40" viewBox="0 0 1696 40" aria-hidden="true"><path d="M2 2V22H1694V2" fill="none" stroke="#FF6309" stroke-width="4"/></svg>
+    <p style="position:absolute;left:112px;top:450px;margin:0;font:800 72px/1.3 var(--f-sans);letter-spacing:-2px">2주 동안 합친 적 0번<br>서버에 올린 적 0번</p>
+    <p class="lead" style="position:absolute;left:112px;top:680px">문제가 한꺼번에 터지면 어디서 깨졌는지 찾기 어려움</p>
+  </div>
+  <aside class="notes">팀 프로젝트에서 흔한 장면부터 보겠습니다. 데모데이까지 2주가 남았고, 각자 기능을 맡아 자기 브랜치에서 작업합니다. 로그인, 결제, 화면. 2주 동안 main에는 아무도 합치지 않습니다.
+(클릭) 그리고 데모데이 전날 밤, 모두가 한꺼번에 main에 합칩니다. 2주 동안 따로 고친 코드가 처음 만나니까 같은 줄을 서로 다르게 고친 곳에서 충돌이 납니다.
+(클릭) 충돌을 겨우 풀었더니 이번엔 빌드가 실패합니다. 이상한 건 이 코드가 제 컴퓨터에서는 잘 됐다는 겁니다. 이 에러의 정체는 뒤에서 밝혀집니다.
+(클릭) 새벽 3시, 처음으로 서버에 올려 봅니다. 서버 접속하고, 설치하고, 환경 변수 맞추고, DB 주소 바꾸고. 다들 한 번쯤 겪어 보셨을 겁니다.
+(클릭) 이건 실력 문제가 아닙니다. 2주 동안 한 번도 합치지 않았고, 한 번도 서버에 올려 보지 않은 구조가 문제입니다.</aside>
 </section>
 
-<section class="page" data-title="새벽 3시 배포" data-steps="1">
-  <h2 class="ttl">새벽 3시, 처음으로 서버에 배포</h2>
-  <div class="tl">
-    <div class="tc past"><i>D-14</i><b>각자 브랜치에서 작업</b></div>
-    <div class="tc past"><i>D-1 밤</i><b>한꺼번에 머지</b></div>
-    <div class="tc past"><i>D-1 밤</i><b>충돌 · 빌드 실패</b></div>
-    <div class="tc now"><i>D-day 03:00</i><b>처음으로 서버에 배포</b></div>
+<section class="page" id="ssh" data-title="손으로 하는 배포" data-steps="2" data-sec="손으로 하던 배포">
+  <h2 class="ttl">손으로 하는 배포: 서버에 접속해 명령을 한 줄씩</h2>
+  <pre class="log type" data-gap=".55" style="left:112px;top:240px;width:1130px" data-label="운영 서버에 직접 접속한 터미널 (예시)">$ ssh deploy@my-server
+$ cd app &amp;&amp; git pull
+$ npm install
+$ npm run build
+$ sudo systemctl restart app</pre>
+  <pre class="log type" data-s="2" data-gap=".6" style="left:112px;top:556px;width:1130px" data-ng="2">$ curl -I https://my-app.example
+HTTP/1.1 502 Bad Gateway</pre>
+  <p class="big orc" data-s="1" style="position:absolute;left:112px;top:720px">명령을 다 쳤으면, 이제 아무 일 없기를 기도</p>
+  <div class="srv" data-shake="2" style="left:1300px;top:240px;width:508px;height:300px">
+    <p class="cap">운영 서버</p>
+    <p class="big mono" style="margin-top:8px;font-size:36px">my-app.example</p>
+    <span class="st up" data-u="2">정상 운영 중</span>
+    <span class="st down" data-s="2">응답 없음 · 502</span>
   </div>
-  <div style="position:absolute;left:104px;top:470px;font:800 260px/1 var(--f-mono);letter-spacing:-8px;color:var(--ink)">03:00</div>
-  <div data-s="1" style="position:absolute;left:1060px;top:520px;width:748px">
-    <p class="big">서버 접속, 설치, 환경 변수, DB 주소</p>
-    <p class="lead" style="margin-top:20px">배포 설정을 데모데이 당일 새벽에 처음 맞춰 봄</p>
-  </div>
-  <aside class="notes">새벽 3시, 처음으로 서버에 올려 봅니다. 서버 접속하고, 설치하고, 환경 변수 맞추고, DB 주소 바꾸고. 배포 설정을 데모데이 당일에 처음 해 보는 겁니다. 다들 한 번쯤 겪어 보셨을 겁니다.</aside>
+  <p class="big ngc" data-s="2" style="position:absolute;left:1300px;top:580px;width:508px">사용자 접속 불가</p>
+  <aside class="notes">그날 새벽의 배포는 보통 이렇게 합니다. 지금도 많은 학생 프로젝트가 이렇게 합니다. 서버에 접속해서, 코드를 받고, 설치하고, 빌드하고, 재시작합니다.
+(클릭) 그리고 아무 일 없기를 기도합니다.
+(클릭) 그런데 주소를 열어 보면 502. 서버가 응답하지 않습니다. 사용자는 아무것도 못 씁니다.</aside>
 </section>
 
-<section class="page" data-title="원인" data-steps="1">
-  <h2 class="ttl">원인은 합치기와 배포를 마지막 날 몰아서 한 구조</h2>
-  <div class="tl">
-    <div class="tc past"><i>D-14</i><b>각자 브랜치에서 작업</b></div>
-    <div class="tc past"><i>D-1 밤</i><b>한꺼번에 머지</b></div>
-    <div class="tc past"><i>D-1 밤</i><b>충돌 · 빌드 실패</b></div>
-    <div class="tc past"><i>D-day 03:00</i><b>처음으로 서버에 배포</b></div>
+<section class="page" id="memory" data-title="기억에 의존하는 8단계" data-steps="1" data-sec="손으로 하던 배포">
+  <h2 class="ttl">사람이 8단계를 매번 기억해서 실행</h2>
+  <div class="card" style="left:112px;top:236px;width:1010px;height:640px;overflow:hidden">
+    <p class="cap" style="padding:20px 26px;border-bottom:1px solid var(--line)">deploy-steps.txt, 기억에 의존</p>
+    <ul class="st8 missable stg" data-on="1" style="left:0;top:74px;width:1008px">
+      <li><span class="n">01</span>서버 접속<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
+      <li><span class="n">02</span>최신 코드 받기<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
+      <li><span class="n">03</span>패키지 설치<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
+      <li class="m4"><span class="n">04</span>DB 변경 적용<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg><span class="tag">빠뜨림</span></li>
+      <li><span class="n">05</span>앱 빌드<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
+      <li><span class="n">06</span>파일 복사<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
+      <li><span class="n">07</span>앱 재시작<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
+      <li><span class="n">08</span>서비스 확인<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
+    </ul>
   </div>
-  <svg data-s="1" style="position:absolute;left:112px;top:446px" width="1696" height="40" viewBox="0 0 1696 40" aria-hidden="true">
-    <path d="M2 2V22H1694V2" fill="none" stroke="#FF6309" stroke-width="4"/>
+  <div style="position:absolute;left:1200px;top:250px;width:608px">
+    <p class="big">순서도, 빠짐도<br>전부 사람 기억에 의존</p>
+    <p class="big ngc" data-s="1" style="margin-top:60px">한 단계만 빠져도 장애</p>
+    <p class="lead" data-s="1" style="margin-top:14px">04번은 발표 끝에서 다시 등장</p>
+  </div>
+  <aside class="notes">이 방식이 위험한 이유는 사람이 모든 단계를 기억해야 하기 때문입니다. 접속, 코드 받기, 설치, DB 변경, 빌드, 복사, 재시작, 확인. 여덟 단계를 매번 순서대로 해야 합니다.
+(클릭) 피곤한 새벽에 4번, DB 변경 적용 하나만 빠뜨려도 서비스가 깨집니다. 이 4번은 발표 끝에 다시 나옵니다.</aside>
+</section>
+
+<!-- ================= 2. CI/CD 한 장 ================= -->
+<section class="page" id="auto" data-title="CI/CD = 자동 파이프라인" data-steps="2" data-sec="CI/CD">
+  <h2 class="ttl">CI/CD: 이 일을 파이프라인이 매번 같은 순서로</h2>
+  <div data-s="1" style="position:absolute;left:212px;top:800px;width:780px">
+    <p class="big">합치기 전에 자동 검사</p>
+    <p class="lead" style="margin-top:6px">Continuous Integration</p>
+  </div>
+  <div data-s="2" style="position:absolute;left:1040px;top:800px;width:780px">
+    <p class="big">통과한 코드를 서비스까지</p>
+    <p class="lead" style="margin-top:6px">Continuous Delivery, Deployment</p>
+  </div>
+  <aside class="notes">CI/CD는 방금 본 이 일을 사람 대신 파이프라인이 하게 만드는 겁니다. 파이프라인은 정해진 문을 차례로 지나가는 길이라고 생각하시면 됩니다. 왼쪽이 제 컴퓨터, 오른쪽이 실제 사용자가 쓰는 운영 서버입니다. 커밋 하나가 이 길을 따라 운영까지 갑니다.
+(클릭) 앞쪽 절반이 CI, Continuous Integration, 지속적 통합입니다. 코드를 합치기 전에 자동으로 검사하는 부분입니다.
+(클릭) 뒤쪽 절반이 CD입니다. 검사를 통과한 코드를 실제 서비스까지 보내는 부분입니다. 하나씩 따라가 보겠습니다.</aside>
+</section>
+
+<!-- ================= 3. CI ================= -->
+<section class="page" id="chCI" data-title="장 표지: CI">
+  <div class="chap"><div class="k">CI</div><div class="bar"></div><h2>지속적 통합</h2><p>Continuous Integration</p></div>
+  <aside class="notes">먼저 CI입니다.</aside>
+</section>
+
+<section class="page" id="five" data-title="다섯 명, 한 앱" data-steps="2" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">다섯 명이 한 앱을 동시에 고치는 상황</h2>
+  <svg class="drw" style="position:absolute;left:112px;top:250px" width="1696" height="600" viewBox="0 0 1696 600" aria-hidden="true">
+    <path pathLength="1" d="M0 540H1696" stroke="#1E1E1C" stroke-width="5" fill="none"/>
+    <g fill="none" stroke="#9A9A92" stroke-width="4">
+      <path pathLength="1" d="M90 50H1180"/><path pathLength="1" d="M90 140H1180"/><path pathLength="1" d="M90 230H1180"/><path pathLength="1" d="M90 320H1180"/><path pathLength="1" d="M90 410H1180"/>
+    </g>
   </svg>
-  <div data-s="1" style="position:absolute;left:112px;top:520px;width:1696px">
-    <p style="margin:0;font:800 64px/1.3 var(--f-sans);letter-spacing:-1.5px">2주 동안 합친 적 0번<br>서버에 올린 적 0번</p>
-    <p class="lead" style="margin-top:28px">문제가 한꺼번에 터지면 어디서 깨졌는지 찾기 어려움</p>
+  <p class="cap mono" style="position:absolute;left:112px;top:806px;font-family:var(--f-mono)">main</p>
+  <div class="stg" style="position:absolute;left:112px;top:250px;width:1696px;height:600px">
+    <span class="av" style="left:50px;top:50px">A</span><span class="av" style="left:50px;top:140px">B</span><span class="av" style="left:50px;top:230px">C</span><span class="av" style="left:50px;top:320px">D</span><span class="av" style="left:50px;top:410px">E</span>
   </div>
-  <aside class="notes">이건 실력 문제가 아닙니다. 2주 동안 한 번도 합치지 않았고, 한 번도 서버에 올려 보지 않은 구조가 문제입니다. 문제가 한꺼번에 터지면 어디서 깨졌는지 찾기가 어렵습니다.</aside>
-</section>
-
-<section class="page" data-title="순서 뒤집기" data-steps="2">
-  <h2 class="ttl">CI/CD는 이 순서를 뒤집는 방법</h2>
-  <div class="area">
-    <div style="display:grid;grid-template-columns:140px 1fr;row-gap:44px;align-items:baseline;margin-top:20px">
-      <span class="mono" style="font:700 36px var(--f-mono);color:var(--faint)">CI</span><span style="font:800 64px/1.2 var(--f-sans);letter-spacing:-1.5px">작게, 자주 합치기</span>
-      <span class="mono" data-s="1" style="font:700 36px var(--f-mono);color:var(--faint)">CI</span><span data-s="1" style="font:800 64px/1.2 var(--f-sans);letter-spacing:-1.5px">합칠 때마다 기계가 검사</span>
-      <span class="mono" data-s="2" style="font:700 36px var(--f-mono);color:var(--faint)">CD</span><span data-s="2" style="font:800 64px/1.2 var(--f-sans);letter-spacing:-1.5px">통과하면 바로 배포</span>
-    </div>
-    <p class="lead" data-s="2" style="position:absolute;left:0;bottom:0">문제가 생겨도 어제 이후 바뀐 한 줄만 보면 됨</p>
+  <div class="stg" data-s="1" style="position:absolute;left:112px;top:250px;width:1696px;height:600px">
+    <span class="chip" style="position:absolute;left:300px;top:21px">로그인 <code>auth.js</code></span>
+    <span class="chip" style="position:absolute;left:300px;top:111px">결제 <code>payment.js</code></span>
+    <span class="chip" style="position:absolute;left:300px;top:201px">DB <code>schema.sql</code></span>
+    <span class="chip" style="position:absolute;left:300px;top:291px">화면 <code>App.jsx</code></span>
+    <span class="chip" style="position:absolute;left:300px;top:381px">시간표 <code>timetable.js</code></span>
   </div>
-  <aside class="notes">CI/CD는 이 순서를 뒤집습니다. 작게, 자주 합치고. 합칠 때마다 사람 대신 기계가 검사하고. 통과하면 바로 배포합니다. 그러면 문제가 터져도 어제 이후 바뀐 한 줄만 보면 됩니다.</aside>
-</section>
-
-<!-- ================= 2. 개념 ================= -->
-<section class="page" data-title="CI 정의" data-steps="1">
-  <h2 class="ttl">CI: 합칠 때마다 자동 검사</h2>
-  <p class="lead" style="position:absolute;left:112px;top:270px">Continuous Integration · 지속적 통합</p>
-  <div class="bx" style="left:112px;top:500px;width:300px;height:140px">내 변경<small>PR</small></div>
-  <div class="ar ink" style="left:424px;top:569px;width:150px"></div>
-  <div class="bx ink" style="left:586px;top:480px;width:420px;height:180px">자동 검사<small>lint · test · build</small></div>
-  <div class="ar ink" style="left:1018px;top:569px;width:150px"></div>
-  <div class="bx" style="left:1180px;top:500px;width:340px;height:140px">main에 합침</div>
-  <div data-s="1">
-    <svg style="position:absolute;left:300px;top:660px" width="520" height="140" viewBox="0 0 520 140" aria-hidden="true"><path d="M500 2V100H12" fill="none" stroke="#CF222E" stroke-width="3"/><path d="M2 100l18-10v20z" fill="#CF222E"/></svg>
-    <p class="big ngc" style="position:absolute;left:112px;top:790px">하나라도 실패하면 합치지 않음</p>
+  <svg class="drw" data-s="2" style="position:absolute;left:112px;top:250px" width="1696" height="600" viewBox="0 0 1696 600" aria-hidden="true">
+    <g fill="none" stroke="#1E1E1C" stroke-width="4">
+      <path pathLength="1" d="M1180 50C1300 50 1300 540 1420 540"/><path pathLength="1" d="M1180 140C1300 140 1300 540 1420 540"/><path pathLength="1" d="M1180 230C1300 230 1300 540 1420 540"/><path pathLength="1" d="M1180 320C1300 320 1300 540 1420 540"/><path pathLength="1" d="M1180 410C1300 410 1300 540 1420 540"/>
+    </g>
+  </svg>
+  <div class="flow" data-s="2" style="left:112px;top:250px">
+    <i style="offset-path:path('M90 50H1180C1300 50 1300 540 1420 540H1696');--d:0s"></i>
+    <i style="offset-path:path('M90 140H1180C1300 140 1300 540 1420 540H1696');--d:.5s"></i>
+    <i style="offset-path:path('M90 230H1180C1300 230 1300 540 1420 540H1696');--d:1s"></i>
+    <i style="offset-path:path('M90 320H1180C1300 320 1300 540 1420 540H1696');--d:1.5s"></i>
+    <i style="offset-path:path('M90 410H1180C1300 410 1300 540 1420 540H1696');--d:2s"></i>
   </div>
-  <aside class="notes">먼저 CI입니다. Continuous Integration, 지속적 통합. 내 변경을 main에 합치기 전에 기계가 자동으로 검사합니다. 하나라도 실패하면 합치지 않고 돌려보냅니다.</aside>
-</section>
-
-<section class="page" data-title="CD 정의" data-steps="1">
-  <h2 class="ttl">CD: 검사를 통과하면 배포까지</h2>
-  <p class="lead" style="position:absolute;left:112px;top:270px">Continuous Delivery / Continuous Deployment</p>
-  <div class="bx okb" style="left:112px;top:500px;width:340px;height:140px">검사 통과</div>
-  <div class="ar ink" style="left:464px;top:569px;width:150px"></div>
-  <div class="bx ink" style="left:626px;top:480px;width:420px;height:180px">배포<small>빌드 결과를 서버에 올림</small></div>
-  <div class="ar ink" style="left:1058px;top:569px;width:150px"></div>
-  <div class="bx" style="left:1220px;top:500px;width:380px;height:140px">실제 서비스</div>
-  <p class="big" data-s="1" style="position:absolute;left:112px;top:760px">CD의 D는 두 가지, 차이는 다음 장에서</p>
-  <aside class="notes">CD는 검사를 통과한 코드를 실제 서비스까지 보내는 겁니다. 그런데 CD의 D가 두 가지입니다. Delivery와 Deployment. 차이는 딱 하나입니다.</aside>
-</section>
-
-<section class="page" id="lanes" data-title="Delivery vs Deployment" data-steps="5">
-  <h2 class="ttl">Delivery와 Deployment의 차이는 마지막 버튼 하나</h2>
-  <div class="lane" style="top:330px">
-    <div class="ln-ttl">Continuous Delivery</div>
-    <div class="ln-sub">운영 반영 직전에 사람이 버튼을 누름</div>
-    <div class="track"></div>
-    <div class="bx okb" style="left:560px;top:110px;width:220px;height:84px;font-size:26px">검사 통과</div>
-    <div class="gate" style="left:900px;top:96px;width:330px;height:112px;border:3px solid var(--ink);background:var(--card)" data-u="3">사람 승인 대기</div>
-    <div class="gate" style="left:900px;top:96px;width:330px;height:112px;border:3px solid var(--ok);background:var(--ok-soft);color:var(--ok)" data-s="3">승인 완료</div>
-    <div class="bx" style="left:1400px;top:110px;width:296px;height:84px;font-size:26px" data-u="3">운영</div>
-    <div class="bx okb" style="left:1400px;top:110px;width:296px;height:84px;font-size:26px;transition-delay:.4s" data-s="3">운영 반영</div>
-    <div class="pill" id="pillA" style="left:400px;top:128px">커밋</div>
+  <div data-s="2" style="position:absolute;left:1560px;top:280px;width:248px">
+    <p class="cap">main에 합친 변경</p>
+    <p style="margin:4px 0 0;font:800 160px/1 var(--f-sans);letter-spacing:-5px"><span data-count="6">6</span>건</p>
+    <p class="cap" style="margin-top:8px">오전에만</p>
   </div>
-  <button class="approve ix" id="approveBtn" data-s="2" style="left:1084px;top:560px" type="button">배포 승인</button>
-  <div class="lane" style="top:700px" data-s="4">
-    <div class="ln-ttl">Continuous Deployment</div>
-    <div class="ln-sub">검사를 통과하면 사람 없이 운영까지</div>
-    <div class="track"></div>
-    <div class="bx okb" style="left:560px;top:110px;width:220px;height:84px;font-size:26px">검사 통과</div>
-    <div class="gate" style="left:900px;top:96px;width:330px;height:112px;border:3px dashed var(--line2);color:var(--faint)">버튼 없음</div>
-    <div class="bx" style="left:1400px;top:110px;width:296px;height:84px;font-size:26px" data-u="4">운영</div>
-    <div class="bx okb" style="left:1400px;top:110px;width:296px;height:84px;font-size:26px;transition-delay:.4s" data-s="4">운영 반영</div>
-    <div class="pill" id="pillB" style="left:400px;top:128px">커밋</div>
-  </div>
-  <div data-s="5" style="position:absolute;left:92px;top:680px;width:1736px;height:250px;border:4px solid var(--or);border-radius:20px;box-sizing:border-box"></div>
-  <div data-s="5" class="chip" style="position:absolute;left:1430px;top:950px;border-color:var(--or);color:var(--or-t)">오늘 실습 방식</div>
-  <aside class="notes">위 줄이 Delivery입니다. 검사를 통과한 커밋이 운영 직전에서 멈추고, 사람이 승인 버튼을 눌러야 나갑니다. (버튼을 직접 클릭) 아래 줄이 Deployment입니다. 버튼 자체가 없어서 검사를 통과하면 바로 운영까지 갑니다. 오늘 실습은 아래 방식입니다.</aside>
+  <aside class="notes">이제 CI가 왜 필요한지 보겠습니다. 다섯 명이 같은 앱을 만든다고 생각해 보세요.
+(클릭) 한 명은 로그인, 한 명은 결제, 한 명은 DB, 한 명은 화면, 한 명은 시간표를 고칩니다.
+(클릭) 그리고 다들 계속 main에 합칩니다. 오전에만 여섯 번입니다.</aside>
 </section>
 
-<section class="page" data-title="Vercel = 이미 CD" data-steps="1">
-  <h2 class="ttl">Vercel을 연결했다면 이미 CD 진행 중</h2>
-  <div class="bx" style="left:112px;top:380px;width:300px;height:120px">main에 push</div>
-  <div class="ar ink" style="left:424px;top:438px;width:110px"></div>
-  <div class="bx ink" style="left:546px;top:380px;width:300px;height:120px">Vercel 빌드</div>
-  <div class="ar ink" style="left:858px;top:438px;width:110px"></div>
-  <div class="bx" style="left:980px;top:380px;width:300px;height:120px">운영 주소</div>
-  <div class="bx" style="left:112px;top:560px;width:300px;height:120px">PR 열기</div>
-  <div class="ar ink" style="left:424px;top:618px;width:110px"></div>
-  <div class="bx ink" style="left:546px;top:560px;width:300px;height:120px">Vercel 빌드</div>
-  <div class="ar ink" style="left:858px;top:618px;width:110px"></div>
-  <div class="bx" style="left:980px;top:560px;width:300px;height:120px">미리보기 주소</div>
-  <p class="lead" style="position:absolute;left:112px;top:740px;width:1170px">레포를 Import한 순간 GitHub가 push마다 Vercel에 알려 줌(웹훅)</p>
-  <div class="slot" data-cap="vercel-bot" data-s="1" style="left:1340px;top:330px;width:468px;height:560px"><b>캡처 자리</b><span>PR에 달린 Vercel 봇 댓글<br>(미리보기 주소)</span></div>
-  <aside class="notes">사실 여러분 중 상당수는 이미 CD를 하고 있습니다. Vercel에 레포를 연결해 두면 main에 push할 때마다 자동으로 운영에 배포되고, PR을 열면 미리보기 주소까지 만들어 줍니다. 이게 Continuous Deployment입니다.</aside>
-</section>
-
-<section class="page" data-title="빠진 조각" data-steps="2">
-  <h2 class="ttl">빠진 조각은 합치기 전 검사와 백엔드 배포</h2>
-  <p class="lbl" style="left:112px;top:356px;font-size:28px;color:var(--ink);font-weight:700">프론트 레포</p>
-  <div class="bx" style="left:112px;top:410px;width:260px;height:110px">PR</div>
-  <div class="ar" style="left:384px;top:464px;width:70px"></div>
-  <div class="bx" style="left:466px;top:410px;width:300px;height:110px;color:var(--faint)" data-u="2">검사</div>
-  <div class="bx dash" style="left:466px;top:410px;width:300px;height:110px" data-s="2">검사 없음</div>
-  <div class="ar" style="left:778px;top:464px;width:70px"></div>
-  <div class="bx" style="left:860px;top:410px;width:260px;height:110px">머지</div>
-  <div class="ar" style="left:1132px;top:464px;width:70px"></div>
-  <div class="bx" style="left:1214px;top:410px;width:380px;height:110px" data-u="1">배포</div>
-  <div class="bx ink" style="left:1214px;top:410px;width:380px;height:110px" data-s="1">Vercel 자동 배포</div>
-
-  <p class="lbl" style="left:112px;top:606px;font-size:28px;color:var(--ink);font-weight:700">백엔드 레포</p>
-  <div class="bx" style="left:112px;top:660px;width:260px;height:110px">PR</div>
-  <div class="ar" style="left:384px;top:714px;width:70px"></div>
-  <div class="bx" style="left:466px;top:660px;width:300px;height:110px;color:var(--faint)" data-u="2">검사</div>
-  <div class="bx dash" style="left:466px;top:660px;width:300px;height:110px" data-s="2">검사 없음</div>
-  <div class="ar" style="left:778px;top:714px;width:70px"></div>
-  <div class="bx" style="left:860px;top:660px;width:260px;height:110px">머지</div>
-  <div class="ar" style="left:1132px;top:714px;width:70px"></div>
-  <div class="bx" style="left:1214px;top:660px;width:380px;height:110px;color:var(--faint)" data-u="2">배포</div>
-  <div class="bx dash" style="left:1214px;top:660px;width:380px;height:110px" data-s="2">손으로 배포</div>
-  <p class="lead" data-s="2" style="position:absolute;left:112px;top:840px">오늘 채울 칸: 두 레포의 검사, 백엔드 자동 배포</p>
-  <aside class="notes">그럼 지금 학생 프로젝트에 뭐가 빠져 있을까요. 프론트는 Vercel이 배포까지 해 줍니다. 그런데 합치기 전에 검사하는 칸이 비어 있고, 백엔드는 배포도 아직 손으로 합니다. 오늘 이 빈칸들을 채웁니다.</aside>
-</section>
-
-<section class="page" id="fly" data-title="오늘의 지도" data-steps="1" data-bar1="ttttt|-">
-  <h2 class="ttl">오늘 따라갈 다섯 칸</h2>
-  <div id="bigbar" style="position:absolute;left:182px;top:470px;width:1556px;height:260px;transform-origin:0 0;transition:transform .5s cubic-bezier(.5,0,.2,1),opacity .4s ease .1s">
-    <svg width="1556" height="260" viewBox="0 0 1556 260" aria-hidden="true">
-      <g fill="none" stroke="#C6C6BE" stroke-width="3">
-        <path d="M2 40V20H896V40"/><path d="M984 40V20H1554V40"/>
-        <path d="M260 150h64M584 150h64M908 150h64M1232 150h64"/>
-      </g>
-      <rect x="430" y="2" width="80" height="36" fill="#FAFAF7"/><rect x="1229" y="2" width="80" height="36" fill="#FAFAF7"/>
-      <g font-family="Pretendard,sans-serif" font-size="32" font-weight="700" fill="#55554E" text-anchor="middle"><text x="470" y="31">CI</text><text x="1269" y="31">CD</text></g>
-      <g fill="#fff" stroke="#1E1E1C" stroke-width="3">
-        <rect x="2" y="104" width="258" height="92" rx="46"/><rect x="326" y="104" width="258" height="92" rx="46"/><rect x="650" y="104" width="258" height="92" rx="46"/><rect x="974" y="104" width="258" height="92" rx="46"/><rect x="1298" y="104" width="256" height="92" rx="46"/>
-      </g>
-      <g font-family="Pretendard,sans-serif" font-size="38" font-weight="800" fill="#1E1E1C" text-anchor="middle">
-        <text x="131" y="164">PR</text><text x="455" y="164">검사</text><text x="779" y="164">머지</text><text x="1103" y="164">배포</text><text x="1426" y="164">롤백</text>
-      </g>
-      <g font-family="Pretendard,sans-serif" font-size="24" font-weight="500" fill="#55554E" text-anchor="middle">
-        <text x="131" y="244">변경 올리기</text><text x="455" y="244">GitHub Actions</text><text x="779" y="244">main에 합침</text><text x="1103" y="244">Vercel · Cloud Run</text><text x="1426" y="244">되돌리기</text>
-      </g>
-    </svg>
-  </div>
-  <p class="lead" data-s="1" style="position:absolute;left:112px;top:560px">지금 어느 칸인지 화면 위에 계속 표시</p>
-  <aside class="notes">오늘은 이 다섯 칸을 따라갑니다. PR을 올리고, 검사하고, 머지하고, 배포하고, 문제가 생기면 롤백. 이 띠는 화면 위에 계속 떠 있으면서 지금 어디쯤인지 알려 줍니다.</aside>
-</section>
-
-<!-- ================= 3. GitHub Actions 읽기 ================= -->
-<section class="page" data-title="GitHub Actions" data-steps="1" data-bar="tnttt|-">
-  <h2 class="ttl">GitHub Actions: 일이 생기면 적어 둔 단계를 실행</h2>
-  <div class="chip" style="position:absolute;left:112px;top:350px;font-size:40px;padding:20px 34px"><code style="font-size:40px">.github/workflows/ci.yml</code></div>
-  <p class="lead" style="position:absolute;left:112px;top:470px">레포 안에 이 파일 하나만 있으면 동작</p>
-  <div data-s="1">
-    <div class="bx" style="left:112px;top:600px;width:360px;height:130px">PR 열림<small>이벤트</small></div>
-    <div class="ar ink" style="left:484px;top:664px;width:120px"></div>
-    <div class="bx ink" style="left:616px;top:590px;width:460px;height:150px">워크플로 실행<small>GitHub가 빌려준 컴퓨터에서</small></div>
-    <div class="ar ink" style="left:1088px;top:664px;width:120px"></div>
-    <div class="bx" style="left:1220px;top:600px;width:420px;height:130px">결과를 PR에 표시<small>초록 체크 / 빨간 X</small></div>
-  </div>
-  <aside class="notes">검사는 GitHub Actions로 합니다. 레포 안에 .github/workflows 폴더를 만들고 yml 파일 하나를 넣으면 끝입니다. PR이 열리면 GitHub가 이 파일을 읽고, 빌려준 컴퓨터에서 적힌 단계를 실행하고, 결과를 PR에 초록 체크나 빨간 X로 붙입니다.</aside>
-</section>
-
-<section class="page" data-title="네 부품" data-steps="3" data-bar="tnttt|-">
-  <h2 class="ttl">워크플로 파일 하나에 담긴 네 가지</h2>
-  <div class="area" style="display:grid;grid-template-columns:repeat(4,1fr);gap:40px;top:380px">
-    <div><div style="font:800 80px/1.1 var(--f-sans);letter-spacing:-2px">언제</div><p class="big" style="margin-top:20px">트리거</p><p class="lead mono" style="margin-top:12px;font-family:var(--f-mono)">on:</p></div>
-    <div data-s="1"><div style="font:800 80px/1.1 var(--f-sans);letter-spacing:-2px">어디서</div><p class="big" style="margin-top:20px">러너</p><p class="lead" style="margin-top:12px;font-family:var(--f-mono)">runs-on:</p></div>
-    <div data-s="2"><div style="font:800 80px/1.1 var(--f-sans);letter-spacing:-2px">무엇을</div><p class="big" style="margin-top:20px">단계</p><p class="lead" style="margin-top:12px;font-family:var(--f-mono)">steps:</p></div>
-    <div data-s="3"><div style="font:800 80px/1.1 var(--f-sans);letter-spacing:-2px">무슨 권한</div><p class="big" style="margin-top:20px">인증</p><p class="lead" style="margin-top:12px;font-family:var(--f-mono)">permissions:</p></div>
-  </div>
-  <p class="lead" data-s="3" style="position:absolute;left:112px;top:820px">Jenkins, GitLab CI도 이름만 다르고 같은 네 가지</p>
-  <aside class="notes">이 파일에는 딱 네 가지가 들어 있습니다. 언제 돌릴지가 트리거, 어디서 돌릴지가 러너, 무엇을 할지가 단계, 무슨 권한으로 할지가 인증입니다. Jenkins든 GitLab이든 이름만 다르고 이 네 가지는 같습니다.</aside>
-</section>
-
-<section class="page" data-title="① 트리거" data-steps="1" data-bar="tnttt|-">
-  <h2 class="ttl">트리거: PR이 열리거나 main에 들어올 때</h2>
-  <pre class="code" data-lang="yaml" data-hl="2-6" data-mk="2:1" style="left:112px;top:320px;width:900px" data-label="cicd-frontend/.github/workflows/ci.yml (주석 생략)">name: Frontend CI
-on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
-jobs:
-  check:
-    name: frontend-check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-      - run: npm ci
-      - run: npm run lint
-      - run: npm test
-      - run: npm run build</pre>
-  <div style="position:absolute;left:1080px;top:340px;width:728px">
-    <span class="badge">1</span>
-    <p class="big" style="margin-top:22px">이벤트가 생기면<br>GitHub가 워크플로를 깨움</p>
-    <div data-s="1" style="display:flex;flex-direction:column;gap:18px;margin-top:40px;align-items:flex-start">
-      <span class="chip">PR 열기 → <code>pull_request</code></span>
-      <span class="chip">main에 머지 → <code>push</code></span>
-    </div>
-  </div>
-  <aside class="notes">첫 번째, 트리거입니다. on 아래에 적습니다. pull_request는 PR을 열거나 PR에 커밋을 더 올릴 때, push는 main에 들어올 때입니다. 사람이 하는 행동과 키워드가 이렇게 짝지어집니다.</aside>
-</section>
-
-<section class="page" data-title="② 러너" data-steps="1" data-bar="tnttt|-">
-  <h2 class="ttl">러너: 매번 새로 빌리는 깨끗한 리눅스 컴퓨터</h2>
-  <pre class="code" data-lang="yaml" data-hl="10" data-mk="10:2" style="left:112px;top:320px;width:900px" data-label="cicd-frontend/.github/workflows/ci.yml (주석 생략)">name: Frontend CI
-on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
-jobs:
-  check:
-    name: frontend-check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-      - run: npm ci
-      - run: npm run lint
-      - run: npm test
-      - run: npm run build</pre>
-  <div style="position:absolute;left:1080px;top:340px;width:728px">
-    <span class="badge">2</span>
-    <p class="big" style="margin-top:22px"><span class="mono" style="font-family:var(--f-mono);font-size:40px">ubuntu-latest</span><br>GitHub가 빌려주는 리눅스</p>
-    <p class="lead" data-s="1" style="margin-top:40px">실행이 끝나면 버려짐<br>그래서 매번 코드 받기와 설치부터 다시</p>
-  </div>
-  <aside class="notes">두 번째, 러너입니다. ubuntu-latest라고 적으면 GitHub가 깨끗한 리눅스 컴퓨터를 하나 빌려줍니다. 실행이 끝나면 버려지기 때문에 매번 코드를 받고 설치부터 다시 합니다. 이 리눅스라는 점이 뒤에서 중요해집니다.</aside>
-</section>
-
-<section class="page" data-title="③ 단계" data-steps="1" data-bar="tnttt|-">
-  <h2 class="ttl">단계: 설치 → Lint → Test → Build 순서로 실행</h2>
-  <pre class="code" data-lang="yaml" data-hl="11-17" data-mk="11:3" style="left:112px;top:320px;width:900px" data-label="cicd-frontend/.github/workflows/ci.yml (주석 생략)">name: Frontend CI
-on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
-jobs:
-  check:
-    name: frontend-check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-      - run: npm ci
-      - run: npm run lint
-      - run: npm test
-      - run: npm run build</pre>
-  <div style="position:absolute;left:1080px;top:340px;width:728px">
-    <span class="badge">3</span>
-    <p class="big" style="margin-top:22px">위에서부터 한 줄씩 차례로</p>
-    <p class="lead" style="margin-top:16px">내 컴퓨터에서 치던 명령 그대로</p>
-    <p class="big ngc" data-s="1" style="margin-top:44px">하나라도 실패하면<br>그 자리에서 멈춤</p>
-  </div>
-  <aside class="notes">세 번째, 단계입니다. 평소 제 컴퓨터에서 치던 명령을 그대로 적습니다. 설치, lint, test, build. 위에서부터 차례로 실행하다가 하나라도 실패하면 거기서 멈추고 빨간 X를 띄웁니다.</aside>
-</section>
-
-<section class="page" data-title="④ 인증" data-steps="1" data-bar="tttnt|-">
-  <h2 class="ttl">인증: 키 파일 없이 Google Cloud에 로그인</h2>
-  <pre class="code" data-lang="yaml" data-hl="4-10" data-mk="4:4" style="left:112px;top:320px;width:1030px" data-label="cicd-backend/.github/workflows/cd.yml (일부)">  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-    steps:
-      - uses: google-github-actions/auth@v3
-        with:
-          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
-          service_account: ${{ vars.WIF_SERVICE_ACCOUNT }}
-      - uses: google-github-actions/deploy-cloudrun@v3
-        with:
-          source: ./</pre>
-  <div style="position:absolute;left:1200px;top:340px;width:608px">
-    <span class="badge">4</span>
-    <p class="big" style="margin-top:22px">GitHub 임시 증명서<br>→ 구글 임시 토큰</p>
-    <p class="lead" style="margin-top:20px">WIF (Workload Identity Federation)</p>
-    <p class="big" data-s="1" style="margin-top:44px">저장해 둔 비밀 키 0개</p>
-  </div>
-  <aside class="notes">네 번째, 인증입니다. 배포하려면 구글 클라우드에 로그인해야 하는데, 예전엔 키 파일을 GitHub Secrets에 넣었습니다. 지금은 WIF로 GitHub가 임시 증명서를 내고, 구글이 그걸 확인해서 잠깐 쓸 토큰을 줍니다. 저장해 둔 비밀 키가 하나도 없어서 털릴 키도 없습니다.</aside>
-</section>
-
-<!-- ================= 4. 일부러 깨뜨려 보기 ================= -->
-<section class="page" data-title="구분: 깨뜨려 보기">
-  <div class="divider">
-    <h2>일부러 깨뜨려 보기</h2>
-    <p>실습 레포 cicd-frontend에서 PR 하나로 실패부터 통과까지</p>
-  </div>
-  <aside class="notes">이제 직접 깨뜨려 보겠습니다. 실습용 프론트 레포에서 PR 하나를 열어서, 실패하고, 막히고, 고쳐서 통과하는 것까지 한 번에 보여 드리겠습니다.</aside>
-</section>
-
-<section class="page" data-title="실습 대상 함수" data-bar="ntttt|0">
-  <h2 class="ttl">실습 대상: 845분을 "14:05"로 바꾸는 함수</h2>
-  <pre class="code" data-lang="js" style="left:112px;top:340px;width:1260px" data-label="src/lib/timetable.js">export function toHHMM(totalMinutes) {
-  const h = Math.floor(totalMinutes / 60) % 24
-  const m = totalMinutes % 60
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
-}</pre>
-  <pre class="code" data-lang="js" style="left:112px;top:670px;width:1260px" data-label="src/lib/timetable.test.js">expect(toHHMM(845)).toBe('14:05')</pre>
-  <div style="position:absolute;left:1440px;top:360px;width:368px">
-    <p class="cap">입력</p><p style="margin:4px 0 30px;font:800 72px var(--f-mono)">845</p>
-    <p class="cap">결과</p><p style="margin:4px 0 0;font:800 72px var(--f-mono)">14:05</p>
-  </div>
-  <aside class="notes">실습 대상은 세미나 시간표를 만드는 작은 함수입니다. 845분을 받으면 "14:05"로 바꿔 줍니다. 그리고 845를 넣으면 "14:05"가 나와야 한다는 테스트가 하나 있습니다.</aside>
-</section>
-
-<section class="page" data-title="지운 한 줄" data-steps="2" data-bar="ntttt|0">
-  <h2 class="ttl">"굳이 필요한가" 싶어 padStart를 지운 한 줄</h2>
-  <pre class="code" data-lang="diff" style="left:112px;top:340px;width:1300px" data-label="PR 변경 내용 · src/lib/timetable.js"> const m = totalMinutes % 60
--return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
-+return `${h}:${m}`
- }</pre>
-  <div data-s="1" style="position:absolute;left:112px;top:620px;display:flex;gap:20px">
-    <span class="chip" style="border-color:var(--ok);color:var(--ok)">Lint 통과</span>
-    <span class="chip" style="border-color:var(--ok);color:var(--ok)">Build 통과</span>
-    <span class="chip">화면도 뜸, 시간만 14:0 – 14:10</span>
-  </div>
-  <div data-s="2" style="position:absolute;left:112px;top:760px;width:1300px;padding:28px 34px;border-radius:16px;background:var(--or-soft);border:3px solid var(--or);box-sizing:border-box">
-    <p style="margin:0;font:800 44px/1.3 var(--f-sans)">Vercel만 있었다면 이대로 운영에 배포</p>
-  </div>
-  <aside class="notes">누군가 padStart가 굳이 필요한가 싶어서 이렇게 지웠다고 해 보겠습니다. lint도 통과하고 빌드도 됩니다. 화면도 뜹니다. 시간만 14:0처럼 이상하게 나옵니다. Vercel만 있었다면 이 코드가 그대로 운영에 나갑니다.</aside>
-</section>
-
-<section class="page" id="runs" data-title="검사 시작" data-steps="2" data-bar="dnttt|1" data-bar2="dfttt|1f">
-  <h2 class="ttl">PR을 올리면 검사가 자동으로 시작</h2>
-  <ul class="runs" style="left:112px;top:330px;width:1100px">
-    <li data-r="0"><svg class="ic" viewBox="0 0 40 40"></svg>코드 내려받기</li>
-    <li data-r="0"><svg class="ic" viewBox="0 0 40 40"></svg>Node.js 준비</li>
-    <li data-r="0"><svg class="ic" viewBox="0 0 40 40"></svg>의존성 설치 (package-lock.json 그대로)</li>
-    <li data-r="0"><svg class="ic" viewBox="0 0 40 40"></svg>Lint</li>
-    <li data-r="1"><svg class="ic" viewBox="0 0 40 40"></svg>Test<span class="tag"></span></li>
-    <li data-r="2"><svg class="ic" viewBox="0 0 40 40"></svg>Build<span class="tag"></span></li>
+<section class="page" id="checks" data-title="손으로 확인할 다섯 가지" data-steps="1" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">합칠 때마다 사람이 손으로 확인할 다섯 가지</h2>
+  <p class="cap" style="position:absolute;left:112px;top:244px">리뷰 대기</p>
+  <p style="position:absolute;left:112px;top:280px;margin:0;font:800 84px/1 var(--f-sans);letter-spacing:-2px">6건</p>
+  <ul class="rq stg" style="left:112px;top:392px;width:540px">
+    <li><span class="mono">#7</span>로그인 수정</li>
+    <li><span class="mono">#8</span>결제 금액 계산</li>
+    <li><span class="mono">#9</span>DB 컬럼 추가</li>
+    <li><span class="mono">#10</span>화면 정렬</li>
+    <li><span class="mono">#11</span>시간표 표시</li>
+    <li><span class="mono">#12</span>반올림 수정</li>
   </ul>
-  <div style="position:absolute;left:1300px;top:350px;width:508px">
-    <p class="cap">frontend-check</p>
-    <p class="big" data-u="2" style="margin-top:8px">실행 중</p>
-    <p class="big ngc" data-s="2" style="margin-top:-58px">Test에서 실패</p>
-    <p class="lead" data-s="2" style="margin-top:24px">뒤 단계 Build는 건너뜀</p>
-  </div>
-  <aside class="notes">PR을 올리면 몇 초 안에 검사가 시작됩니다. ci.yml에 적은 단계 그대로 하나씩 실행됩니다. 코드 받고, 설치하고, lint 통과. 그리고 Test에서 걸립니다. 뒤의 Build는 아예 실행하지 않습니다.</aside>
+  <ul class="q5 stg" data-s="1" style="left:760px;top:244px;width:1048px">
+    <li><span class="badge">1</span>문법 오류 여부<code>node --check</code></li>
+    <li><span class="badge">2</span>테스트 통과 여부<code>npm test</code></li>
+    <li><span class="badge">3</span>빌드 성공 여부<code>npm run build</code></li>
+    <li><span class="badge">4</span>코드 형식과 실수<code>npm run lint</code></li>
+    <li><span class="badge">5</span>보안 취약점<code>npm audit</code></li>
+  </ul>
+  <aside class="notes">자동화가 없으면 누군가 이걸 전부 손으로 확인해야 합니다. 리뷰 대기열에 PR이 여섯 개 쌓였습니다.
+(클릭) 합치기 전에 문법 오류는 없는지, 테스트는 통과하는지, 빌드는 되는지, 코드 형식은 맞는지, 보안 문제는 없는지. PR 하나마다 이 다섯 가지입니다.</aside>
 </section>
 
-<section class="page" data-title="실패 로그" data-steps="1" data-bar="dfttt|1f">
-  <h2 class="ttl">Test 단계에서 걸림: 기대 14:05, 실제 14:5</h2>
-  <pre class="log type" style="left:112px;top:330px;width:1180px" data-label="Actions 로그 · frontend-check › Test" data-ng="1,2,5" data-st="4,7">FAIL  src/lib/timetable.test.js > 시간 변환
+<section class="page" id="thirty" data-title="6 × 5 = 30" data-steps="1" data-sec="CI · 지속적 통합">
+  <p style="position:absolute;left:112px;top:220px;margin:0;font:800 76px/1.2 var(--f-sans);letter-spacing:-2px">변경 6건 × 확인 5가지</p>
+  <div data-s="1">
+    <p style="position:absolute;left:96px;top:350px;margin:0;font:800 380px/1 var(--f-sans);letter-spacing:-16px;font-variant-numeric:tabular-nums"><span data-count="30">30</span></p>
+    <div style="position:absolute;left:112px;top:752px;width:300px;height:14px;background:var(--or)"></div>
+    <p class="big" style="position:absolute;left:112px;top:800px">점심 전까지 손으로 할 확인 횟수</p>
+  </div>
+  <aside class="notes">PR 여섯 개에 확인 다섯 가지면,
+(클릭) 점심 전에만 서른 번입니다. 금방 지칩니다. 그리고 사람은 지치면 건너뜁니다.</aside>
+</section>
+
+<section class="page" id="push" data-title="push하면 검사 출발" data-steps="1" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">CI: 변경을 올리면 검사가 자동으로 출발</h2>
+  <pre class="log" style="left:112px;top:850px;width:1000px" data-st="1">$ git push origin feat/timetable</pre>
+  <p class="lead" data-u="1" style="position:absolute;left:1160px;top:868px">그다음 GitHub에서 PR 열기</p>
+  <div data-s="1" style="position:absolute;left:1160px;top:856px"><span class="chip">PR 열기 → <code>on: pull_request</code></span></div>
+  <aside class="notes">이제 CI가 있으면 어떻게 되는지 보겠습니다. 시간표 기능을 고친 커밋을 올리고 PR을 엽니다.
+(클릭) 그 순간 GitHub가 PR이 열렸다는 걸 알고, 적어 둔 검사 파이프라인을 자동으로 출발시킵니다. 아무도 버튼을 누르지 않았습니다. 이 캡슐에 붙은 글자가 커밋 번호입니다.</aside>
+</section>
+
+<section class="page" id="gates" data-title="문을 하나씩 통과" data-steps="4" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">문을 하나씩 통과: 설치 → 린트 → 테스트 → 빌드</h2>
+  <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">문마다 통과해야 다음 문으로, 결과는 실습 레포의 실제 출력</p>
+  <p class="big" data-s="1" data-u="2" style="position:absolute;left:112px;top:860px">설치: 잠금 파일에 적힌 버전 그대로 패키지 설치</p>
+  <p class="big" data-s="2" data-u="3" style="position:absolute;left:112px;top:860px">린트: 안 쓰는 변수처럼 실수하기 쉬운 코드 찾기</p>
+  <p class="big" data-s="3" data-u="4" style="position:absolute;left:112px;top:860px">테스트: 미리 적어 둔 기대값과 실제 결과 비교</p>
+  <p class="big" data-s="4" style="position:absolute;left:112px;top:860px">빌드: 배포할 파일 만들기, 넷 다 통과하면 머지 가능</p>
+  <aside class="notes">검사는 문을 하나씩 지나가는 방식입니다. 문을 통과해야 다음 문으로 갑니다. 화면에 뜨는 결과는 실습 레포에서 실제로 돌린 출력입니다.
+(클릭) 먼저 설치. 잠금 파일에 적힌 버전 그대로 패키지를 설치합니다.
+(클릭) 린트. 안 쓰는 변수처럼 실수하기 쉬운 코드를 찾습니다.
+(클릭) 테스트. 미리 적어 둔 기대값과 실제 결과를 비교합니다. 여섯 개 다 통과.
+(클릭) 빌드. 실제로 배포할 파일을 만들어 봅니다. 넷 다 초록이면 PR에 초록 체크가 붙고, 머지 문이 열립니다.</aside>
+</section>
+
+<section class="page" id="runner" data-title="러너" data-steps="2" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">이 문들이 돌아가는 곳: 매번 새로 빌리는 컴퓨터</h2>
+  <p class="big" data-s="1" data-u="2" style="position:absolute;left:112px;top:842px">러너: GitHub가 빌려주는 깨끗한 리눅스 컴퓨터</p>
+  <p class="lead" data-s="1" data-u="2" style="position:absolute;left:112px;top:918px">실행이 끝나면 버려짐, 그래서 매번 설치부터 다시</p>
+  <div data-s="2" style="position:absolute;left:112px;top:846px"><span class="chip"><code>.github/workflows/ci.yml</code></span></div>
+  <p class="lead" data-s="2" style="position:absolute;left:112px;top:930px">이 파일을 읽고 러너에서 문을 차례로 실행하는 것이 GitHub Actions</p>
+  <aside class="notes">이 검사들은 어디서 돌까요. 제 컴퓨터가 아닙니다.
+(클릭) GitHub가 빌려주는 깨끗한 리눅스 컴퓨터, 러너에서 돕니다. 실행이 끝나면 버려지기 때문에 매번 설치부터 다시 합니다. 그래서 내 컴퓨터에만 깔려 있던 무언가에 기대는 코드는 여기서 걸립니다.
+(클릭) 어떤 문을 어떤 순서로 지날지는 레포 안 yml 파일 하나에 적어 둡니다. GitHub Actions는 이 파일을 읽고 러너에서 실행해 주는 서비스입니다. 단계 하나가 아니라 단계 전체를 감싸는 틀입니다.</aside>
+</section>
+
+<section class="page" id="fail" data-title="실패: 테스트에서 멈춤" data-steps="2" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">다음 PR: padStart를 지운 한 줄, 테스트에서 멈춤</h2>
+  <pre class="code" data-lang="diff" style="left:112px;top:830px;width:1180px" data-label="PR #13 · src/lib/timetable.js">-return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
++return `${h}:${m}`</pre>
+  <p class="lead" data-u="1" style="position:absolute;left:1350px;top:850px;width:458px">화면은 뜨고, 시간만 14:5로 표시</p>
+  <p class="big ngc" data-s="1" data-u="2" style="position:absolute;left:1350px;top:846px;width:458px">테스트 실패, 뒤 단계는 건너뜀</p>
+  <p class="big" data-s="2" style="position:absolute;left:1350px;top:846px;width:458px">빨간불인 동안 main 합치기 차단</p>
+  <aside class="notes">이번엔 다른 팀원이 PR을 하나 올립니다. padStart가 굳이 필요한가 싶어서 지웠습니다. 린트도 통과하고 빌드도 됩니다. 화면도 잘 뜨고 시간만 14:5처럼 이상하게 나옵니다.
+(클릭) 설치 통과, 린트 통과, 그리고 테스트에서 걸립니다. 빨간불이 들어오고, 뒤의 빌드는 아예 실행하지 않습니다.
+(클릭) 그리고 머지 문이 잠깁니다.</aside>
+</section>
+
+<section class="page" id="assert" data-title="기대 14:05, 실제 14:5" data-steps="1" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">기대 14:05, 실제 14:5: 한 글자 차이를 기계가 짚음</h2>
+  <pre class="log type" style="left:112px;top:250px;width:1180px;font-size:30px" data-label="Actions 로그, frontend-check › Test" data-ng="1,2,5" data-st="4,7">FAIL  src/lib/timetable.test.js > 시간 변환
       > 845분은 "14:05"로 표시한다
 AssertionError: expected '14:5' to be '14:05'
 
@@ -704,234 +705,372 @@ Expected: "14:05"
 Received: "14:5"
 
 Tests  3 failed | 3 passed (6)</pre>
-  <div data-s="1" style="position:absolute;left:1340px;top:330px;width:468px">
+  <div data-s="1" style="position:absolute;left:1340px;top:250px;width:468px">
     <div style="border-bottom:1px solid var(--line);padding:18px 0"><p class="cap">입력</p><p style="margin:4px 0 0;font:700 52px var(--f-mono)">845</p></div>
     <div style="border-bottom:1px solid var(--line);padding:18px 0"><p class="cap">기대</p><p style="margin:4px 0 0;font:700 52px var(--f-mono)">"14:05"</p></div>
     <div style="padding:18px 20px;margin:0 -20px;background:var(--or-soft);border-radius:12px"><p class="cap" style="color:var(--or-t)">실제</p><p style="margin:4px 0 0;font:800 52px var(--f-mono)">"14:5"</p></div>
   </div>
-  <aside class="notes">로그를 열어 보면 이렇게 나옵니다. 기대한 값은 "14:05", 실제로 나온 값은 "14:5". 사람이 리뷰로는 놓치기 쉬운 한 글자 차이를 기계가 정확히 짚어 줍니다. 실습 레포에서 실제로 돌린 결과입니다.</aside>
+  <aside class="notes">로그를 열어 보면 이렇게 나옵니다. 실습 레포에서 실제로 돌린 결과입니다.
+(클릭) 845분을 넣었을 때 기대한 값은 "14:05", 실제로 나온 값은 "14:5". 사람이 리뷰로는 놓치기 쉬운 한 글자 차이를 기계가 정확히 짚어 줍니다.</aside>
 </section>
 
-<section class="page" data-title="머지 잠김" data-steps="1" data-bar="dfltt|1f">
-  <h2 class="ttl">브랜치 보호: 빨간 X면 머지 버튼 잠김</h2>
-  <div class="slot" data-cap="pr-blocked" style="left:112px;top:330px;width:1060px;height:600px"><b>캡처 자리</b><span>PR 화면 아래쪽<br>빨간 X · Merging is blocked · 회색 Merge 버튼</span></div>
-  <div style="position:absolute;left:1230px;top:340px;width:578px">
+<section class="page" id="blocked" data-title="머지 잠김" data-steps="1" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">검사가 빨간불인 동안 머지 버튼이 잠김</h2>
+  <div class="prbox" style="left:112px;top:240px;width:1010px;height:600px">
+    <div class="h"><span>#13</span>시간 표시 단순화</div>
+    <div class="r"><svg data-ic="ng" viewBox="0 0 40 40"></svg><div><b>frontend-check</b><small class="ngc">Test 단계에서 실패</small></div></div>
+    <div class="r"><svg data-ic="lock" viewBox="0 0 40 40"></svg><div><b>머지 잠김</b><small>필수 검사가 통과해야 머지 가능</small></div></div>
+    <span class="btn">Merge pull request</span>
+    <p class="foot" style="left:40px;bottom:28px;margin:0">설명용으로 다시 그린 화면</p>
+    <img data-cap-img="pr-blocked" alt="">
+  </div>
+  <div style="position:absolute;left:1190px;top:250px;width:618px">
     <p class="cap">Settings → Branches → main</p>
-    <p class="big" style="margin-top:14px">Require status checks to pass</p>
-    <p class="lead" style="margin-top:8px">필수 검사: <span class="mono" style="font-family:var(--f-mono)">frontend-check</span></p>
-    <p class="big" data-s="1" style="margin-top:56px">레포 주인도 못 뚫게</p>
-    <p class="lead" data-s="1" style="margin-top:8px">Do not allow bypassing</p>
+    <p class="big" style="margin-top:14px">필수 검사로 지정</p>
+    <p class="lead mono" style="margin-top:8px;font-family:var(--f-mono)">frontend-check</p>
+    <p class="big" data-s="1" style="margin-top:64px">레포 주인도 우회 불가</p>
+    <p class="lead" data-s="1" style="margin-top:10px">팀 규칙을 사람 대신 시스템이 지킴</p>
   </div>
-  <aside class="notes">여기서 끝이 아닙니다. 브랜치 보호를 켜 두면 빨간 X가 떠 있는 동안 머지 버튼 자체가 잠깁니다. main 보호 규칙에서 필수 검사로 frontend-check를 지정하고, 레포 주인도 우회하지 못하게 해 둡니다.</aside>
+  <aside class="notes">PR 화면에서는 이렇게 보입니다. 브랜치 보호를 켜 두면 빨간 X가 떠 있는 동안 머지 버튼 자체가 잠깁니다. main 보호 규칙에서 frontend-check를 필수 검사로 지정해 둔 겁니다.
+(클릭) 레포 주인도 우회하지 못하게 해 둡니다. "테스트 깨진 코드는 머지하지 말자"는 팀마다 말로는 다 합니다. 데모데이 전날 밤엔 그게 안 지켜집니다. 브랜치 보호는 그 규칙을 사람 대신 시스템이 지키게 만듭니다.</aside>
 </section>
 
-<section class="page" data-title="시스템이 지킴" data-bar="dfltt|1f">
-  <div class="stmt"><h2>팀 규칙을 사람 대신<br>시스템이 지킴</h2><p class="lead">"테스트 깨진 코드는 머지하지 말자"가 말이 아니라 설정</p></div>
-  <aside class="notes">"테스트 깨진 코드는 머지하지 말자"는 팀마다 말로는 다 합니다. 데모데이 전날 밤엔 그게 안 지켜집니다. 브랜치 보호는 그 규칙을 사람 대신 시스템이 지키게 만듭니다.</aside>
+<section class="page" id="fixed" data-title="고친 커밋, 다시 초록" data-steps="2" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">고친 커밋을 같은 PR에 push, 다시 초록이면 머지</h2>
+  <pre class="code" data-lang="diff" style="left:112px;top:830px;width:1180px" data-label="PR #13에 커밋 추가">-return `${h}:${m}`
++return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`</pre>
+  <p class="lead" data-u="1" style="position:absolute;left:1350px;top:850px;width:458px">PR을 새로 만들 필요 없음</p>
+  <div data-s="1" data-u="2" style="position:absolute;left:1350px;top:852px"><span class="chip ok">All checks have passed</span></div>
+  <p class="big" data-s="2" style="position:absolute;left:1350px;top:846px;width:458px">머지 완료, main에 합쳐짐</p>
+  <aside class="notes">고치는 건 간단합니다. 원래대로 돌린 커밋을 같은 브랜치에 push합니다. PR을 새로 만들 필요가 없습니다.
+(클릭) 검사가 자동으로 다시 돌고, 이번엔 전부 통과합니다. 머지 문이 열립니다.
+(클릭) 머지 버튼을 누르면 이 커밋이 main에 합쳐집니다. 이제부터 이 커밋, 3f9a2c1을 끝까지 따라가겠습니다.</aside>
 </section>
 
-<section class="page" data-title="고친 커밋" data-steps="1" data-bar="dnltt|1" data-bar1="ddntt|2">
-  <h2 class="ttl">원래대로 고친 커밋 하나 push</h2>
-  <pre class="code" data-lang="diff" style="left:112px;top:340px;width:1300px" data-label="같은 PR에 커밋 추가 · src/lib/timetable.js"> const m = totalMinutes % 60
--return `${h}:${m}`
-+return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
- }</pre>
-  <div style="position:absolute;left:112px;top:620px;display:flex;gap:20px;flex-wrap:wrap;width:1300px" data-s="1">
-    <span class="chip" style="border-color:var(--ok);color:var(--ok)">Lint 통과</span>
-    <span class="chip" style="border-color:var(--ok);color:var(--ok)">Test 통과</span>
-    <span class="chip" style="border-color:var(--ok);color:var(--ok)">Build 통과</span>
-  </div>
-  <p class="lead" style="position:absolute;left:112px;top:760px;width:1300px">PR을 새로 만들 필요 없음, 같은 브랜치에 push하면 검사가 다시 돎</p>
-  <aside class="notes">고치는 건 간단합니다. 원래대로 돌린 커밋을 같은 브랜치에 push하면 됩니다. PR을 새로 만들 필요 없이 검사가 자동으로 다시 돌고, 이번엔 전부 통과합니다.</aside>
-</section>
-
-<section class="page" data-title="다시 초록" data-bar="ddntt|2">
-  <h2 class="ttl">같은 PR에서 다시 초록, 머지 버튼 열림</h2>
-  <div class="slot" data-cap="pr-green" style="left:112px;top:330px;width:1060px;height:600px"><b>캡처 자리</b><span>같은 PR 화면 아래쪽<br>All checks have passed · 초록 Merge 버튼</span></div>
-  <div style="position:absolute;left:1240px;top:330px;width:568px">
-    <div style="border-bottom:1px solid var(--line);padding:18px 0"><p class="cap">입력</p><p style="margin:4px 0 0;font:700 52px var(--f-mono)">845</p></div>
-    <div style="border-bottom:1px solid var(--line);padding:18px 0"><p class="cap">기대</p><p style="margin:4px 0 0;font:700 52px var(--f-mono)">"14:05"</p></div>
-    <div style="padding:18px 20px;margin:0 -20px;background:var(--or-soft);border-radius:12px"><p class="cap" style="color:var(--or-t)">실제</p><p style="margin:4px 0 0;font:800 52px var(--f-mono)">"14:05"</p></div>
-  </div>
-  <aside class="notes">같은 PR 화면입니다. All checks have passed, 머지 버튼이 다시 초록색으로 열렸습니다. 아까 "14:5"였던 실제 값이 "14:05"로 돌아왔습니다.</aside>
-</section>
-
-<section class="page" data-title="단계별 사고" data-steps="2" data-bar="dnttt|-">
-  <h2 class="ttl">단계마다 잡아내는 사고가 다름</h2>
-  <table class="tb" style="left:112px;top:340px;width:1696px">
-    <thead><tr><th style="width:220px">잡은 단계</th><th>실제 로그</th><th style="width:380px">사람이 놓치는 이유</th></tr></thead>
+<section class="page" id="catch" data-title="문마다 잡는 사고" data-steps="2" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">문마다 잡아내는 사고가 다름</h2>
+  <table class="tb" style="left:112px;top:244px;width:1696px">
+    <thead><tr><th style="width:200px">잡은 문</th><th>실제 로그</th><th style="width:420px">사람이 놓치는 이유</th></tr></thead>
     <tbody>
-      <tr><td><b>Lint</b></td><td class="m">Identifier 'useMemo' is imported but never used.</td><td>실행엔 문제없어서</td></tr>
-      <tr data-s="1"><td><b>Test</b></td><td class="m">Expected: "14:05" Received: "14:5"</td><td>화면은 떠서</td></tr>
-      <tr data-s="2"><td><b>Build</b></td><td class="m">Could not resolve './components/sessionTable.jsx'</td><td>내 컴퓨터에선 돼서</td></tr>
+      <tr><td><b>린트</b></td><td class="m">Identifier 'useMemo' is imported but never used.</td><td>실행에는 문제가 없어서</td></tr>
+      <tr data-s="1"><td><b>테스트</b></td><td class="m">Expected: "14:05" Received: "14:5"</td><td>화면은 떠서</td></tr>
+      <tr data-s="2" class="or"><td><b>빌드</b></td><td class="m">Could not resolve './components/sessionTable.jsx'</td><td>내 컴퓨터에서는 돼서</td></tr>
     </tbody>
   </table>
-  <aside class="notes">실습 레포에는 사고를 몇 가지 더 준비해 뒀습니다. lint는 안 쓰는 import를, test는 방금 본 시간 표시를, build는 파일 이름 대소문자를 잡습니다. 단계마다 잡는 게 달라서 셋 다 거는 겁니다.</aside>
-</section>
-
-<section class="page" data-title="백엔드 약속 테스트" data-steps="1" data-bar="dnttt|-">
-  <h2 class="ttl">백엔드 테스트가 프론트와의 약속을 지킴</h2>
-  <pre class="code" data-lang="diff" style="left:112px;top:330px;width:1696px" data-label="cicd-backend · Session.java  (title이 name보다 낫겠다 싶어 바꾼 상황)">-public record Session(int order, String title, String speaker, String school, int minutes) {
-+public record Session(int order, String name, String speaker, String school, int minutes) {</pre>
-  <div style="position:absolute;left:112px;top:540px;display:flex;gap:20px">
-    <span class="chip" style="border-color:var(--ok);color:var(--ok)">컴파일 통과</span>
-    <span class="chip" style="border-color:var(--ok);color:var(--ok)">서버도 정상</span>
-    <span class="chip">프론트 표의 세션 이름은 전부 빈칸</span>
+  <div data-s="2" style="position:absolute;left:112px;top:700px;width:1696px">
+    <span class="chip or">데모데이 전날 밤 그 에러의 정체</span>
+    <p class="big" style="margin-top:28px">윈도우와 맥은 파일 이름 대소문자를 무시, 리눅스 러너는 구분</p>
   </div>
-  <pre class="log" data-s="1" style="left:112px;top:660px;width:1696px" data-label="Actions 로그 · backend-test" data-ng="1,2">SessionControllerTest > 세션_목록_API는_프론트가_쓰는_필드를_모두_돌려준다() FAILED
-    java.lang.AssertionError: No value at JSON path "$[0].title"</pre>
-  <p class="lead" data-s="1" style="position:absolute;left:112px;top:870px">레포가 나뉘면 이 테스트가 두 레포 사이의 유일한 경보</p>
-  <aside class="notes">백엔드도 하나 보겠습니다. 백엔드 개발자가 title보다 name이 낫겠다 싶어서 필드 이름을 바꿨습니다. 컴파일도 되고 서버도 잘 뜹니다. 그런데 JSON 키가 바뀌어서 프론트 표의 세션 이름이 전부 빈칸이 됩니다. 프론트가 쓰는 필드를 지키는 테스트가 이걸 잡습니다. 레포가 나뉘어 있으면 이 테스트가 두 레포 사이의 유일한 경보입니다.</aside>
+  <aside class="notes">실습 레포에는 사고를 몇 가지 더 준비해 뒀습니다. 린트는 안 쓰는 import를 잡습니다. 실행에는 문제가 없어서 사람은 그냥 넘어갑니다.
+(클릭) 테스트는 방금 본 시간 표시를 잡습니다. 화면은 떠서 놓칩니다.
+(클릭) 빌드는 파일 이름 대소문자를 잡습니다. 데모데이 전날 밤의 그 에러가 바로 이겁니다. 파일 이름의 대문자 S를 소문자로 썼는데, 윈도우와 맥은 대소문자를 구분하지 않아서 제 컴퓨터에서는 빌드가 됩니다. 러너는 리눅스라 구분합니다. 서버도 대부분 리눅스입니다. 그래서 단계마다 잡는 게 달라서 셋 다 겁니다.</aside>
 </section>
 
-<section class="page" data-title="러너는 리눅스" data-steps="1" data-bar="dnttt|-">
-  <h2 class="ttl">"내 컴퓨터에선 되는데요"의 정체: 러너는 리눅스</h2>
-  <pre class="log" style="left:112px;top:330px;width:1100px" data-label="5장의 그 에러 · Actions 로그 › Build" data-ng="1,2">✗ Build failed
-[UNRESOLVED_IMPORT] Could not resolve
-'./components/sessionTable.jsx' in src/App.jsx</pre>
-  <pre class="code" data-lang="diff" style="left:112px;top:600px;width:1100px" data-label="src/App.jsx">-import SessionTable from './components/SessionTable.jsx'
-+import SessionTable from './components/sessionTable.jsx'</pre>
-  <div data-s="1" style="position:absolute;left:1270px;top:340px;width:538px">
-    <p class="cap">윈도우·맥</p><p class="big" style="margin:6px 0 34px">대소문자 구분 안 함<br><span class="okc">로컬 빌드 통과</span></p>
-    <p class="cap">리눅스 러너</p><p class="big" style="margin:6px 0 34px">대소문자 구분<br><span class="ngc">빌드 실패</span></p>
-    <p class="lead">Vercel도 리눅스에서 빌드</p>
+<section class="page" id="ciSum" data-title="CI 정리" data-steps="1" data-sec="CI · 지속적 통합">
+  <div class="stmt"><h2>CI = 자주 합치고<br>합칠 때마다 자동 확인</h2><p class="lead" data-s="1">문제가 생겨도 어제 이후 바뀐 한 줄만 보면 됨</p></div>
+  <aside class="notes">정리하면 CI는 작게 자주 합치고, 합칠 때마다 기계가 자동으로 확인하는 겁니다.
+(클릭) 그러면 문제가 생겨도 어제 이후 바뀐 한 줄만 보면 됩니다. 데모데이 전날 밤처럼 2주치를 한 번에 뒤질 필요가 없습니다.</aside>
+</section>
+
+<!-- ================= 4. CD ================= -->
+<section class="page" id="chCD" data-title="장 표지: CD">
+  <div class="chap"><div class="k">CD</div><div class="bar"></div><h2>지속적 전달과 배포</h2><p>Continuous Delivery, Continuous Deployment</p></div>
+  <aside class="notes">이제 CD입니다.</aside>
+</section>
+
+<section class="page" id="env" data-title="CD: 실제 환경까지" data-steps="1" data-sec="CD · 지속적 전달과 배포">
+  <h2 class="ttl">CD: 합쳐진 코드를 실제 환경까지 보내는 길</h2>
+  <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">머지된 커밋 3f9a2c1이 CD 구간으로 진입</p>
+  <div data-s="1" style="position:absolute;left:112px;top:846px"><span class="chip ink">환경 = 앱이 실제로 돌아가는 곳</span></div>
+  <p class="lead" data-s="1" style="position:absolute;left:112px;top:930px">스테이징은 리허설 무대, 운영은 실제 사용자가 쓰는 곳</p>
+  <aside class="notes">머지된 커밋은 이제 실제 환경까지 가야 합니다. 이 뒤쪽 절반이 CD입니다.
+(클릭) 환경은 앱이 실제로 돌아가는 곳입니다. 보통 운영과 똑같이 만든 리허설 무대인 스테이징을 거쳐, 실제 사용자가 쓰는 운영, 프로덕션으로 갑니다.</aside>
+</section>
+
+<section class="page" id="pack" data-title="이미지로 포장" data-steps="2" data-sec="CD · 지속적 전달과 배포">
+  <h2 class="ttl">검사 끝난 코드를 한 번 포장: 이미지</h2>
+  <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">배포할 결과물부터 만듦</p>
+  <p class="big" data-s="1" data-u="2" style="position:absolute;left:112px;top:860px">이미지 이름표에 커밋 번호 3f9a2c1이 그대로</p>
+  <div data-s="2" style="position:absolute;left:112px;top:842px;display:flex;align-items:center;gap:16px">
+    <span class="chip ink">이미지</span><b style="font:800 36px var(--f-sans)">=</b><span class="chip">실행 환경</span><b style="font:800 36px var(--f-sans)">+</b><span class="chip">앱 코드</span><b style="font:800 36px var(--f-sans)">+</b><span class="chip">패키지</span><b style="font:800 36px var(--f-sans)">+</b><span class="chip">실행 설정</span>
   </div>
-  <aside class="notes">아까 데모데이 전날 밤의 그 빌드 에러입니다. 파일 이름의 대문자 S 하나를 소문자로 썼습니다. 윈도우와 맥은 대소문자를 구분하지 않아서 제 컴퓨터에선 빌드가 됩니다. 그런데 러너는 리눅스라 구분합니다. Vercel도 리눅스에서 빌드하니까, CI가 먼저 잡아 주면 배포 전에 알 수 있습니다.</aside>
+  <p class="lead" data-s="2" style="position:absolute;left:112px;top:930px">한 번 만들면 다시 빌드하지 않음, 검사한 그것을 그대로 내보냄</p>
+  <aside class="notes">배포하려면 먼저 결과물을 포장합니다.
+(클릭) 검사를 통과한 코드를 통째로 묶은 것을 이미지라고 합니다. 이미지 이름표에 커밋 번호가 그대로 붙어서, 어떤 코드로 만든 건지 바로 알 수 있습니다.
+(클릭) 이미지 안에는 실행 환경, 앱 코드, 패키지, 실행 설정이 다 들어 있어서 어느 서버에서 돌려도 똑같이 돕니다. 그리고 한 번 만들면 다시 빌드하지 않습니다. 검사한 그것을 그대로 내보냅니다. 실습에서 쓴 Cloud Run은 Dockerfile이 없어도 소스만 올리면 이 이미지를 만들어 줍니다.</aside>
 </section>
 
-<!-- ================= 5. 머지하면 배포까지 ================= -->
-<section class="page" data-title="머지 = 배포 시작" data-steps="1" data-bar="ddntt|2" data-bar1="dddnt|3">
-  <h2 class="ttl">머지 = main에 push = 배포 시작</h2>
-  <pre class="code" data-lang="yaml" data-hl="2-4,9-11" style="left:112px;top:330px;width:900px" data-label="cicd-backend/.github/workflows/cd.yml (일부)">name: Backend CD
-on:
+<section class="page" id="store" data-title="보관소" data-steps="2" data-sec="CD · 지속적 전달과 배포">
+  <h2 class="ttl">만든 이미지는 번호를 붙여 보관소에</h2>
+  <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">이미지를 쌓아 두는 창고, 이미 v1이 있음</p>
+  <p class="big" data-s="1" data-u="2" style="position:absolute;left:112px;top:860px">v1 옆에 v2가 쌓임</p>
+  <div data-s="2" style="position:absolute;left:112px;top:842px;display:flex;gap:16px"><span class="chip">Docker Hub</span><span class="chip">Amazon ECR</span><span class="chip">Google Artifact Registry</span></div>
+  <p class="lead" data-s="2" style="position:absolute;left:112px;top:930px">지난 버전도 그대로 남음, 되돌리기의 재료</p>
+  <aside class="notes">만든 이미지는 보관소에 넣습니다. 이미 지난번에 만든 v1이 들어 있습니다.
+(클릭) 그 옆에 이번 v2가 쌓입니다.
+(클릭) 회사마다 Docker Hub, Amazon ECR, 구글 Artifact Registry 같은 걸 씁니다. 중요한 건 지난 버전도 그대로 남아 있다는 점입니다. 이게 뒤에서 되돌릴 때 재료가 됩니다.</aside>
+</section>
+
+<section class="page" id="staging" data-title="스테이징" data-steps="2" data-sec="CD · 지속적 전달과 배포">
+  <h2 class="ttl">운영 전 리허설: 스테이징에서 한 번 더 확인</h2>
+  <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">운영과 똑같이 만든 환경</p>
+  <p class="big" data-s="1" data-u="2" style="position:absolute;left:112px;top:860px">실제로 띄워 보고, 헬스체크 통과해야 다음으로</p>
+  <div data-s="2" style="position:absolute;left:112px;top:846px"><span class="chip">Vercel 미리보기 배포</span></div>
+  <p class="lead" data-s="2" style="position:absolute;left:112px;top:930px">PR마다 임시 주소를 만들어 미리 확인, 같은 역할</p>
+  <aside class="notes">운영에 바로 넣기 전에 운영과 똑같이 만든 스테이징에 먼저 올립니다.
+(클릭) 실제로 띄워 보고, 앱이 살아 있는지 묻는 헬스체크를 통과해야 다음으로 갑니다.
+(클릭) 프론트를 Vercel에 연결해 보신 분은 이미 비슷한 걸 쓰고 계십니다. PR마다 미리보기 주소가 생기는데, 운영에 나가기 전에 미리 확인하는 같은 역할입니다.</aside>
+</section>
+
+<section class="page" id="delivery" data-title="Continuous Delivery" data-steps="1" data-sec="CD · 지속적 전달과 배포">
+  <h2 class="ttl">Continuous Delivery: 마지막 버튼은 사람이 누름</h2>
+  <p class="big" data-u="1" style="position:absolute;left:112px;top:860px">검사가 다 끝나도 운영 직전에서 대기</p>
+  <p class="big" data-s="1" style="position:absolute;left:112px;top:860px">사람이 누른 뒤에 운영 반영</p>
+  <button class="approve ix" id="approveBtn" type="button" style="left:1430px;top:846px">승인하고 배포</button>
+  <aside class="notes">여기서 CD의 D가 두 가지로 나뉩니다. 첫 번째, Continuous Delivery, 지속적 전달입니다. 검사가 다 끝나도 운영 바로 앞에서 멈추고 사람의 승인을 기다립니다.
+(버튼 클릭) 누군가 배포 버튼을 눌러야 운영에 나갑니다. 금융권처럼 배포 전에 승인 절차가 있는 곳에서 흔한 방식입니다.</aside>
+</section>
+
+<section class="page" id="deploy" data-title="Continuous Deployment" data-steps="1" data-sec="CD · 지속적 전달과 배포">
+  <h2 class="ttl">Continuous Deployment: 마지막 버튼이 사라짐</h2>
+  <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">승인 칸 자체가 없음</p>
+  <p class="big" data-s="1" style="position:absolute;left:112px;top:846px">검사를 다 통과하면 사람 없이 운영까지</p>
+  <p class="lead" data-s="1" style="position:absolute;left:112px;top:924px">오늘 실습 레포와 Vercel이 이 방식</p>
+  <aside class="notes">두 번째, Continuous Deployment, 지속적 배포는 한 걸음 더 갑니다. 마지막 버튼 자체가 없습니다.
+(클릭) 검사를 다 통과하면 사람 없이 운영까지 바로 갑니다. 오늘 실습 레포와 Vercel이 이 방식입니다. 둘의 차이는 마지막 버튼 하나뿐입니다.</aside>
+</section>
+
+<!-- ================= 5. 전체 흐름 ================= -->
+<section class="page" id="full" data-title="전체 흐름" data-steps="2" data-sec="전체 흐름">
+  <h2 class="ttl">전체 흐름: 커밋 하나가 운영에 닿기까지</h2>
+  <p class="cap" style="position:absolute;left:112px;top:800px">사람이 한 일</p>
+  <div style="position:absolute;left:112px;top:842px;display:flex;gap:16px">
+    <span class="chip">PR 올리기</span><span class="chip ink" data-s="2">머지 버튼 한 번</span>
+  </div>
+  <p class="big" data-s="2" style="position:absolute;left:760px;top:846px">나머지는 전부 파이프라인</p>
+  <aside class="notes">전체 흐름을 한 번에 보겠습니다. 커밋 3f9a2c1이 PR로 올라갑니다.
+(클릭) 설치, 린트, 테스트, 빌드. 전부 통과하고 머지 문 앞에 섭니다.
+(클릭) 머지 버튼을 누르면, 이미지로 포장되고, 보관소에 쌓이고, 스테이징에서 확인하고, 운영 서버 12대가 새 버전으로 바뀝니다. 사람이 한 일은 PR 올리기와 머지 버튼 한 번입니다.</aside>
+</section>
+
+<section class="page" id="yaml" data-title="파일 한 개" data-steps="3" data-sec="전체 흐름">
+  <h2 class="ttl">이 길 전체가 레포 안 파일 한 개</h2>
+  <pre class="code hasdim" data-lang="yaml" data-hlsteps="1-4|7|8-12|13-14" style="left:112px;top:236px;width:980px" data-label="ci.yml 구조 (실습 레포 파일을 줄인 것)">on:
+  pull_request:
   push:
     branches: [main]
 jobs:
-  test:
-    name: backend-test
-    # (테스트 단계 생략)
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
   deploy:
-    name: deploy-cloud-run
-    needs: test</pre>
-  <div style="position:absolute;left:1080px;top:340px;width:728px">
-    <p class="big">PR을 머지하면 main에 push가 일어남</p>
-    <p class="lead" style="margin-top:16px">그 push가 배포 워크플로의 트리거</p>
-    <p class="big" data-s="1" style="margin-top:50px"><span class="mono" style="font-family:var(--f-mono);font-size:40px">needs: test</span><br>테스트가 끝나야 배포 시작</p>
+    needs: check</pre>
+  <div style="position:absolute;left:1160px;top:250px;width:648px">
+    <div class="yl" data-y="0" style="height:216px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">1</span>트리거</p>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;align-items:flex-start"><span class="chip">PR 열기 → <code>pull_request</code></span><span class="chip">main에 머지 → <code>push</code></span></div></div>
+    <div class="yl" data-y="1" style="height:130px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">2</span>러너</p><p class="lead" style="margin-top:6px">ubuntu-latest, 빌려 쓰는 리눅스</p></div>
+    <div class="yl" data-y="2" style="height:130px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">3</span>단계</p><p class="lead" style="margin-top:6px">문 네 개를 위에서부터 차례로</p></div>
+    <div class="yl" data-y="3" style="height:130px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">4</span>배포</p><p class="lead" style="margin-top:6px">needs: check, 검사가 끝나야 출발</p></div>
   </div>
-  <aside class="notes">이번엔 백엔드입니다. 백엔드 레포에는 배포용 cd.yml이 하나 더 있습니다. 트리거가 main에 push인데, PR을 머지하는 게 곧 main에 push하는 겁니다. 그리고 needs: test가 있어서 테스트가 끝나야 배포를 시작합니다.</aside>
+  <aside class="notes">방금 본 길 전체가 레포 안 파일 한 개에 적혀 있습니다. 실습 레포 파일을 줄인 겁니다. 첫 번째, 트리거. 언제 출발할지입니다. PR을 열면 pull_request, main에 머지하면 push. 사람이 하는 행동과 키워드가 이렇게 짝지어집니다.
+(클릭) 두 번째, 러너. 어디서 돌지입니다. ubuntu-latest, 빌려 쓰는 리눅스입니다.
+(클릭) 세 번째, 단계. 아까 본 문 네 개가 위에서부터 차례로 적혀 있습니다. 평소 제 컴퓨터에서 치던 명령 그대로입니다.
+(클릭) 네 번째, 배포. needs: check는 검사가 끝나야 배포를 출발시킨다는 뜻입니다.</aside>
 </section>
 
-<section class="page" data-title="테스트 → 배포" data-steps="1" data-bar="dddnt|3">
-  <h2 class="ttl">테스트가 초록일 때만 배포 단계로</h2>
-  <div class="bx" style="left:112px;top:420px;width:400px;height:150px;font-family:var(--f-mono);font-size:30px">backend-test</div>
-  <div class="ar ink" style="left:524px;top:494px;width:200px"></div>
-  <p class="lbl" style="left:540px;top:440px;font-family:var(--f-mono)">needs: test</p>
-  <div class="bx ink" style="left:736px;top:420px;width:440px;height:150px;font-family:var(--f-mono);font-size:30px">deploy-cloud-run</div>
-  <div style="position:absolute;left:112px;top:640px;width:1064px">
-    <p class="big">테스트가 빨간 X면 배포는 Skipped</p>
-    <p class="lead" style="margin-top:14px">깨진 코드가 운영에 나갈 길이 없음</p>
+<section class="page" id="repeat" data-title="반복 가능성" data-steps="2" data-sec="전체 흐름">
+  <h2 class="ttl">핵심은 빠른 배포보다 매번 같은 배포</h2>
+  <p style="position:absolute;left:104px;top:236px;margin:0;font:800 200px/1 var(--f-sans);letter-spacing:-8px">속도</p>
+  <div class="sl" data-s="1" style="position:absolute;left:96px;top:336px;width:440px;height:16px;border-radius:8px;background:var(--or)"></div>
+  <p data-s="1" style="position:absolute;left:640px;top:296px;margin:0;font:800 120px/1 var(--f-sans);letter-spacing:-4px">반복 가능성</p>
+  <div class="stg" data-s="2" style="position:absolute;left:112px;top:540px;width:1696px">
+    <div class="rp"><p class="cap">첫 번째 배포</p><div class="ch5"><span>설치</span><span>린트</span><span>테스트</span><span>빌드</span><span>배포</span></div></div>
+    <div class="rp"><p class="cap">다음 배포</p><div class="ch5"><span>설치</span><span>린트</span><span>테스트</span><span>빌드</span><span>배포</span></div></div>
+    <div class="rp"><p class="cap">백 번째 배포</p><div class="ch5"><span>설치</span><span>린트</span><span>테스트</span><span>빌드</span><span>배포</span></div></div>
   </div>
-  <div class="slot" data-cap="cd-graph" data-s="1" style="left:1240px;top:330px;width:568px;height:600px"><b>캡처 자리</b><span>Actions › Backend CD 실행 화면<br>두 상자가 화살표로 이어진 그래프</span></div>
-  <aside class="notes">Actions 화면에서 보면 이렇게 두 상자가 화살표로 이어져 있습니다. 왼쪽 테스트가 초록이어야 오른쪽 배포가 시작됩니다. 테스트가 깨지면 배포는 Skipped로 건너뜁니다.</aside>
+  <aside class="notes">많은 분들이 CI/CD를 빠른 배포라고 생각합니다.
+(클릭) 그런데 핵심은 속도가 아니라 반복 가능성입니다.
+(클릭) 배포 절차가 파일로 적혀 있으니까 첫 배포든 백 번째 배포든 같은 단계가 같은 순서로 돕니다. 새벽 3시의 나와 낮 2시의 나가 똑같이 배포합니다. 빨라지는 건 그 결과입니다.</aside>
 </section>
 
-<section class="page" data-title="Cloud Run이 하는 일" data-steps="2" data-bar="dddnt|3">
-  <h2 class="ttl">Cloud Run이 소스를 받아 새 리비전까지</h2>
-  <div class="bx" style="left:112px;top:400px;width:300px;height:150px">소스 업로드</div>
-  <div class="ar ink" style="left:418px;top:474px;width:46px"></div>
-  <div class="bx" style="left:470px;top:400px;width:300px;height:150px">빌드팩이<br>이미지 생성</div>
-  <div class="ar ink" style="left:776px;top:474px;width:46px"></div>
-  <div class="bx" style="left:828px;top:400px;width:300px;height:150px">Artifact<br>Registry 보관</div>
-  <div class="ar ink" style="left:1134px;top:474px;width:46px"></div>
-  <div class="bx ink" style="left:1186px;top:400px;width:300px;height:150px">새 리비전</div>
-  <div class="ar ink" style="left:1492px;top:474px;width:46px"></div>
-  <div class="bx" style="left:1544px;top:400px;width:264px;height:150px">트래픽<br>100% 전환</div>
-  <p class="big" data-s="1" style="position:absolute;left:112px;top:640px">Dockerfile 없이 소스만 올려도 이미지가 만들어짐</p>
-  <p class="lead" data-s="2" style="position:absolute;left:112px;top:730px">배포할 때마다 번호 붙은 리비전이 쌓임, 롤백은 이 번호로</p>
-  <aside class="notes">배포 단계에서 Cloud Run이 하는 일입니다. 소스를 올리면 빌드팩이 Dockerfile 없이 이미지를 만들고, 보관소에 넣고, 새 리비전을 만들어서 트래픽을 옮깁니다. 리비전은 배포할 때마다 번호가 붙어 쌓이는데, 이게 뒤에서 롤백할 때 쓰입니다.</aside>
+<!-- ================= 6. 운영과 복구 ================= -->
+<section class="page" id="prodFail" data-title="운영에서 생기는 문제" data-steps="1" data-sec="운영과 복구">
+  <h2 class="ttl">검사를 다 통과해도 운영에서는 문제가 생김</h2>
+  <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">v2가 운영 서버 12대에 퍼진 상태</p>
+  <p class="big ngc" data-s="1" style="position:absolute;left:112px;top:846px">서버 12대 중 3대에서 오류</p>
+  <p class="lead" data-s="1" style="position:absolute;left:112px;top:924px">테스트가 운영의 모든 상황을 알지는 못함</p>
+  <aside class="notes">그런데 검사를 다 통과해도 운영에서는 문제가 생깁니다.
+(클릭) 서버 12대 중 3대에서 오류가 납니다. 테스트가 실제 사용자 데이터나 트래픽 같은 운영의 모든 상황을 알지는 못하기 때문입니다. 그래서 좋은 파이프라인은 새 버전을 내보내는 방법과 되돌리는 방법까지 갖춥니다.</aside>
 </section>
 
-<section class="page" data-title="머지 버튼 하나" data-bar="ddddt|3">
-  <div class="stmt"><h2>사람이 한 일은<br>머지 버튼 하나</h2><p class="lead">PR 머지 → 테스트 → 이미지 → 새 리비전 → 운영 반영</p></div>
-  <aside class="notes">정리하면, 여기까지 사람이 한 일은 머지 버튼 하나입니다. 나머지는 전부 파이프라인이 했습니다. 이게 Continuous Deployment입니다.</aside>
+<section class="page" id="strat" data-title="배포 전략 세 가지" data-steps="2" data-sec="운영과 복구">
+  <h2 class="ttl">새 버전을 조금씩 내보내는 세 가지 방법</h2>
+  <div class="strat roll" style="top:236px"><h3>롤링</h3><p>서버를 한 대씩 새 버전으로 교체</p>
+    <div class="fig"><i class="sv" style="left:0;--i:0"></i><i class="sv" style="left:130px;--i:1"></i><i class="sv" style="left:260px;--i:2"></i><i class="sv" style="left:390px;--i:3"></i><i class="sv" style="left:520px;--i:4"></i><i class="sv" style="left:650px;--i:5"></i></div></div>
+  <div class="strat bg" data-s="1" style="top:446px"><h3>블루그린</h3><p>두 환경을 준비해 두고 한 번에 전환</p>
+    <div class="fig"><span class="bg-box o">이전</span><span class="bg-sw"><i></i></span><span class="bg-box n">신규</span></div></div>
+  <div class="strat" data-s="2" style="top:656px"><h3>카나리</h3><p>일부 사용자에게 먼저 새 버전</p>
+    <div class="fig"><div class="cn20"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="b"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div>
+  <aside class="notes">새 버전을 한꺼번에 내보내지 않는 방법이 세 가지 있습니다. 첫 번째, 롤링. 서버를 한 대씩 새 버전으로 바꿉니다.
+(클릭) 두 번째, 블루그린. 이전 환경과 새 환경을 둘 다 띄워 두고 스위치를 한 번에 넘깁니다. 문제가 생기면 스위치를 다시 넘기면 됩니다.
+(클릭) 세 번째, 카나리. 일부 사용자에게만 먼저 새 버전을 보여 줍니다. 옛날 광부들이 탄광에 카나리아를 먼저 들여보낸 데서 온 이름입니다.</aside>
 </section>
 
-<section class="page" id="slider" data-title="v1 → v2" data-steps="1" data-bar="ddddt|3">
-  <h2 class="ttl">프론트는 그대로인데 화면이 v2로</h2>
-  <div class="cmp ix" id="cmp" style="left:112px;top:330px;width:1696px;height:440px">
-    <div class="pane v1"><img data-cap-img="site-v1" alt="">
-      <div class="tag">운영 사이트 · 배포 전</div>
-      <div class="msg">안녕하세요, 동홍동락 서버입니다 · v1</div></div>
-    <div class="pane v2"><img data-cap-img="site-v2" alt="">
-      <div class="tag">운영 사이트 · 머지 후</div>
-      <div class="msg">안녕하세요, 동홍동락 서버입니다 · v2</div></div>
-    <div class="knob"></div>
+<section class="page" id="canary" data-title="카나리 5%" data-steps="4" data-sec="운영과 복구">
+  <h2 class="ttl">카나리: 사용자 5%에게 먼저, 괜찮으면 넓힘</h2>
+  <div class="grid100" id="g100a" style="left:112px;top:250px"></div>
+  <p class="cap" id="g100aL" style="position:absolute;left:112px;top:820px">전원 이전 버전</p>
+  <p class="pct" id="pctA" style="left:752px;top:240px">0%</p>
+  <p class="cap" style="position:absolute;left:760px;top:400px">새 버전을 받은 사용자</p>
+  <svg class="chart" style="left:760px;top:460px" width="1048" height="398" viewBox="0 0 1000 380" aria-hidden="true">
+    <path d="M80 330H980" stroke="#C6C6BE" stroke-width="3"/>
+    <path d="M80 230H980" stroke="#CF222E" stroke-width="3" stroke-dasharray="12 10"/>
+    <text x="980" y="214" text-anchor="end" font-family="Pretendard,sans-serif" font-size="26" font-weight="700" fill="#CF222E">1% 넘으면 되돌림</text>
+    <text x="0" y="40" font-family="Pretendard,sans-serif" font-size="26" font-weight="600" fill="#55554E">오류율</text>
+    <g font-family="Pretendard,sans-serif" font-size="26" font-weight="600" fill="#55554E" text-anchor="middle">
+      <text x="170" y="372">5%</text><text x="420" y="372">25%</text><text x="670" y="372">50%</text><text x="920" y="372">100%</text>
+    </g>
+    <g stroke="#2F5BD3" stroke-width="5" stroke-linecap="round">
+      <path data-s="2" d="M170 310L420 300"/><path data-s="3" d="M420 300L670 305"/><path data-s="4" d="M670 305L920 300"/>
+    </g>
+    <g fill="#2F5BD3">
+      <circle data-s="1" cx="170" cy="310" r="10"/><circle data-s="2" cx="420" cy="300" r="10"/><circle data-s="3" cx="670" cy="305" r="10"/><circle data-s="4" cx="920" cy="300" r="10"/>
+    </g>
+  </svg>
+  <p class="foot" style="left:760px;top:880px">100명으로 그린 예시 값</p>
+  <aside class="notes">카나리를 자세히 보겠습니다. 점 하나가 사용자 한 명입니다. 지금은 전원 이전 버전입니다.
+(클릭) 먼저 5%, 다섯 명에게만 새 버전을 보여 줍니다. 오른쪽은 오류율입니다. 빨간 점선, 1%를 넘으면 되돌리기로 미리 정해 둡니다.
+(클릭) 괜찮으면 25%.
+(클릭) 50%.
+(클릭) 그리고 100%. 이렇게 조금씩 넓힙니다.</aside>
+</section>
+
+<section class="page" id="rollback" data-title="기준선 넘으면 되돌림" data-steps="2" data-sec="운영과 복구">
+  <h2 class="ttl">오류율이 기준선을 넘으면 바로 이전 버전으로</h2>
+  <div class="grid100" id="g100b" style="left:112px;top:250px"></div>
+  <p class="cap" id="g100bL" style="position:absolute;left:112px;top:820px">새 버전 25명, 이전 버전 75명</p>
+  <p class="pct" id="pctB" style="left:752px;top:240px">25%</p>
+  <p class="cap" style="position:absolute;left:760px;top:400px">새 버전을 받은 사용자</p>
+  <svg class="chart" style="left:760px;top:460px" width="1048" height="398" viewBox="0 0 1000 380" aria-hidden="true">
+    <path d="M80 330H980" stroke="#C6C6BE" stroke-width="3"/>
+    <path d="M80 230H980" stroke="#CF222E" stroke-width="3" stroke-dasharray="12 10"/>
+    <text x="980" y="214" text-anchor="end" font-family="Pretendard,sans-serif" font-size="26" font-weight="700" fill="#CF222E">1% 넘으면 되돌림</text>
+    <text x="0" y="40" font-family="Pretendard,sans-serif" font-size="26" font-weight="600" fill="#55554E">오류율</text>
+    <g font-family="Pretendard,sans-serif" font-size="26" font-weight="600" fill="#55554E" text-anchor="middle">
+      <text x="170" y="372">5%</text><text x="420" y="372">25%</text><text x="670" y="372">50%</text><text x="920" y="372">100%</text>
+    </g>
+    <path d="M170 310L420 300" stroke="#2F5BD3" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="170" cy="310" r="10" fill="#2F5BD3"/><circle cx="420" cy="300" r="10" fill="#2F5BD3"/>
+    <g data-s="1"><path d="M420 300L545 90" stroke="#CF222E" stroke-width="5" stroke-linecap="round"/><circle cx="545" cy="90" r="12" fill="#CF222E"/>
+      <text x="575" y="98" font-family="Pretendard,sans-serif" font-size="28" font-weight="800" fill="#CF222E">2.4%</text></g>
+  </svg>
+  <p class="big" data-s="2" style="position:absolute;left:760px;top:876px">되돌림 완료, 전원 이전 버전</p>
+  <p class="foot" data-u="2" style="position:absolute;left:760px;top:880px">100명으로 그린 예시 값</p>
+  <aside class="notes">이번엔 문제가 생기는 경우입니다. 25%까지 넓혔습니다.
+(클릭) 그런데 오류율이 2.4%로 튀어서 기준선을 넘습니다.
+(클릭) 그러면 바로 되돌립니다. 새 버전을 받았던 25명도 전부 이전 버전으로 돌아갑니다. 피해를 본 사람은 100명 중 25명에서 멈춥니다.</aside>
+</section>
+
+<section class="page" id="revert" data-title="이전 이미지로 교체" data-steps="2" data-sec="운영과 복구">
+  <h2 class="ttl">되돌리기 = 보관해 둔 이전 이미지로 교체</h2>
+  <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">보관소에 v1이 그대로 있음</p>
+  <p class="big" data-s="1" style="position:absolute;left:112px;top:846px">다시 빌드하지 않아서 몇 초</p>
+  <p class="lead" data-s="1" data-u="2" style="position:absolute;left:112px;top:924px">실습의 Cloud Run: 트래픽 100%를 이전 리비전으로</p>
+  <p class="lead" data-s="2" style="position:absolute;left:112px;top:924px">그다음 Revert PR로 main의 코드도 되돌림</p>
+  <aside class="notes">되돌리는 방법은 간단합니다. 아까 보관소에 v1을 남겨 뒀습니다.
+(클릭) 그 v1 이미지를 다시 운영에 올립니다. 다시 빌드하지 않으니까 몇 초면 됩니다. 실습에서 쓴 Cloud Run에서는 리비전 탭에서 트래픽 100%를 이전 리비전으로 옮기면 됩니다.
+(클릭) 다만 main에는 아직 v2 코드가 남아 있어서, 다음에 누가 머지하면 v2가 다시 나갑니다. 그래서 GitHub의 Revert 버튼으로 되돌리는 PR을 올립니다. 이것도 CI와 CD를 똑같이 한 바퀴 돕니다.</aside>
+</section>
+
+<section class="page" id="monitor" data-title="모니터링" data-sec="운영과 복구">
+  <h2 class="ttl">배포 뒤에는 숫자로 계속 지켜봄</h2>
+  <div class="stg">
+    <div class="tile" style="left:112px;top:236px;width:836px;height:290px;--i:0"><p class="cap">요청량</p><p class="val">1.2k/s</p>
+      <svg class="drw" width="340" height="110" viewBox="0 0 340 110"><polyline pathLength="1" points="0,80 40,70 80,74 120,52 160,60 200,40 240,48 280,30 340,36" fill="none" stroke="#1E1E1C" stroke-width="5" stroke-linejoin="round"/></svg></div>
+    <div class="tile" style="left:972px;top:236px;width:836px;height:290px;--i:1"><p class="cap">응답 시간</p><p class="val">184ms</p>
+      <svg class="drw" width="340" height="110" viewBox="0 0 340 110"><polyline pathLength="1" points="0,60 40,58 80,64 120,55 160,60 200,57 240,62 280,56 340,58" fill="none" stroke="#1E1E1C" stroke-width="5" stroke-linejoin="round"/></svg></div>
+    <div class="tile" style="left:112px;top:550px;width:836px;height:290px;--i:2"><p class="cap">오류율</p><p class="val">0.1%</p>
+      <svg class="drw" width="340" height="110" viewBox="0 0 340 110"><polyline pathLength="1" points="0,96 40,98 80,95 120,97 160,94 200,96 240,97 280,95 340,96" fill="none" stroke="#1E1E1C" stroke-width="5" stroke-linejoin="round"/></svg></div>
+    <div class="tile" style="left:972px;top:550px;width:836px;height:290px;--i:3"><p class="cap">헬스체크</p><p class="val okc">12/12</p>
+      <svg class="drw" width="340" height="110" viewBox="0 0 340 110"><polyline pathLength="1" points="0,20 340,20" fill="none" stroke="#1A7F37" stroke-width="5"/></svg></div>
   </div>
-  <p class="lead" style="position:absolute;left:112px;top:800px">바뀐 건 백엔드 코드 한 줄. 같은 주소 뒤의 리비전만 교체</p>
-  <p class="lead nolive" data-live-show="revision" style="position:absolute;left:112px;top:870px;color:var(--ink)"><span class="live-dot"></span>지금 이 순간 서버 응답: <b data-live="message"></b> · <span class="mono" style="font-family:var(--f-mono)" data-live="revision"></span></p>
-  <aside class="notes">백엔드 인사말을 v1에서 v2로 바꾼 PR을 머지했습니다. 프론트 레포는 하나도 건드리지 않았는데 화면이 v2로 바뀝니다. 프론트는 같은 주소를 부르고, 그 뒤의 백엔드 리비전만 바뀌었기 때문입니다. (슬라이더를 끌어서 비교)</aside>
+  <p class="foot" style="left:112px;top:870px">예시 값</p>
+  <aside class="notes">그래서 배포 뒤에도 숫자로 계속 지켜봅니다. 요청이 얼마나 오는지, 응답이 얼마나 걸리는지, 오류가 얼마나 나는지, 그리고 헬스체크. 카나리에서 되돌릴지 말지도 이 숫자로 정합니다.</aside>
 </section>
 
-<section class="page" data-title="두 레포 두 배포" data-steps="1" data-bar="ddddt|-">
-  <h2 class="ttl">레포 두 개, 배포 길 두 개</h2>
-  <div class="bx" style="left:112px;top:400px;width:380px;height:130px;font-family:var(--f-mono);font-size:30px">cicd-frontend</div>
-  <div class="ar ink" style="left:504px;top:464px;width:120px"></div>
-  <div class="bx" style="left:636px;top:400px;width:460px;height:130px">Vercel</div>
-  <div class="ar ink" style="left:1108px;top:464px;width:120px"></div>
-  <div class="bx ink" style="left:1240px;top:400px;width:300px;height:130px">화면</div>
-  <div class="bx" style="left:112px;top:590px;width:380px;height:130px;font-family:var(--f-mono);font-size:30px">cicd-backend</div>
-  <div class="ar ink" style="left:504px;top:654px;width:120px"></div>
-  <div class="bx" style="left:636px;top:590px;width:460px;height:130px">GitHub Actions<small>→ Cloud Run</small></div>
-  <div class="ar ink" style="left:1108px;top:654px;width:120px"></div>
-  <div class="bx ink" style="left:1240px;top:590px;width:300px;height:130px">API</div>
-  <p class="big" data-s="1" style="position:absolute;left:112px;top:790px">한쪽 배포가 실패해도 다른 쪽은 그대로</p>
-  <aside class="notes">정리하면 레포가 두 개고 배포 길도 두 개입니다. 프론트는 Vercel이, 백엔드는 GitHub Actions가 Cloud Run으로 보냅니다. 서로 독립이라 한쪽 배포가 실패해도 다른 쪽은 그대로 돕니다.</aside>
-</section>
-
-<!-- ================= 6. 롤백 ================= -->
-<section class="page" id="traffic" data-title="트래픽 롤백" data-steps="1" data-bar="ddddn|4" data-bar1="ddddd|4">
-  <h2 class="ttl">급할 때: 트래픽만 v1 리비전으로</h2>
-  <div class="traffic" style="left:112px;top:360px;width:1080px">
-    <div class="row"><div class="nm">v2 리비전</div><div class="tr"><div class="fill" id="tf2" style="width:100%"></div></div><div class="pc" id="tp2">100%</div></div>
-    <div class="row"><div class="nm">v1 리비전</div><div class="tr"><div class="fill" id="tf1" style="width:0%"></div></div><div class="pc" id="tp1">0%</div></div>
+<section class="page" id="health" data-title="켜졌다 ≠ 정상" data-steps="2" data-sec="운영과 복구">
+  <h2 class="ttl">켜졌다 ≠ 정상: 헬스체크까지 통과해야 배포 성공</h2>
+  <div class="card" style="left:112px;top:236px;width:820px;height:400px;padding:34px 40px">
+    <p class="cap">서버 실행 여부</p>
+    <p class="mono" style="margin:14px 0 0;font:500 28px var(--f-mono);color:var(--sub)">$ systemctl is-active app</p>
+    <p class="okc" style="margin:40px 0 0;font:800 72px/1 var(--f-mono)">active</p>
+    <div data-s="2" style="margin-top:44px"><span class="chip ng">이것만으로는 부족</span></div>
   </div>
-  <div style="position:absolute;left:112px;top:600px;width:1080px">
-    <p class="big">다시 빌드하지 않아서 초 단위</p>
-    <p class="lead" style="margin-top:14px">이미 만들어 둔 v1 이미지로 트래픽만 옮김</p>
+  <div class="card" style="left:988px;top:236px;width:820px;height:400px;padding:34px 40px">
+    <p class="cap">앱 정상 동작 여부</p>
+    <p class="mono" style="margin:14px 0 0;font:500 28px var(--f-mono);color:var(--sub)">$ curl my-app.example/health</p>
+    <div data-s="1">
+      <p class="ngc" style="margin:40px 0 0;font:800 44px/1.25 var(--f-mono)">500 Internal<br>Server Error</p>
+      <p class="mono" style="margin:20px 0 0;font:500 26px var(--f-mono);color:var(--ng)">relation "orders" does not exist</p>
+    </div>
   </div>
-  <div class="slot" data-cap="revisions" style="left:1250px;top:330px;width:558px;height:600px"><b>캡처 자리</b><span>Cloud Run › 리비전 탭<br>v1 리비전에 트래픽 100%</span></div>
-  <aside class="notes">그런데 v2가 알고 보니 문제였다면요. 급할 때는 Cloud Run 리비전 탭에서 트래픽만 v1 리비전으로 옮깁니다. 다시 빌드하지 않고 이미 있는 이미지로 바꾸는 거라 몇 초면 됩니다.</aside>
+  <div class="card" data-s="2" style="left:112px;top:676px;width:1696px;height:210px;padding:36px 44px;border:4px solid var(--or);background:var(--or-soft)">
+    <p class="big">처음에 빠뜨린 04단계: DB 변경 적용</p>
+    <p class="lead" style="margin-top:14px">서버는 켜져 있어도 앱은 깨진 상태</p>
+  </div>
+  <aside class="notes">모니터링에서 중요한 건 질문을 제대로 하는 겁니다. 서버가 켜졌는지만 물으면 active, 켜져 있다고 나옵니다.
+(클릭) 그런데 앱한테 직접 물어보면 500 에러입니다. orders라는 테이블이 없다고 합니다.
+(클릭) 기억나시나요. 처음에 손으로 배포할 때 빠뜨린 4번, DB 변경 적용입니다. 서버는 켜져 있는데 앱은 깨져 있습니다. 그래서 배포 성공의 기준은 서버가 켜진 게 아니라 헬스체크까지 통과하는 겁니다.</aside>
 </section>
 
-<section class="page" data-title="Revert PR" data-steps="1" data-bar="ddddd|4">
-  <h2 class="ttl">그다음: Revert PR로 main 코드도 되돌림</h2>
-  <table class="tb" style="left:112px;top:340px;width:1696px;font-size:34px">
-    <thead><tr><th style="width:520px">방법</th><th style="width:420px">속도</th><th>언제</th></tr></thead>
-    <tbody>
-      <tr><td><b>리비전 트래픽 전환</b></td><td>초 단위</td><td>사용자 피해부터 멈출 때</td></tr>
-      <tr data-s="1"><td><b>Revert PR</b></td><td>CI·CD 한 바퀴</td><td>원인 코드를 main에서 제거</td></tr>
-    </tbody>
-  </table>
-  <p class="lead" data-s="1" style="position:absolute;left:112px;top:700px">다음 머지 때 v2가 다시 나가지 않게</p>
-  <aside class="notes">트래픽만 돌려 두면 main에는 아직 v2 코드가 남아 있어서, 다음에 누가 머지하면 v2가 다시 나갑니다. 그래서 GitHub의 Revert 버튼으로 되돌리는 PR을 올립니다. 이것도 CI와 CD를 똑같이 한 바퀴 돕니다.</aside>
+<!-- ================= 7. 정리 ================= -->
+<section class="page" id="twoq" data-title="CI와 CD가 판정하는 것" data-steps="2" data-sec="정리">
+  <h2 class="ttl">CI와 CD는 각자 한 가지를 판정</h2>
+  <div class="card" data-s="1" style="left:212px;top:236px;width:760px;height:180px;padding:30px 36px;border:3px solid var(--ok)"><p class="cap" style="font-weight:700;color:var(--ok)">CI</p><p class="big" style="margin-top:6px">머지해도 되는지 판정</p></div>
+  <div class="card" data-s="2" style="left:1040px;top:236px;width:770px;height:180px;padding:30px 36px;border:3px solid var(--ok)"><p class="cap" style="font-weight:700;color:var(--ok)">CD</p><p class="big" style="margin-top:6px">내보내도 되는지 판정</p></div>
+  <aside class="notes">그래서 CI와 CD는 이렇게 기억하시면 됩니다.
+(클릭) CI는 이 코드를 합쳐도 되는지 판정합니다.
+(클릭) CD는 이 코드를 사용자에게 내보내도 되는지 판정합니다.</aside>
 </section>
 
-<!-- ================= 7. 도구가 달라도 ================= -->
-<section class="page" id="tools" data-title="도구별 문법" data-steps="2">
-  <h2 class="ttl">도구가 달라도 구조는 동일</h2>
-  <div class="tabs" style="left:112px;top:310px">
+<section class="page" id="ritual" data-title="8단계가 파일 한 개로" data-steps="1" data-sec="정리">
+  <h2 class="ttl">손으로 하던 8단계가 파일 한 개로</h2>
+  <div class="card" style="left:112px;top:236px;width:900px;height:640px;overflow:hidden">
+    <p class="cap" style="padding:20px 26px;border-bottom:1px solid var(--line)">deploy-steps.txt, 기억에 의존</p>
+    <ul class="st8 strike" data-on="1" style="left:0;top:74px;width:898px">
+      <li><span class="n">01</span>서버 접속</li><li><span class="n">02</span>최신 코드 받기</li><li><span class="n">03</span>패키지 설치</li><li><span class="n">04</span>DB 변경 적용</li>
+      <li><span class="n">05</span>앱 빌드</li><li><span class="n">06</span>파일 복사</li><li><span class="n">07</span>앱 재시작</li><li><span class="n">08</span>서비스 확인</li>
+    </ul>
+  </div>
+  <div data-s="1" style="position:absolute;left:1090px;top:250px;width:718px">
+    <span class="chip"><code>.github/workflows/ci.yml</code></span>
+    <p class="big" style="margin-top:40px">매번 같은 순서로 자동 실행</p>
+    <p class="lead" style="margin-top:14px">빠뜨릴 사람이 없음</p>
+  </div>
+  <aside class="notes">처음에 본 이 여덟 단계,
+(클릭) 이제 사람이 기억할 필요가 없습니다. 파일 한 개에 적어 두면 매번 같은 순서로 자동으로 돕니다. 빠뜨릴 사람이 없습니다.</aside>
+</section>
+
+<!-- ================= 8. 회사에서는 ================= -->
+<section class="page" id="tools" data-title="도구별 문법" data-steps="2" data-sec="회사에서는">
+  <h2 class="ttl">도구가 달라도 트리거, 러너, 단계는 같은 자리</h2>
+  <div class="tabs" style="left:112px;top:236px">
     <button class="tab ix on" data-tab="0" type="button">GitHub Actions</button>
     <button class="tab ix" data-tab="1" type="button">Jenkins</button>
     <button class="tab ix" data-tab="2" type="button">GitLab CI</button>
   </div>
-  <pre class="code tabp" data-lang="yaml" data-tabp="0" data-mk="1:1,2:2,3:3" style="left:112px;top:410px;width:1180px" data-label=".github/workflows/ci.yml">on: pull_request
+  <pre class="code tabp" data-lang="yaml" data-tabp="0" data-mk="1:1,2:2,3:3" style="left:112px;top:330px;width:1180px" data-label=".github/workflows/ci.yml">on: pull_request
 runs-on: ubuntu-latest
 steps:
   - run: npm ci
   - run: npm run lint
   - run: npm test
   - run: npm run build</pre>
-  <pre class="code tabp hid" data-lang="groovy" data-tabp="1" data-mk="2:2,3:3" style="left:112px;top:410px;width:1180px" data-label="Jenkinsfile">pipeline {
+  <pre class="code tabp hid" data-lang="groovy" data-tabp="1" data-mk="2:2,3:3" style="left:112px;top:330px;width:1180px" data-label="Jenkinsfile">pipeline {
   agent any
   stages {
     stage('Install') { steps { sh 'npm ci' } }
@@ -940,7 +1079,7 @@ steps:
     stage('Build')   { steps { sh 'npm run build' } }
   }
 }</pre>
-  <pre class="code tabp hid" data-lang="yaml" data-tabp="2" data-mk="2:1,4:2,5:3" style="left:112px;top:410px;width:1180px" data-label=".gitlab-ci.yml">frontend-check:
+  <pre class="code tabp hid" data-lang="yaml" data-tabp="2" data-mk="2:1,4:2,5:3" style="left:112px;top:330px;width:1180px" data-label=".gitlab-ci.yml">frontend-check:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
   image: node:24
@@ -949,22 +1088,29 @@ steps:
     - npm run lint
     - npm test
     - npm run build</pre>
-  <div style="position:absolute;left:1350px;top:420px;width:458px">
-    <p style="margin:0 0 22px;font:600 28px/1.5 var(--f-sans)"><span class="badge" style="width:44px;height:44px;line-height:44px;font-size:24px;margin-right:14px">1</span>트리거</p>
-    <p style="margin:0 0 22px;font:600 28px/1.5 var(--f-sans)"><span class="badge" style="width:44px;height:44px;line-height:44px;font-size:24px;margin-right:14px">2</span>러너</p>
-    <p style="margin:0 0 22px;font:600 28px/1.5 var(--f-sans)"><span class="badge" style="width:44px;height:44px;line-height:44px;font-size:24px;margin-right:14px">3</span>단계</p>
-    <p class="lead" data-s="1" style="margin-top:30px">Jenkins 트리거는 파일 밖 웹훅 설정</p>
+  <div style="position:absolute;left:1350px;top:340px;width:458px">
+    <p class="big tabp" data-tabp="0">GitHub에 내장</p>
+    <p class="big tabp hid" data-tabp="1">직접 설치해 운영하는 서버</p>
+    <p class="big tabp hid" data-tabp="2">GitLab에 내장</p>
+    <div style="margin-top:44px">
+      <p style="margin:0 0 22px;font:600 30px/1.5 var(--f-sans)"><span class="badge" style="width:46px;height:46px;line-height:46px;font-size:24px;margin-right:14px">1</span>트리거</p>
+      <p style="margin:0 0 22px;font:600 30px/1.5 var(--f-sans)"><span class="badge" style="width:46px;height:46px;line-height:46px;font-size:24px;margin-right:14px">2</span>러너</p>
+      <p style="margin:0 0 22px;font:600 30px/1.5 var(--f-sans)"><span class="badge" style="width:46px;height:46px;line-height:46px;font-size:24px;margin-right:14px">3</span>단계</p>
+    </div>
+    <p class="lead tabp hid" data-tabp="1" style="margin-top:20px">트리거는 파일 밖 웹훅 설정</p>
   </div>
-  <aside class="notes">회사에 가면 GitHub Actions 대신 Jenkins나 GitLab CI를 쓰는 곳이 많습니다. 그런데 탭을 바꿔 보면 문법만 다르고 트리거, 러너, 단계는 같은 자리에 있습니다. Jenkins는 트리거를 파일 밖 웹훅으로 설정합니다.</aside>
+  <aside class="notes">회사에 가면 GitHub Actions 대신 Jenkins나 GitLab CI를 쓰는 곳이 많습니다. GitHub Actions는 GitHub에 들어 있는 자동화입니다.
+(클릭) Jenkins는 회사가 직접 서버에 설치해서 운영하는 자동화 서버입니다. 마음대로 고칠 수 있는 대신 관리도 직접 합니다. 트리거는 파일 밖 웹훅으로 설정합니다.
+(클릭) GitLab CI는 GitLab에 들어 있습니다. 탭을 바꿔 보면 문법만 다르고 트리거, 러너, 단계는 같은 자리에 있습니다.</aside>
 </section>
 
-<section class="page" data-title="회사 도구 대응">
+<section class="page" id="map" data-title="회사 도구 대응" data-sec="회사에서는">
   <h2 class="ttl">회사에서는 칸마다 도구 이름만 바뀜</h2>
-  <table class="tb" style="left:112px;top:340px;width:1696px;font-size:32px">
-    <thead><tr><th style="width:300px">칸</th><th class="colhl" style="width:440px;padding-left:20px">이 실습</th><th style="width:440px">AWS</th><th>사내·금융권</th></tr></thead>
+  <table class="tb" style="left:112px;top:250px;width:1696px;font-size:32px">
+    <thead><tr><th style="width:320px">칸</th><th class="colhl" style="width:440px;padding-left:20px">이 실습</th><th style="width:440px">AWS</th><th>사내, 금융권</th></tr></thead>
     <tbody>
       <tr><td><b>CI 실행기</b></td><td class="colhl" style="padding-left:20px">GitHub Actions</td><td>CodeBuild</td><td>Jenkins</td></tr>
-      <tr><td><b>결과물 보관</b></td><td class="colhl" style="padding-left:20px">Artifact Registry</td><td>ECR</td><td>Nexus</td></tr>
+      <tr><td><b>이미지 보관소</b></td><td class="colhl" style="padding-left:20px">Artifact Registry</td><td>ECR</td><td>Nexus</td></tr>
       <tr><td><b>실행 환경</b></td><td class="colhl" style="padding-left:20px">Cloud Run</td><td>ECS, EC2</td><td>사내 쿠버네티스</td></tr>
       <tr><td><b>배포 인증</b></td><td class="colhl" style="padding-left:20px">WIF</td><td>IAM 역할 + OIDC</td><td>사내 계정, 결재</td></tr>
     </tbody>
@@ -972,34 +1118,40 @@ steps:
   <aside class="notes">칸별로 보면 이렇습니다. AWS로 하면 결과물은 ECR에, 실행은 ECS나 EC2에. 사내나 금융권에서는 Jenkins, Nexus, 사내 쿠버네티스를 많이 씁니다. 특히 금융권은 배포 전에 승인 절차를 거치는 Delivery 형태가 흔합니다. 회사와 시기마다 다르니 면접에서 물어보시면 그 회사 개발 문화를 알 수 있습니다.</aside>
 </section>
 
-<!-- ================= 8. 가져가기 ================= -->
-<section class="page" data-title="안 돌아가는 이유" data-steps="2">
+<!-- ================= 9. 가져가기 ================= -->
+<section class="page" id="reasons" data-title="안 돌아가는 이유" data-steps="2" data-sec="가져가기">
   <h2 class="ttl">학생 프로젝트에서 잘 안 돌아가는 이유</h2>
-  <table class="tb" style="left:112px;top:340px;width:1696px;font-size:34px">
+  <table class="tb" style="left:112px;top:250px;width:1696px;font-size:34px">
     <thead><tr><th style="width:820px">흔한 생각</th><th>바꾸면</th></tr></thead>
     <tbody>
       <tr><td><b>배포는 마지막 날 하는 것</b></td><td>첫날 Hello World 배포</td></tr>
-      <tr data-s="1"><td><b>테스트가 없으니 CI는 필요 없음</b></td><td>lint와 build만 걸어도 사고 차단</td></tr>
+      <tr data-s="1"><td><b>테스트가 없으니 CI는 필요 없음</b></td><td>린트와 빌드만 걸어도 사고 차단</td></tr>
       <tr data-s="2"><td><b>팀 규칙은 말로 정하면 됨</b></td><td>브랜치 보호로 시스템이 지킴</td></tr>
     </tbody>
   </table>
-  <aside class="notes">학생 프로젝트에서 CI/CD가 잘 안 돌아가는 이유는 대개 이 세 가지입니다. 배포를 마지막 날 하는 이벤트로 생각하는 것. 첫날 Hello World를 배포해 두면 마지막 날은 그냥 또 한 번의 배포입니다. 테스트가 없으니 CI가 필요 없다고 생각하는 것. lint와 build만 걸어도 오늘 본 사고 두 개는 막힙니다. 그리고 팀 규칙을 말로만 정하는 것.</aside>
+  <aside class="notes">학생 프로젝트에서 CI/CD가 잘 안 돌아가는 이유는 대개 이 세 가지입니다. 배포를 마지막 날 하는 이벤트로 생각하는 것. 첫날 Hello World를 배포해 두면 마지막 날은 그냥 또 한 번의 배포입니다.
+(클릭) 테스트가 없으니 CI가 필요 없다고 생각하는 것. 린트와 빌드만 걸어도 오늘 본 사고 두 개는 막힙니다.
+(클릭) 그리고 팀 규칙을 말로만 정하는 것.</aside>
 </section>
 
-<section class="page" id="day1" data-title="Day 1 체크리스트" data-steps="4">
+<section class="page" id="day1" data-title="Day 1 체크리스트" data-steps="4" data-sec="가져가기">
   <h2 class="ttl">첫날 한 시간 체크리스트</h2>
-  <ul class="checks" style="left:112px;top:320px;width:1500px">
+  <ul class="checks" style="left:112px;top:240px;width:1500px">
     <li data-c="1"><span class="bx2"></span><div>두 레포에 ci.yml 복사<small>명령만 프로젝트에 맞게</small></div></li>
     <li data-c="2"><span class="bx2"></span><div>프론트는 Vercel 연결<small>레포 Import 한 번</small></div></li>
     <li data-c="3"><span class="bx2"></span><div>백엔드는 WIF 연결 후 Hello World를 Cloud Run에 첫 배포<small>실습 레포의 gcp-setup.sh</small></div></li>
     <li data-c="4"><span class="bx2"></span><div>두 레포 main 브랜치 보호 + 필수 검사 지정<small>팀이면 승인 1명</small></div></li>
   </ul>
-  <aside class="notes">그래서 프로젝트 첫날 한 시간 안에 이것만 해 두시길 권합니다. ci.yml 복사, Vercel 연결, 백엔드 Hello World를 Cloud Run에 첫 배포, 그리고 브랜치 보호. 이후로는 PR 하나가 검사 한 번, 배포 한 번이 됩니다.</aside>
+  <aside class="notes">그래서 프로젝트 첫날 한 시간 안에 이것만 해 두시길 권합니다.
+(클릭) ci.yml 복사,
+(클릭) Vercel 연결,
+(클릭) 백엔드 Hello World를 Cloud Run에 첫 배포,
+(클릭) 그리고 브랜치 보호. 이후로는 PR 하나가 검사 한 번, 배포 한 번이 됩니다.</aside>
 </section>
 
-<section class="page" data-title="동지톤">
+<section class="page" id="dongji" data-title="동지톤" data-sec="가져가기">
   <h2 class="ttl">1월 동지톤 첫 한 시간에 바로 적용</h2>
-  <div style="position:absolute;left:112px;top:360px">
+  <div style="position:absolute;left:112px;top:300px">
     <p style="margin:0;font:800 96px/1.1 var(--f-sans);letter-spacing:-2.5px">2027.01.30 – 31</p>
     <p class="big" style="margin-top:24px">동국대·홍익대 연합 해커톤, 동지톤</p>
     <p class="lead" style="margin-top:40px">레포 만들자마자 Day 1 체크리스트부터<br>마지막 날 밤은 발표 준비에 쓰기</p>
@@ -1007,48 +1159,46 @@ steps:
   <aside class="notes">마침 1월 30일, 31일에 동국대와 홍익대가 함께하는 연합 해커톤, 동지톤이 있습니다. 레포를 만들자마자 오늘 체크리스트부터 해 두면, 마지막 날 밤을 배포가 아니라 발표 준비에 쓸 수 있습니다.</aside>
 </section>
 
-<section class="page" id="sweep" data-title="정리" data-steps="1" data-bar="ttttt|-" data-bar1="ddddd|-">
-  <div class="tl" style="top:300px">
-    <div class="tc past"><i>D-14</i><b>각자 브랜치에서 작업</b></div>
-    <div class="tc past"><i>D-1 밤</i><b>한꺼번에 머지</b></div>
-    <div class="tc past"><i>D-1 밤</i><b>충돌 · 빌드 실패</b></div>
-    <div class="tc past"><i>D-day 03:00</i><b>처음으로 서버에 배포</b></div>
-  </div>
-  <svg data-s="1" style="position:absolute;left:112px;top:300px" width="1696" height="118" viewBox="0 0 1696 118" aria-hidden="true">
-    <path d="M10 59H1686" stroke="#FF6309" stroke-width="6" stroke-linecap="round"/>
-  </svg>
-  <h2 style="position:absolute;left:112px;top:560px;margin:0;font:800 104px/1.15 var(--f-sans);letter-spacing:-3px">PR 하나 = 검사 한 번<br>= 배포 한 번</h2>
-  <aside class="notes">처음에 본 데모데이 전날 밤 장면, 이제 지울 수 있습니다. PR 하나가 검사 한 번이고, 배포 한 번입니다. 마지막 날 몰아서 하던 일을 매일 조금씩 기계에게 맡기는 것, 그게 오늘 말씀드린 CI/CD입니다.</aside>
-</section>
-
-<section class="page" id="self" data-title="이 페이지도 배포" data-steps="2" data-bar="ddddd|-">
-  <h2 class="ttl">이 발표 페이지도 같은 다섯 칸으로 배포</h2>
-  <div class="bx" style="left:112px;top:380px;width:420px;height:130px;font-family:var(--f-mono);font-size:30px">donghongdongrock<small>발표 페이지 레포</small></div>
-  <div class="ar ink" style="left:544px;top:444px;width:80px"></div>
-  <div class="bx" style="left:636px;top:380px;width:380px;height:130px">GitHub Actions<small>deck-check 검사</small></div>
-  <div class="ar ink" style="left:1028px;top:444px;width:80px"></div>
-  <div class="bx ink" style="left:1120px;top:380px;width:260px;height:130px">Vercel</div>
-  <div style="position:absolute;left:1420px;top:384px;width:388px" data-s="1">
+<section class="page" id="self" data-title="이 페이지도 배포" data-steps="2" data-sec="가져가기">
+  <h2 class="ttl">이 발표 페이지도 같은 길로 배포</h2>
+  <div class="bx" style="left:112px;top:300px;width:420px;height:130px;font-family:var(--f-mono);font-size:30px">donghongdongrock<small>발표 페이지 레포</small></div>
+  <div class="ar" style="left:544px;top:364px;width:80px"></div>
+  <div class="bx" style="left:636px;top:300px;width:380px;height:130px">GitHub Actions<small>deck-check 검사</small></div>
+  <div class="ar" style="left:1028px;top:364px;width:80px"></div>
+  <div class="bx ink" style="left:1120px;top:300px;width:260px;height:130px">Vercel</div>
+  <div style="position:absolute;left:1420px;top:304px;width:388px" data-s="1">
     <p class="cap">이 화면을 만든 커밋</p>
     <p class="pend" style="margin:6px 0 0;font:800 52px var(--f-mono)" data-live="commit">배포된 주소에서 실시간 표시</p>
   </div>
-  <div class="bx" style="left:112px;top:580px;width:420px;height:130px;font-family:var(--f-mono);font-size:30px">cicd-backend<small>실습 백엔드 레포</small></div>
-  <div class="ar ink" style="left:544px;top:644px;width:80px"></div>
-  <div class="bx" style="left:636px;top:580px;width:380px;height:130px">GitHub Actions<small>테스트 후 배포 · WIF</small></div>
-  <div class="ar ink" style="left:1028px;top:644px;width:80px"></div>
-  <div class="bx ink" style="left:1120px;top:580px;width:260px;height:130px">Cloud Run</div>
-  <div style="position:absolute;left:1420px;top:584px;width:388px" data-s="2">
+  <div class="bx" style="left:112px;top:500px;width:420px;height:130px;font-family:var(--f-mono);font-size:30px">cicd-backend<small>실습 백엔드 레포</small></div>
+  <div class="ar" style="left:544px;top:564px;width:80px"></div>
+  <div class="bx" style="left:636px;top:500px;width:380px;height:130px">GitHub Actions<small>테스트 후 배포, WIF</small></div>
+  <div class="ar" style="left:1028px;top:564px;width:80px"></div>
+  <div class="bx ink" style="left:1120px;top:500px;width:260px;height:130px">Cloud Run</div>
+  <div style="position:absolute;left:1420px;top:504px;width:388px" data-s="2">
     <p class="cap">지금 응답 중인 리비전</p>
     <p class="pend" style="margin:6px 0 0;font:800 40px/1.25 var(--f-mono);word-break:break-all" data-live="revision">배포된 주소에서 실시간 표시</p>
   </div>
-  <p class="lead" data-s="2" style="position:absolute;left:112px;top:800px">지금 보고 계신 화면이 PR, 검사, 머지, 배포를 거쳐 올라온 결과</p>
-  <aside class="notes">마지막으로 하나만 더 보여 드리겠습니다. 지금 보고 계신 이 발표 페이지도 오늘 말씀드린 다섯 칸으로 배포됐습니다. 대본 하나를 고칠 때도 PR을 올리고, GitHub Actions가 화면 넘침과 문구를 검사하고, 머지하면 Vercel이 배포합니다. 오른쪽 숫자는 지금 이 화면을 만든 커밋과, 지금 응답하고 있는 Cloud Run 리비전입니다.</aside>
+  <p class="lead" data-s="2" style="position:absolute;left:112px;top:720px">지금 보고 계신 화면이 PR, 검사, 머지, 배포를 거쳐 올라온 결과</p>
+  <p class="lead nolive" data-live-show="revision" style="position:absolute;left:112px;top:800px;color:var(--ink)"><span class="live-dot"></span>지금 이 순간 서버 응답: <b data-live="message"></b></p>
+  <aside class="notes">마지막으로 하나만 더 보여 드리겠습니다. 지금 보고 계신 이 발표 페이지도 오늘 말씀드린 길로 배포됐습니다. 대본 하나를 고칠 때도 PR을 올리고, GitHub Actions가 화면 넘침과 문구를 검사하고, 머지하면 Vercel이 배포합니다.
+(클릭) 이 숫자가 지금 이 화면을 만든 커밋입니다.
+(클릭) 그리고 이건 지금 응답하고 있는 실습 백엔드, Cloud Run 리비전입니다.</aside>
 </section>
 
-<section class="page" data-title="자료와 질문">
+<section class="page" id="sweep" data-title="정리" data-steps="1">
+  <div class="stg" style="position:absolute;left:112px;top:150px;display:flex;align-items:center;gap:26px;font:800 60px/1.2 var(--f-sans);letter-spacing:-1.5px">
+    <span>코드 변경</span><span class="faint" style="color:var(--faint)">→</span><span>검사된 소프트웨어</span><span style="color:var(--faint)">→</span><span>실제 서비스</span>
+  </div>
+  <p data-s="1" style="position:absolute;left:112px;top:270px;margin:0;font:800 84px/1.2 var(--f-sans);letter-spacing:-2.5px">PR 하나 = 검사 한 번 = 배포 한 번</p>
+  <aside class="notes">오늘 내용을 한 줄로 줄이면, 코드 변경이 검사된 소프트웨어가 되고, 실제 서비스가 되는 길을 자동으로 만드는 것. 그게 CI/CD입니다.
+(클릭) PR 하나가 검사 한 번이고, 배포 한 번입니다. 마지막 날 몰아서 하던 일을 매일 조금씩 기계에게 맡기는 겁니다.</aside>
+</section>
+
+<section class="page" id="qa" data-title="자료와 질문">
   <h2 class="ttl">자료와 질문</h2>
-  <div class="slot" data-cap="qr" style="left:112px;top:330px;width:420px;height:420px"><b>QR 자리</b><span>이 발표 페이지 주소</span></div>
-  <div style="position:absolute;left:620px;top:350px;width:1188px">
+  <div class="slot" data-cap="qr" style="left:112px;top:250px;width:420px;height:420px"><b>QR 자리</b><span>이 발표 페이지 주소</span></div>
+  <div style="position:absolute;left:620px;top:270px;width:1188px">
     <p class="big">이 발표 페이지</p>
     <p class="lead" style="margin-top:12px">폰으로 열어 오늘 화면을 다시 보기, 실습 가이드북은 발표 후 공유</p>
     <p style="margin:110px 0 0;font:800 120px/1 var(--f-sans);letter-spacing:-3px">Q&amp;A</p>
@@ -1068,20 +1218,22 @@ steps:
 <script>
 (function(){
   'use strict';
+  var STATIC = /[?&]static/.test(location.search);
+  if(STATIC) document.documentElement.classList.add('static');
   var isPresenter = /[?&]presenter/.test(location.search);
   var stage = document.getElementById('stage');
-  var pages = Array.prototype.slice.call(stage.querySelectorAll('.page'));
-  var N = pages.length, P = 0, S = 0;
+  var pages = [].slice.call(stage.querySelectorAll('.page'));
+  var N = pages.length, P = 0, S = 0, lastP = -1;
   pages.forEach(function(p,i){ if(!p.id) p.id = 'p'+(i+1); });
+  function $$(sel, root){ return [].slice.call((root||document).querySelectorAll(sel)); }
 
   /* ---------- 코드·로그 카드 준비 ---------- */
   function parseList(str){
     var out = {};
     (str||'').split(',').forEach(function(part){
       part = part.trim(); if(!part) return;
-      var m = part.split('-');
-      var a = +m[0], b = m.length>1 ? +m[1] : a;
-      for(var i=a;i<=b;i++) out[i]=true;
+      var m = part.split('-'), a = +m[0], b = m.length>1 ? +m[1] : a;
+      for(var i=a;i<=b;i++) out[i] = true;
     });
     return out;
   }
@@ -1099,7 +1251,7 @@ steps:
     }
   }
   function hlJs(line, tx){
-    var re = /(`[^`]*`|'[^']*'|\b(?:export|function|const|return|import|from)\b)/g, last=0, m;
+    var re = /(`[^`]*`|'[^']*'|\b(?:export|function|const|return|import|from|pipeline|stages|stage|steps|sh)\b)/g, last=0, m;
     while((m=re.exec(line))){
       if(m.index>last) tx.appendChild(document.createTextNode(line.slice(last,m.index)));
       var s=document.createElement('span'); s.className = /^[`']/.test(m[0]) ? 'v' : 'k'; s.textContent=m[0]; tx.appendChild(s);
@@ -1107,12 +1259,13 @@ steps:
     }
     if(last<line.length) tx.appendChild(document.createTextNode(line.slice(last)));
   }
-  Array.prototype.forEach.call(stage.querySelectorAll('pre.code, pre.log'), function(pre){
+  $$('pre.code, pre.log', stage).forEach(function(pre){
     var lang = pre.dataset.lang||'text';
     var lines = pre.textContent.replace(/^\n+|\n+$/g,'').split('\n');
     var hl = parseList(pre.dataset.hl), ng = parseList(pre.dataset.ng), ok = parseList(pre.dataset.ok), st = parseList(pre.dataset.st);
+    var gap = pre.dataset.gap ? +pre.dataset.gap : .12;
     var mk = {}; (pre.dataset.mk||'').split(',').forEach(function(p){ if(!p) return; var a=p.split(':'); mk[+a[0]]=a[1]; });
-    pre.textContent='';
+    pre.textContent = '';
     if(pre.dataset.label){ var lb=document.createElement('span'); lb.className='lab'; lb.textContent=pre.dataset.label; pre.appendChild(lb); }
     if(pre.dataset.hl) pre.classList.add('hasdim');
     lines.forEach(function(line, i){
@@ -1120,238 +1273,418 @@ steps:
       var tx=document.createElement('span'); tx.className='tx';
       if(lang==='diff'){
         var c0=line.charAt(0);
-        if(c0==='+'){ row.classList.add('add'); line=line.slice(1); }
-        else if(c0==='-'){ row.classList.add('del'); line=line.slice(1); }
-        else { row.classList.add('ctx'); line=line.slice(1); }
-        hlJs(line, tx);
-      } else if(lang==='yaml'){ hlYaml(line, tx); }
-      else if(lang==='js' || lang==='groovy'){ hlJs(line, tx); }
-      else { tx.textContent=line; }
+        if(c0==='+') row.classList.add('add'); else if(c0==='-') row.classList.add('del'); else row.classList.add('ctx');
+        hlJs(line.slice(1), tx);
+      } else if(lang==='yaml') hlYaml(line, tx);
+      else if(lang==='js' || lang==='groovy') hlJs(line, tx);
+      else tx.textContent = line;
       if(hl[n]) row.classList.add('hl');
       if(ng[n]) row.classList.add('ng');
       if(ok[n]) row.classList.add('ok');
       if(st[n]) row.classList.add('st');
       row.appendChild(tx);
       if(mk[n]){ var b=document.createElement('span'); b.className='mk'; b.textContent=mk[n]; row.appendChild(b); }
-      if(pre.classList.contains('type')) row.style.animationDelay = (0.15 + i*0.12)+'s';
+      if(pre.classList.contains('type')) row.style.animationDelay = (0.2 + i*gap)+'s';
       pre.appendChild(row);
     });
   });
 
   /* ---------- 상태 아이콘 ---------- */
   var ICON = {
-    wait:'<circle cx="20" cy="20" r="16" stroke="#C6C6BE" stroke-width="3" fill="none"/>',
-    run:'<g class="spin"><circle cx="20" cy="20" r="16" stroke="#E6D3A8" stroke-width="4" fill="none"/><path d="M20 4a16 16 0 0 1 16 16" stroke="#BF8700" stroke-width="4" fill="none" stroke-linecap="round"/></g>',
+    wait:'<circle cx="20" cy="20" r="16" stroke="#C6C6BE" stroke-width="3" fill="#fff"/>',
+    run:'<g class="spin"><circle cx="20" cy="20" r="16" stroke="#E6D3A8" stroke-width="4" fill="#fff"/><path d="M20 4a16 16 0 0 1 16 16" stroke="#BF8700" stroke-width="4" fill="none" stroke-linecap="round"/></g>',
     ok:'<circle cx="20" cy="20" r="18" fill="#1A7F37"/><path d="M12 20.5l5.5 5.5L28.5 14" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
     ng:'<circle cx="20" cy="20" r="18" fill="#CF222E"/><path d="M13.5 13.5l13 13M26.5 13.5l-13 13" stroke="#fff" stroke-width="4" stroke-linecap="round"/>',
-    skip:'<circle cx="20" cy="20" r="16" stroke="#C6C6BE" stroke-width="3" fill="none" stroke-dasharray="4 5"/>'
+    skip:'<circle cx="20" cy="20" r="16" stroke="#C6C6BE" stroke-width="3" fill="#fff" stroke-dasharray="4 5"/>',
+    lockidle:'<circle cx="20" cy="20" r="16" stroke="#C6C6BE" stroke-width="3" fill="#fff"/><rect x="13.5" y="19" width="13" height="10" rx="2" fill="#9A9A92"/><path d="M15.8 19v-2.6a4.2 4.2 0 0 1 8.4 0V19" stroke="#9A9A92" stroke-width="2.6" fill="none"/>',
+    lock:'<circle cx="20" cy="20" r="18" fill="#CF222E"/><rect x="13" y="19" width="14" height="11" rx="2" fill="#fff"/><path d="M15.5 19v-3a4.5 4.5 0 0 1 9 0v3" stroke="#fff" stroke-width="3" fill="none"/>',
+    open:'<circle cx="20" cy="20" r="18" fill="#1A7F37"/><rect x="13" y="19" width="14" height="11" rx="2" fill="#fff"/><path d="M15.5 19v-3.5a4.5 4.5 0 0 1 8.7-1.6" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>'
   };
-  function setRuns(page, s){
-    Array.prototype.forEach.call(page.querySelectorAll('.runs li'), function(li){
-      var r=+li.dataset.r, state, tag=li.querySelector('.tag');
-      if(s===0) state='wait';
-      else if(s===1) state = r===0 ? 'ok' : (r===1 ? 'run' : 'wait');
-      else state = r===0 ? 'ok' : (r===1 ? 'ng' : 'skip');
-      li.querySelector('.ic').innerHTML = ICON[state];
-      li.classList.toggle('skip', state==='skip');
-      if(tag) tag.textContent = state==='ng' ? '실패' : state==='skip' ? '건너뜀' : state==='run' ? '실행 중' : '';
+  $$('[data-ic]', stage).forEach(function(s){ s.innerHTML = ICON[s.dataset.ic] || ''; });
+  $$('.stg, .st8', stage).forEach(function(g){ [].forEach.call(g.children, function(c,i){ c.style.setProperty('--i', i); }); });
+
+  /* =====================================================================
+     파이프라인 세계: 상태(state) 하나를 화면에 그리는 applyW + 프레임을 차례로 재생하는 play
+     ===================================================================== */
+  var world = document.getElementById('world'), capEl = document.getElementById('wCap'), outEl = document.getElementById('wOut'),
+      fillEl = document.getElementById('wFill'), verEl = document.getElementById('wVer'),
+      apprB = document.getElementById('wApprB'), apprS = document.getElementById('wApprS');
+  var W = {}; $$('[data-w]', world).forEach(function(e){ W[e.dataset.w] = e; });
+  var cells = $$('.w-prod .cells i', world);
+  var vcs = {}; $$('.vc', world).forEach(function(e){ vcs[e.dataset.v] = e; });
+  var WX = {dev:205, entry:440, install:600, lint:850, test:1100, build:1350, merge:1620, after:1730, rail:1850,
+            image:1960, reg:2200, stg:2440, pre:2575, appr:2680, door:2790, prod:2960};
+  var GATES = ['install','lint','test','build','merge','image','reg','stg'];
+  var CAM = {
+    ci:{s:1, x:960, y:600}, cd:{s:1, x:2440, y:600}, all:{s:.55, x:1700, y:600}, allLow:{s:.55, x:1700, y:600, sy:700},
+    cover:{s:.55, x:1700, y:600, sy:790}, prod:{s:1.4, x:3055, y:643}
+  };
+  var FAIL_CELLS = [2, 6, 9];
+  var NONE = {install:'', lint:'', test:'', build:'', merge:'', image:'', reg:'', stg:''};
+  var ALLOK = {install:'ok', lint:'ok', test:'ok', build:'ok', merge:'open', image:'ok', reg:'ok', stg:'ok'};
+  var BASE = {on:0, dim:0, cam:'ci', loop:0, spd:'', show:{brCI:0, brCD:0, runner:0, appr:0}, g:NONE, appr:'none',
+              cap:{x:'dev', t:'', v:'', st:'', kind:'', show:0}, out:null, stack:['v1'], hi:'', prod:{v:'v1', fail:0}};
+  var REPLACE = {out:1, stack:1};
+  function mergeSt(a, b){
+    var o = {}, k, q;
+    for(k in a) o[k] = a[k];
+    for(k in b){
+      if(k==='t' || k==='fx') continue;
+      var v = b[k];
+      if(!REPLACE[k] && v && typeof v==='object' && !Array.isArray(v) && a[k] && typeof a[k]==='object'){
+        var m = {}; for(q in a[k]) m[q] = a[k][q]; for(q in v) m[q] = v[q]; o[k] = m;
+      } else o[k] = v;
+    }
+    return o;
+  }
+  function M(){ var s = {}; for(var i=0;i<arguments.length;i++) s = mergeSt(s, arguments[i]); return s; }
+  $$('.w-g, .w-st', world).forEach(function(e){ var x = parseFloat(e.style.left); e.style.setProperty('--ld', ((x-380)/(2900-380)*9).toFixed(2)+'s'); });
+
+  var prevW = null, icNow = {};
+  function capX(c){ return typeof c.x === 'number' ? c.x : WX[c.x]; }
+  function applyW(st, inst){
+    if(STATIC) inst = true;
+    if(inst) world.classList.add('inst');
+    world.classList.toggle('on', !!st.on);
+    world.classList.toggle('dim', !!st.dim);
+    world.classList.toggle('loop', !!st.loop);
+    world.classList.toggle('fast', st.spd === 'fast');
+    world.classList.toggle('vfast', st.spd === 'vfast');
+    var c = CAM[st.cam] || CAM.ci;
+    world.style.transform = 'translate('+((c.sx||960) - c.x*c.s)+'px,'+((c.sy||600) - c.y*c.s)+'px) scale('+c.s+')';
+    world.classList.toggle('cam-all', c.s < .7);
+    for(var name in W){
+      var v = st.show[name]; if(v === undefined) v = 1;
+      W[name].classList.toggle('off', !v);
+      W[name].classList.toggle('fade', v === 'f');
+    }
+    GATES.forEach(function(n){
+      var s = st.g[n] || '';
+      W[n].dataset.st = s;
+      var ic = n === 'merge' ? (s === 'lock' ? 'lock' : s === 'open' ? 'open' : 'lockidle') : (s || 'wait');
+      if(icNow[n] !== ic){ icNow[n] = ic; W[n].querySelector('.ic').innerHTML = ICON[ic]; }
     });
+    W.merge.querySelector('b').textContent = st.g.merge === 'lock' ? '머지 잠김' : '머지';
+    var al = {human:['승인', '사람이 버튼'], up:['승인됨', '사람이 누름'], none:['승인 없음', '바로 통과']}[st.appr] || ['승인', ''];
+    W.appr.dataset.st = st.appr; apprB.textContent = al[0]; apprS.textContent = al[1];
+    W.prod.dataset.v = st.prod.v; verEl.textContent = st.prod.v;
+    cells.forEach(function(ce, i){ var k = FAIL_CELLS.indexOf(i); ce.classList.toggle('ng', k >= 0 && k < (st.prod.fail||0)); });
+    ['v1','v2'].forEach(function(v){
+      var e = vcs[v], on = st.stack.indexOf(v) >= 0, was = !e.classList.contains('off');
+      e.classList.toggle('off', !on);
+      if(on && !was && !inst){ e.classList.remove('in'); void e.offsetWidth; e.classList.add('in'); }
+      e.classList.toggle('hi', st.hi === v);
+    });
+    var cp = st.cap, x = capX(cp), pc = prevW && prevW.cap;
+    var jump = !inst && (!pc || x < capX(pc) - 1 || cp.t !== pc.t || (cp.show && !pc.show));
+    if(jump){ capEl.classList.add('notr'); fillEl.style.transition = 'none'; }
+    capEl.style.transform = 'translateX('+x+'px)';
+    capEl.querySelector('.t').textContent = cp.t;
+    capEl.querySelector('.v').textContent = cp.v;
+    capEl.classList.toggle('ng', cp.st === 'ng');
+    capEl.classList.toggle('cube', cp.kind === 'cube');
+    capEl.classList.toggle('old', cp.kind === 'cube' && cp.v === 'v1');
+    capEl.classList.toggle('gone', !cp.show);
+    fillEl.style.width = Math.max(0, Math.min(1440, x - 340))+'px';
+    fillEl.classList.toggle('ng', cp.st === 'ng');
+    if(jump){
+      void capEl.offsetWidth; capEl.classList.remove('notr'); fillEl.style.transition = '';
+      if(cp.show){ capEl.classList.remove('popin'); void capEl.offsetWidth; capEl.classList.add('popin'); }
+    }
+    var o = st.out, po = prevW && prevW.out;
+    if(o){
+      outEl.style.left = (typeof o.at === 'number' ? o.at : WX[o.at])+'px';
+      outEl.textContent = o.t;
+      outEl.className = (o.st||'') + (o.ko ? ' ko' : '');
+      if(!inst && (!po || po.t !== o.t || po.at !== o.at)){ void outEl.offsetWidth; outEl.classList.add('pop'); }
+    } else outEl.className = 'gone';
+    if(inst){ void world.offsetWidth; world.classList.remove('inst'); }
+    prevW = st;
+  }
+  var tok = 0;
+  function play(frames, from){
+    var my = ++tok, cur = from, i = 0;
+    (function nx(){
+      if(my !== tok || i >= frames.length) return;
+      var f = frames[i++];
+      setTimeout(function(){
+        if(my !== tok) return;
+        cur = mergeSt(cur, f); applyW(cur, false);
+        if(f.fx === 'shake'){ capEl.classList.remove('shk'); void capEl.offsetWidth; capEl.classList.add('shk'); }
+        nx();
+      }, f.t || 0);
+    })();
   }
 
-  /* ---------- 상단 띠 ---------- */
-  var bar=document.getElementById('bar'), nodes=Array.prototype.slice.call(bar.querySelectorAll('.nd')),
-      cons=Array.prototype.slice.call(bar.querySelectorAll('.cn')), cap=document.getElementById('cap');
-  var NODE_X=[0,248,496,744,992], lastCapFail=false;
-  function barSpec(page, s){
-    var spec = page.dataset.bar;
-    for(var k=1;k<=s;k++){ if(page.dataset['bar'+k]!==undefined) spec = page.dataset['bar'+k]; }
-    return spec;
+  /* ---------- 장면 조각 ---------- */
+  var OUT = {install:{t:'added 47 packages'}, lint:{t:'문제 없음', ko:1}, test:{t:'Tests 6 passed (6)'}, build:{t:'✓ built in 674ms'}};
+  function gate(n, res, o){
+    o = o || {};
+    var a = {}, b = {}; a[n] = 'run'; b[n] = res || 'ok';
+    var fr = [{t: o.t == null ? 120 : o.t, cap:{x:n}}, {t: o.fast === 2 ? 300 : o.fast ? 430 : 720, g:a}, {t: o.fast === 2 ? 140 : o.fast ? 260 : 480, g:b}];
+    if(o.out !== false) fr[2].out = {at:n, t:OUT[n].t, ko:OUT[n].ko, st:'ok'};
+    return fr;
   }
-  function applyBar(page, s, sweep){
-    var spec = barSpec(page, s);
-    if(!spec){ bar.classList.add('hid'); lastCapFail=false; return; }
-    bar.classList.remove('hid');
-    var parts = spec.split('|'), st = parts[0], cp = parts[1]||'-';
-    nodes.forEach(function(n,i){
-      var c = st.charAt(i)||'t';
-      var apply = function(){ n.className='nd '+c; n.textContent = c==='f' ? n.dataset.f : c==='l' ? n.dataset.l : n.dataset.label; };
-      if(sweep && c==='d'){ setTimeout(apply, 140*i); } else apply();
-    });
-    cons.forEach(function(cn,i){
-      var on = st.charAt(i)==='d';
-      if(sweep && on) setTimeout(function(){cn.classList.add('d');}, 140*i+70); else cn.classList.toggle('d', on);
-    });
-    if(cp==='-'){ cap.style.opacity='0'; lastCapFail=false; return; }
-    cap.style.opacity='1';
-    var idx=+cp.charAt(0), fail=cp.charAt(1)==='f';
-    cap.style.left = (NODE_X[idx]+98-56)+'px';
-    cap.classList.toggle('f', fail);
-    if(fail && !lastCapFail){ cap.classList.remove('bump'); void cap.offsetWidth; cap.classList.add('bump'); }
-    lastCapFail = fail;
+  function ciRun(o){ return gate('install','ok',{fast:o.fast, t:o.t, out:o.out}).concat(gate('lint','ok',{fast:o.fast, out:o.out}), gate('test','ok',{fast:o.fast, out:o.out}), gate('build','ok',{fast:o.fast, out:o.out})); }
+  function cdPack(o){ o = o || {};
+    return [{t:120, cap:{x:'image'}, out:null}, {t:o.fast===2?300:o.fast?430:720, g:{image:'run'}},
+            {t:o.fast===2?260:o.fast?520:1000, g:{image:'ok'}, cap:{kind:'cube', v:'v2'}, out: o.out===false ? null : {at:'image', t:'app:3f9a2c1'}}]; }
+  function cdStore(o){ o = o || {};
+    return [{t:o.fast?120:500, cap:{x:'reg'}, out:null}, {t:o.fast===2?300:o.fast?430:720, g:{reg:'run'}}, {t:o.fast===2?140:o.fast?260:480, g:{reg:'ok'}, stack:['v1','v2']}]; }
+  function cdStage(o){ o = o || {};
+    return [{t:120, cap:{x:'stg'}}, {t:o.fast===2?300:o.fast?430:720, g:{stg:'run'}},
+            {t:o.fast===2?140:o.fast?260:600, g:{stg:'ok'}, out: o.out===false ? null : {at:'stg', t:'GET /health 200', st:'ok'}}]; }
+  function cdShip(v, o){ o = o || {};
+    var fr = [{t: o.t == null ? 300 : o.t, cap:{x:'door'}, out:null}, {t: o.fast ? 450 : 800, cap:{show:0}, prod:{v:v}}];
+    if(o.out !== false) fr.push({t:700, out:{at:'prod', t:v+' 운영 반영', ko:1, st:'ok'}});
+    return fr;
+  }
+
+  /* ---------- 장별 세계 상태 ---------- */
+  var ONCI = {on:1, cam:'ci', show:{brCI:1, rail:'f', image:0, reg:0, stg:0, prod:0}};
+  var MERGED = M({on:1, cam:'cd', show:{brCI:1, brCD:1}, g:{install:'ok', lint:'ok', test:'ok', build:'ok', merge:'open'}, cap:{x:'after', t:'3f9a2c1', show:1}});
+  var ONRAIL = M(MERGED, {cap:{x:'rail'}});
+  var PACKED = M(ONRAIL, {g:{image:'ok'}, cap:{x:'image', kind:'cube', v:'v2'}, out:{at:'image', t:'app:3f9a2c1'}});
+  var STORED = M(PACKED, {g:{reg:'ok'}, cap:{x:'reg'}, out:null, stack:['v1','v2']});
+  var STAGED = M(STORED, {g:{stg:'ok'}, cap:{x:'stg'}, out:{at:'stg', t:'GET /health 200', st:'ok'}});
+  var SHIPPED = {on:1, cam:'cd', show:{brCI:1, brCD:1, appr:1}, appr:'none', g:ALLOK, stack:['v1','v2'], prod:{v:'v2'},
+                 cap:{x:'door', t:'3f9a2c1', kind:'cube', v:'v2', show:0}};
+  var FADE_CD = {rail:'f', image:'f', reg:'f', stg:'f', appr:'f', prod:'f', brCD:'f'};
+  var FADE_CI = {dev:'f', tube:'f', install:'f', lint:'f', test:'f', build:'f', merge:'f', brCI:'f'};
+  var SHOW_CD = {rail:1, image:1, reg:1, stg:1, appr:1, prod:1, brCD:1};
+
+  var SC = {
+    cover:{ base:{on:1, cam:'cover', loop:1, show:{brCI:1, brCD:1}, stack:['v1','v2'], prod:{v:'v2'}} },
+
+    auto:{
+      base:{on:1, cam:'all', show:{tube:0, rail:0, install:0, lint:0, test:0, build:0, merge:0, image:0, reg:0, stg:0}, cap:{x:'dev', t:'커밋', show:0}},
+      enter:[{t:400, show:{tube:1}}, {t:140, show:{install:1}}, {t:110, show:{lint:1}}, {t:110, show:{test:1}}, {t:110, show:{build:1}},
+             {t:110, show:{merge:1}}, {t:140, show:{rail:1}}, {t:110, show:{image:1}}, {t:110, show:{reg:1}}, {t:110, show:{stg:1}},
+             {t:350, cap:{show:1}, spd:'vfast'}]
+        .concat(ciRun({fast:2, out:false, t:150}), [{t:120, cap:{x:'merge'}}, {t:300, g:{merge:'open'}}, {t:150, cap:{x:'after'}}],
+                cdPack({fast:2, out:false}), cdStore({fast:2}), cdStage({fast:2, out:false}), cdShip('v2', {fast:1, t:150, out:false}), [{t:0, spd:''}]),
+      steps:{1:[{show:{brCI:1, rail:'f', image:'f', reg:'f', stg:'f', prod:'f'}}],
+             2:[{show:M({brCD:1, rail:1, image:1, reg:1, stg:1, prod:1}, FADE_CI)}]}
+    },
+
+    push:{ base:M(ONCI, {cap:{x:'dev', t:'e41b7d2', show:1}}),
+      steps:{1:[{cap:{x:'entry'}}, {t:800, out:{at:'entry', t:'워크플로 시작', ko:1}}]} },
+
+    gates:{ base:M(ONCI, {cap:{x:'entry', t:'e41b7d2', show:1}, out:{at:'entry', t:'워크플로 시작', ko:1}}),
+      steps:{1:gate('install','ok',{t:0}), 2:gate('lint','ok',{t:0}), 3:gate('test','ok',{t:0}),
+             4:gate('build','ok',{t:0}).concat([{t:600, cap:{x:'merge'}, g:{merge:'open'}}])} },
+
+    runner:{ base:M(ONCI, {g:{install:'ok', lint:'ok', test:'ok', build:'ok', merge:'open'}, cap:{x:'merge', t:'e41b7d2', show:1}}),
+      steps:{1:[{show:{runner:1}}]} },
+
+    fail:{ base:M(ONCI, {cap:{x:'dev', t:'7d3f0b8', show:1}}),
+      steps:{1:[{cap:{x:'entry'}}].concat(gate('install','ok',{t:500}), gate('lint','ok'), [
+                {t:120, cap:{x:'test'}}, {t:720, g:{test:'run'}},
+                {t:800, g:{test:'ng'}, cap:{st:'ng'}, out:{at:'test', t:'Tests 3 failed | 3 passed (6)', st:'ng'}, fx:'shake'},
+                {t:600, g:{build:'skip'}}]),
+             2:[{g:{merge:'lock'}}]} },
+
+    fixed:{ base:M(ONCI, {g:{merge:'lock'}, cap:{x:'dev', t:'3f9a2c1', show:1}}),
+      steps:{1:[{cap:{x:'entry'}, spd:'fast'}].concat(ciRun({fast:1, t:450}), [{t:400, cap:{x:'merge'}, g:{merge:'open'}, out:null, spd:''}]),
+             2:[{cap:{x:'after'}, out:{at:'merge', t:'main에 합쳐짐', ko:1, st:'ok'}}]} },
+
+    env:{ base:MERGED, enter:[{t:900, cap:{x:'rail'}}], steps:{1:[{show:{image:'f', reg:'f'}}]} },
+    pack:{ base:ONRAIL, steps:{1:cdPack()} },
+    store:{ base:PACKED, steps:{1:cdStore(), 2:[{hi:'v1'}]} },
+    staging:{ base:STORED, steps:{1:cdStage()} },
+    delivery:{ base:M(STAGED, {show:{appr:1}, appr:'human'}),
+      enter:[{t:500, cap:{x:'pre'}, out:{at:'appr', t:'승인 대기', ko:1}}],
+      steps:{1:[{appr:'up', out:null}].concat(cdShip('v2', {t:650}))} },
+    deploy:{ base:M(STAGED, {show:{appr:1}, appr:'none', out:null}),
+      steps:{1:cdShip('v2', {t:0})} },
+
+    full:{ base:{on:1, cam:'all', show:{brCI:1, brCD:1, appr:1}, appr:'none', cap:{x:'dev', t:'3f9a2c1', show:1}},
+      steps:{1:[{cap:{x:'entry'}, spd:'fast'}].concat(ciRun({fast:1, out:false, t:420}), [{t:300, cap:{x:'merge'}, g:{merge:'open'}}]),
+             2:[{cap:{x:'after'}, spd:'fast'}].concat(cdPack({fast:1, out:false}), cdStore({fast:1}), cdStage({fast:1, out:false}), cdShip('v2', {fast:1, t:250}), [{t:0, spd:''}])} },
+
+    prodFail:{ base:M(SHIPPED, {cam:'prod', show:{brCI:0, brCD:0}}),
+      steps:{1:[{prod:{fail:3}, out:{at:'prod', t:'서버 12대 중 3대 오류', ko:1, st:'ng'}}]} },
+
+    revert:{ base:M(SHIPPED, {show:{brCI:0}}),
+      steps:{1:[{hi:'v1'}, {t:700, cap:{x:'reg', t:'v1', kind:'cube', v:'v1', show:1}}, {t:500, cap:{x:'door'}, spd:'fast'},
+                {t:600, cap:{show:0}, prod:{v:'v1'}}, {t:700, out:{at:'prod', t:'v1로 복귀', ko:1, st:'ok'}, spd:''}]} },
+
+    twoq:{ base:M(SHIPPED, {cam:'allLow'}),
+      steps:{1:[{show:FADE_CD}], 2:[{show:M(SHOW_CD, FADE_CI)}]} },
+
+    sweep:{ base:M(SHIPPED, {cam:'allLow', loop:1, g:NONE, cap:{x:'dev', show:0}}) }
+  };
+
+  function stateAt(p, s){
+    var sc = SC[pages[p].id]; if(!sc) return null;
+    var st = mergeSt(BASE, sc.base || {});
+    (sc.enter || []).forEach(function(f){ st = mergeSt(st, f); });
+    for(var k=1;k<=s;k++) ((sc.steps && sc.steps[k]) || []).forEach(function(f){ st = mergeSt(st, f); });
+    return st;
+  }
+  function worldRender(mode){
+    var sc = SC[pages[P].id];
+    tok++;
+    if(!sc){ if(prevW && prevW.on) applyW(mergeSt(prevW, {on:0}), false); return; }
+    if(STATIC || mode === 'jump' || mode === 'back'){ applyW(stateAt(P, S), true); return; }
+    if(mode === 'step'){ play((sc.steps && sc.steps[S]) || [], stateAt(P, S-1)); return; }
+    var b = mergeSt(BASE, sc.base || {});
+    if(!(prevW && prevW.on)) applyW(mergeSt(b, {on:0}), true);
+    applyW(b, false);
+    if(sc.enter && sc.enter.length) play(sc.enter, b);
   }
 
   /* ---------- 장별 동작 ---------- */
-  var cmpPos = 100;
-  function setCmp(pct, animate){
-    var c=document.getElementById('cmp'); if(!c) return;
-    cmpPos = Math.max(0, Math.min(100, pct));
-    c.classList.toggle('drag', !animate);
-    c.querySelector('.v2').style.clipPath = 'inset(0 0 0 '+cmpPos+'%)';
-    c.querySelector('.knob').style.left = cmpPos+'%';
+  var ORDER = (function(){ var a = [], i, seed = 11; for(i=0;i<100;i++) a.push(i);
+    function rnd(){ seed = (seed*16807) % 2147483647; return seed/2147483647; }
+    for(i=99;i>0;i--){ var j = Math.floor(rnd()*(i+1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; })();
+  ['g100a','g100b'].forEach(function(id){ var g = document.getElementById(id); for(var i=0;i<100;i++) g.appendChild(document.createElement('i')); });
+  function setGrid(id, n){
+    var ch = document.getElementById(id).children;
+    for(var i=0;i<100;i++) ch[i].classList.remove('b');
+    for(var k=0;k<n;k++){ var e = ch[ORDER[k]]; e.style.transitionDelay = (STATIC ? 0 : Math.min(k,40)*14)+'ms'; e.classList.add('b'); }
   }
+  function people(n){ return n === 0 ? '전원 이전 버전' : n === 100 ? '전원 새 버전' : '새 버전 '+n+'명, 이전 버전 '+(100-n)+'명'; }
   var hooks = {
-    lanes: function(s){
-      var A=document.getElementById('pillA'), B=document.getElementById('pillB'), btn=document.getElementById('approveBtn');
-      A.style.left = (s>=3 ? 1440 : s>=1 ? 760 : 400)+'px';
-      A.style.opacity = s>=3 ? '0' : '1';
-      B.style.left = (s>=4 ? 1440 : 400)+'px';
-      B.style.opacity = s>=4 ? '0' : '1';
-      btn.classList.toggle('done', s>=3);
-      btn.textContent = s>=3 ? '승인됨' : '배포 승인';
+    night:function(s, page){ $$('.tc', page).forEach(function(c, i){ c.className = 'tc' + (s >= 4 || i < s ? ' past' : i === s ? (i === 2 ? ' hot' : ' now') : ''); }); },
+    canary:function(s){ var n = [0,5,25,50,100][s]; setGrid('g100a', n); document.getElementById('pctA').textContent = n+'%'; document.getElementById('g100aL').textContent = people(n); },
+    rollback:function(s){ var n = s >= 2 ? 0 : 25; setGrid('g100b', n); document.getElementById('pctB').textContent = n+'%'; document.getElementById('g100bL').textContent = people(n); },
+    yaml:function(s, page){
+      var pre = page.querySelector('pre[data-hlsteps]'), set = parseList(pre.dataset.hlsteps.split('|')[s] || '');
+      $$('.cl', pre).forEach(function(r, i){ r.classList.toggle('hl', !!set[i+1]); });
+      $$('.yl', page).forEach(function(y){ y.classList.toggle('on', +y.dataset.y === s); });
     },
-    fly: function(s){
-      var bb=document.getElementById('bigbar');
-      bb.style.transform = s>=1 ? 'translate(-70px,-440px) scale(.765)' : '';
-      bb.style.opacity = s>=1 ? '0' : '1';
+    tools:function(s, page){
+      $$('.tab', page).forEach(function(t){ t.classList.toggle('on', +t.dataset.tab === s); });
+      $$('.tabp', page).forEach(function(t){ t.classList.toggle('hid', +t.dataset.tabp !== s); });
     },
-    runs: function(s, page){ setRuns(page, s); },
-    slider: function(s){ setCmp(s>=1 ? 0 : 100, true); },
-    traffic: function(s){
-      document.getElementById('tf2').style.width = s>=1 ? '0%' : '100%';
-      document.getElementById('tf1').style.width = s>=1 ? '100%' : '0%';
-      document.getElementById('tp2').textContent = s>=1 ? '0%' : '100%';
-      document.getElementById('tp1').textContent = s>=1 ? '100%' : '0%';
-    },
-    tools: function(s, page){
-      Array.prototype.forEach.call(page.querySelectorAll('.tab'), function(t){ t.classList.toggle('on', +t.dataset.tab===s); });
-      Array.prototype.forEach.call(page.querySelectorAll('.tabp'), function(t){ t.classList.toggle('hid', +t.dataset.tabp!==s); });
-    },
-    day1: function(s, page){
-      Array.prototype.forEach.call(page.querySelectorAll('.checks li'), function(li){ li.classList.toggle('ck', +li.dataset.c<=s); });
-    }
+    day1:function(s, page){ $$('.checks li', page).forEach(function(li){ li.classList.toggle('ck', +li.dataset.c <= s); }); },
+    delivery:function(s){ var b = document.getElementById('approveBtn'); b.classList.toggle('done', s >= 1); b.textContent = s >= 1 ? '승인됨' : '승인하고 배포'; }
   };
 
+  function countUp(el){
+    var to = +el.dataset.count, t0 = null;
+    if(STATIC || !window.requestAnimationFrame){ el.textContent = to; return; }
+    el.textContent = '0';
+    function fr(ts){ if(t0 === null) t0 = ts; var k = Math.min(1, (ts - t0)/900); el.textContent = Math.round(to*(1 - Math.pow(1-k, 3))); if(k < 1) requestAnimationFrame(fr); }
+    requestAnimationFrame(fr);
+  }
+  function visStep(el){ for(var e = el; e && e !== stage; e = e.parentElement){ if(e.dataset && e.dataset.s !== undefined) return +e.dataset.s; } return 0; }
+
   /* ---------- 렌더 ---------- */
-  var pn=document.getElementById('pn');
-  function nsteps(p){ return +(pages[p].dataset.steps||0); }
-  function render(fromP){
-    pages.forEach(function(p,i){ p.classList.toggle('active', i===P); });
-    var page=pages[P];
+  var pn = document.getElementById('pn'), secEl = document.getElementById('sec'), progEl = document.getElementById('prog');
+  function nsteps(p){ return +(pages[p].dataset.steps || 0); }
+  function render(mode){
+    var changed = P !== lastP;
+    pages.forEach(function(p, i){ p.classList.toggle('active', i === P); });
+    var page = pages[P];
     page.dataset.step = S;
-    Array.prototype.forEach.call(page.querySelectorAll('[data-s],[data-u]'), function(n){
-      var s0 = n.dataset.s!==undefined ? +n.dataset.s : 0, u = n.dataset.u!==undefined ? +n.dataset.u : 1e9;
-      n.classList.toggle('hid', !(S>=s0 && S<u));
+    if(changed){ page.classList.add('notr'); $$('.drw', page).forEach(function(d){ d.classList.add('undrawn'); }); void page.offsetWidth; page.classList.remove('notr'); }
+    $$('[data-s],[data-u]', page).forEach(function(n){
+      var s0 = n.dataset.s !== undefined ? +n.dataset.s : 0, u = n.dataset.u !== undefined ? +n.dataset.u : 1e9;
+      n.classList.toggle('hid', !(S >= s0 && S < u));
     });
-    var shaker = page.querySelector('.shaker');
-    if(shaker){ shaker.classList.remove('shake'); if(S>=1 && fromP===P){ void shaker.offsetWidth; shaker.classList.add('shake'); } }
-    applyBar(page, S, page.id==='sweep' && S>=1 && fromP===P);
-    if(hooks[page.id]) hooks[page.id](S, page);
+    $$('.drw', page).forEach(function(d){ d.classList.toggle('undrawn', !!d.closest('.hid')); });
+    $$('[data-on]', page).forEach(function(n){ n.classList.toggle('on', S >= +n.dataset.on); });
+    if(mode === 'step') $$('[data-shake="'+S+'"]', page).forEach(function(n){ n.classList.remove('shake'); void n.offsetWidth; n.classList.add('shake'); });
+    $$('[data-count]', page).forEach(function(n){ var vs = visStep(n); if((mode === 'step' && vs === S) || (changed && mode !== 'back' && vs <= S)) countUp(n); else n.textContent = n.dataset.count; });
+    if(hooks[page.id]) hooks[page.id](S, page, mode);
+    worldRender(mode);
+    secEl.textContent = page.dataset.sec || ''; secEl.style.opacity = page.dataset.sec ? '1' : '0';
+    progEl.style.width = (N > 1 ? P/(N-1)*100 : 0)+'%';
     pn.textContent = (P+1)+' / '+N;
-    try{ history.replaceState(null,'','#p'+(P+1)+'-'+S); }catch(e){}
+    try{ history.replaceState(null, '', '#p'+(P+1)+'-'+S); }catch(e){}
+    lastP = P;
     sendState();
   }
-  function next(){ var f=P; if(S<nsteps(P)) S++; else if(P<N-1){ P++; S=0; } else return; render(f); }
-  function prev(){ var f=P; if(S>0) S--; else if(P>0){ P--; S=nsteps(P); } else return; render(f===P?P:-1); }
-  function go(p, s){ P=Math.max(0,Math.min(N-1,p)); S=Math.max(0,Math.min(nsteps(P), s||0)); render(-1); }
+  function next(){ if(S < nsteps(P)){ S++; render('step'); } else if(P < N-1){ P++; S = 0; render('page'); } }
+  function prev(){ if(S > 0){ S--; render('back'); } else if(P > 0){ P--; S = nsteps(P); render('back'); } }
+  function go(p, s){ P = Math.max(0, Math.min(N-1, p)); S = Math.max(0, Math.min(nsteps(P), s||0)); render('jump'); }
 
   /* ---------- 화면 맞춤 ---------- */
-  function fit(){ var k=Math.min(window.innerWidth/1920, window.innerHeight/1080); stage.style.transform='translate(-50%,-50%) scale('+k+')'; }
+  function fit(){ var k = Math.min(window.innerWidth/1920, window.innerHeight/1080); stage.style.transform = 'translate(-50%,-50%) scale('+k+')'; }
   window.addEventListener('resize', fit);
 
   /* ---------- 입력 ---------- */
-  var jumpBuf='', jumpEl=document.getElementById('jump'), help=document.getElementById('help'), black=document.getElementById('black');
+  var jumpBuf = '', jumpEl = document.getElementById('jump'), help = document.getElementById('help'), black = document.getElementById('black');
   function onKey(e, fromPresenter){
-    var k=e.key;
-    if(k==='ArrowRight'||k===' '||k==='PageDown'||k==='ArrowDown'){ e.preventDefault&&e.preventDefault(); if(jumpBuf){ jumpBuf=''; jumpEl.textContent=''; } next(); }
-    else if(k==='ArrowLeft'||k==='PageUp'||k==='ArrowUp'||k==='Backspace'){ e.preventDefault&&e.preventDefault(); prev(); }
-    else if(k==='Home'){ go(0,0); } else if(k==='End'){ go(N-1,0); }
-    else if(/^[0-9]$/.test(k)){ jumpBuf+=k; jumpEl.textContent='→ '+jumpBuf; }
-    else if(k==='Enter'){ if(jumpBuf){ go(+jumpBuf-1,0); jumpBuf=''; jumpEl.textContent=''; } else next(); }
-    else if(k==='Escape'){ jumpBuf=''; jumpEl.textContent=''; help.classList.add('hid'); }
-    else if(!fromPresenter && (k==='f'||k==='F')){ var d=document.documentElement; try{ if(document.fullscreenElement) document.exitFullscreen(); else if(d.requestFullscreen) d.requestFullscreen().catch(function(){}); }catch(err){} }
-    else if(k==='b'||k==='B'||k==='.'){ black.classList.toggle('hid'); }
-    else if(k==='h'||k==='H'||k==='?'){ help.classList.toggle('hid'); }
-    else if(!fromPresenter && (k==='p'||k==='P')){ openPresenter(); }
+    var k = e.key;
+    if(k === 'ArrowRight' || k === ' ' || k === 'PageDown' || k === 'ArrowDown'){ e.preventDefault && e.preventDefault(); if(jumpBuf){ jumpBuf = ''; jumpEl.textContent = ''; } next(); }
+    else if(k === 'ArrowLeft' || k === 'PageUp' || k === 'ArrowUp' || k === 'Backspace'){ e.preventDefault && e.preventDefault(); prev(); }
+    else if(k === 'Home'){ go(0, 0); } else if(k === 'End'){ go(N-1, 0); }
+    else if(/^[0-9]$/.test(k)){ jumpBuf += k; jumpEl.textContent = '→ '+jumpBuf; }
+    else if(k === 'Enter'){ if(jumpBuf){ go(+jumpBuf-1, 0); jumpBuf = ''; jumpEl.textContent = ''; } else next(); }
+    else if(k === 'Escape'){ jumpBuf = ''; jumpEl.textContent = ''; help.classList.add('hid'); }
+    else if(!fromPresenter && (k === 'f' || k === 'F')){ var d = document.documentElement; try{ if(document.fullscreenElement) document.exitFullscreen(); else if(d.requestFullscreen) d.requestFullscreen().catch(function(){}); }catch(err){} }
+    else if(k === 'b' || k === 'B' || k === '.'){ black.classList.toggle('hid'); }
+    else if(k === 'h' || k === 'H' || k === '?'){ help.classList.toggle('hid'); }
+    else if(!fromPresenter && (k === 'p' || k === 'P')){ openPresenter(); }
   }
 
   /* ---------- 발표자 창 ---------- */
-  var pres=null;
+  var pres = null;
   function openPresenter(){
-    try{ pres = window.open(location.href.split('#')[0].split('?')[0]+'?presenter', 'cicd-presenter', 'width=1180,height=760'); }catch(e){ pres=null; }
+    try{ pres = window.open(location.href.split('#')[0].split('?')[0]+'?presenter', 'cicd-presenter', 'width=1180,height=760'); }catch(e){ pres = null; }
     setTimeout(sendState, 600);
   }
-  function sendState(){ if(pres && !pres.closed){ try{ pres.postMessage({t:'st',P:P,S:S}, '*'); }catch(e){} } }
+  function sendState(){ if(pres && !pres.closed){ try{ pres.postMessage({t:'st', P:P, S:S}, '*'); }catch(e){} } }
 
   if(isPresenter){
     document.body.classList.add('presenter');
-    document.getElementById('viewport').style.display='none';
-    var wrap=document.createElement('div'); wrap.className='pv';
-    wrap.innerHTML='<div><h1 id="pvT"></h1><div class="meta" id="pvM"></div><div class="nt" id="pvN"></div></div>'+
+    document.getElementById('viewport').style.display = 'none';
+    var wrap = document.createElement('div'); wrap.className = 'pv';
+    wrap.innerHTML = '<div><h1 id="pvT"></h1><div class="meta" id="pvM"></div><div class="nt" id="pvN"></div></div>'+
       '<div class="side"><div class="clock" id="pvC">00:00</div><div><button type="button" id="pvPrev">이전</button><button type="button" id="pvNext">다음</button><button type="button" id="pvReset">시계 0</button></div>'+
       '<div class="nx">다음 장<b id="pvX"></b></div><div class="keys">→ 스페이스 다음 · ← 이전 · 숫자+Enter 이동 · B 가리기</div></div>';
     document.body.appendChild(wrap);
-    var t0=null;
-    function tick(){ if(t0===null){ document.getElementById('pvC').textContent='00:00'; return; } var s=Math.floor((Date.now()-t0)/1000); document.getElementById('pvC').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
-    setInterval(tick, 500);
-    function show(p, s){
-      var pg=pages[p], nt=pg.querySelector('.notes');
-      document.getElementById('pvT').textContent=(p+1)+'. '+(pg.dataset.title||'');
-      document.getElementById('pvM').textContent='단계 '+s+' / '+nsteps(p)+'   ·   '+(p+1)+' / '+N;
-      document.getElementById('pvN').textContent= nt ? nt.textContent : '';
-      document.getElementById('pvX').textContent= p<N-1 ? (p+2)+'. '+(pages[p+1].dataset.title||'') : '끝';
-    }
-    function send(k){ if(t0===null) t0=Date.now(); try{ window.opener && window.opener.postMessage({t:'key',k:k}, '*'); }catch(e){} }
-    window.addEventListener('message', function(e){ var d=e.data; if(d && d.t==='st') show(d.P, d.S); });
-    window.addEventListener('keydown', function(e){ if(['ArrowRight',' ','PageDown','ArrowDown','ArrowLeft','PageUp','ArrowUp','Backspace','Enter','Home','End','b','B','.'].indexOf(e.key)>=0 || /^[0-9]$/.test(e.key)){ e.preventDefault(); send(e.key); } });
-    document.getElementById('pvNext').onclick=function(){ send('ArrowRight'); };
-    document.getElementById('pvPrev').onclick=function(){ send('ArrowLeft'); };
-    document.getElementById('pvReset').onclick=function(){ t0=Date.now(); };
-    show(0,0);
+    var t0 = null;
+    setInterval(function(){ if(t0 === null){ document.getElementById('pvC').textContent = '00:00'; return; } var s = Math.floor((Date.now()-t0)/1000); document.getElementById('pvC').textContent = String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }, 500);
+    var show = function(p, s){
+      var pg = pages[p], nt = pg.querySelector('.notes');
+      document.getElementById('pvT').textContent = (p+1)+'. '+(pg.dataset.title || '');
+      document.getElementById('pvM').textContent = '단계 '+s+' / '+nsteps(p)+'   ·   '+(p+1)+' / '+N;
+      document.getElementById('pvN').textContent = nt ? nt.textContent : '';
+      document.getElementById('pvX').textContent = p < N-1 ? (p+2)+'. '+(pages[p+1].dataset.title || '') : '끝';
+    };
+    var send = function(k){ if(t0 === null) t0 = Date.now(); try{ window.opener && window.opener.postMessage({t:'key', k:k}, '*'); }catch(e){} };
+    window.addEventListener('message', function(e){ var d = e.data; if(d && d.t === 'st') show(d.P, d.S); });
+    window.addEventListener('keydown', function(e){ if(['ArrowRight',' ','PageDown','ArrowDown','ArrowLeft','PageUp','ArrowUp','Backspace','Enter','Home','End','b','B','.'].indexOf(e.key) >= 0 || /^[0-9]$/.test(e.key)){ e.preventDefault(); send(e.key); } });
+    document.getElementById('pvNext').onclick = function(){ send('ArrowRight'); };
+    document.getElementById('pvPrev').onclick = function(){ send('ArrowLeft'); };
+    document.getElementById('pvReset').onclick = function(){ t0 = Date.now(); };
+    show(0, 0);
     try{ window.opener && window.opener.postMessage({t:'hello'}, '*'); }catch(e){}
     return;
   }
 
   window.addEventListener('message', function(e){
-    var d=e.data; if(!d) return;
-    if(d.t==='key') onKey({key:d.k}, true);
-    if(d.t==='hello'){ pres = e.source; sendState(); }
+    var d = e.data; if(!d) return;
+    if(d.t === 'key') onKey({key:d.k}, true);
+    if(d.t === 'hello'){ pres = e.source; sendState(); }
   });
-  window.addEventListener('keydown', function(e){ if(e.altKey||e.ctrlKey||e.metaKey) return; onKey(e, false); });
-  stage.addEventListener('click', function(e){
-    if(e.target.closest('.ix')) return;
-    if(e.shiftKey) prev(); else next();
-  });
-  document.getElementById('approveBtn').addEventListener('click', function(e){ e.stopPropagation(); if(pages[P].id==='lanes' && S===2) next(); });
-  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(t){
-    t.addEventListener('click', function(e){ e.stopPropagation(); var pg=pages[P]; if(pg.id==='tools'){ S=+t.dataset.tab; render(P); } });
-  });
-  (function(){
-    var c=document.getElementById('cmp'), down=false;
-    function at(e){ var r=c.getBoundingClientRect(); setCmp((e.clientX-r.left)/r.width*100, false); }
-    c.addEventListener('pointerdown', function(e){ down=true; c.setPointerCapture(e.pointerId); at(e); e.stopPropagation(); });
-    c.addEventListener('pointermove', function(e){ if(down) at(e); });
-    c.addEventListener('pointerup', function(e){ down=false; e.stopPropagation(); });
-    c.addEventListener('click', function(e){ e.stopPropagation(); });
-  })();
+  window.addEventListener('keydown', function(e){ if(e.altKey || e.ctrlKey || e.metaKey) return; onKey(e, false); });
+  stage.addEventListener('click', function(e){ if(e.target.closest('.ix')) return; if(e.shiftKey) prev(); else next(); });
+  document.getElementById('approveBtn').addEventListener('click', function(e){ e.stopPropagation(); if(pages[P].id === 'delivery' && S === 0) next(); });
+  $$('.tab', stage).forEach(function(t){ t.addEventListener('click', function(e){ e.stopPropagation(); if(pages[P].id === 'tools'){ S = +t.dataset.tab; render('step'); } }); });
 
   /* ---------- 실시간 배포 정보 (배포된 주소에서만) ---------- */
   var LIVE = window.DHDL || {};
   function setLive(key, val){
-    Array.prototype.forEach.call(document.querySelectorAll('[data-live="'+key+'"]'), function(e){ e.textContent = val; e.classList.remove('pend'); });
-    Array.prototype.forEach.call(document.querySelectorAll('[data-live-show="'+key+'"]'), function(e){ e.classList.remove('nolive'); });
+    $$('[data-live="'+key+'"]').forEach(function(e){ e.textContent = val; e.classList.remove('pend'); });
+    $$('[data-live-show="'+key+'"]').forEach(function(e){ e.classList.remove('nolive'); });
   }
   if(LIVE.commit) setLive('commit', LIVE.commit);
   if(LIVE.api && /^https?:$/.test(location.protocol) && window.fetch){
     var ctl = window.AbortController ? new AbortController() : null;
     var to = setTimeout(function(){ if(ctl) ctl.abort(); }, 5000);
-    fetch(LIVE.api.replace(/\/$/,'') + '/api/hello', ctl ? {signal: ctl.signal} : {})
+    fetch(LIVE.api.replace(/\/$/, '') + '/api/hello', ctl ? {signal: ctl.signal} : {})
       .then(function(r){ return r.ok ? r.json() : null; })
-      .then(function(d){ clearTimeout(to); if(d && d.revision){ setLive('message', d.message||''); setLive('revision', d.revision); } })
+      .then(function(d){ clearTimeout(to); if(d && d.revision){ setLive('message', d.message || ''); setLive('revision', d.revision); } })
       .catch(function(){ clearTimeout(to); });
   }
 
   var m = location.hash.match(/^#p(\d+)(?:-(\d+))?$/);
   fit();
-  if(m) go(+m[1]-1, +(m[2]||0)); else render(-1);
+  if(m) go(+m[1]-1, +(m[2]||0)); else render('jump');
 })();
 </script>
