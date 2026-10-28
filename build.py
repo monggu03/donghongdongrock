@@ -10,7 +10,7 @@
   VERCEL_PROJECT_PRODUCTION_URL  운영 주소 → 마지막 장 QR (Vercel이 자동으로 넣음)
 
 captures/<이름>.png|jpg 가 있으면 같은 이름의 캡처 자리를 그 이미지로 바꾼다.
-fontTools가 있으면 쓰는 글자만 남겨 폰트를 줄이고, 없으면 원본 폰트를 그대로 넣는다.
+fontTools가 있으면 쓰는 글자만 남겨 폰트를 줄이고, 없으면 자주 쓰는 한글 2,350자판을 넣는다.
 """
 import base64, io, json, os, re, subprocess, sys, tempfile
 
@@ -45,6 +45,10 @@ def data_uri(path):
     return f'data:{mime};base64,' + base64.b64encode(open(path, 'rb').read()).decode()
 
 def qr_uri():
+    svg = os.path.join(CAPS, 'qr.svg')  # 미리 만들어 둔 QR이 있으면 그대로 (segno 없이도 동작)
+    if os.path.exists(svg):
+        log.append('QR: captures/qr.svg')
+        return 'data:image/svg+xml;base64,' + base64.b64encode(open(svg, 'rb').read()).decode()
     qp = os.path.join(CAPS, 'qr.txt')
     url = open(qp, encoding='utf-8').read().strip() if os.path.exists(qp) else (f'https://{prod}' if prod else '')
     if not url:
@@ -99,6 +103,8 @@ txt = os.path.join(tmp, 'chars.txt'); open(txt, 'w', encoding='utf-8').write(''.
 css = []
 for fam, fn, weight, shrink in FACES:
     path = os.path.join(FONTS, fn)
+    if fam == 'Pretendard' and not can_subset:
+        path = os.path.join(FONTS, 'PretendardVariable-KS.woff2')  # 자주 쓰는 한글 2,350자만 담은 판
     if shrink and can_subset:
         out = os.path.join(tmp, fn)
         subprocess.run([sys.executable, '-m', 'fontTools.subset', path, f'--text-file={txt}', '--flavor=woff2',
@@ -108,7 +114,7 @@ for fam, fn, weight, shrink in FACES:
     css.append(f"@font-face{{font-family:'{fam}';src:url(data:font/woff2;base64,{b64}) format('woff2');"
                f"font-weight:{weight};font-style:normal;font-display:block}}")
 src = src.replace('/*FONTS*/', '\n'.join(css))
-log.append('fonts: ' + ('쓰는 글자만' if can_subset else '원본 그대로 (fontTools 없음)'))
+log.append('fonts: ' + ('쓰는 글자만' if can_subset else '자주 쓰는 글자판 (fontTools 없음)'))
 
 # ---------- 출력 ----------
 head_end = src.index('</style>') + len('</style>')
