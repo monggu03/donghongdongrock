@@ -133,6 +133,21 @@ for fam, fn, weight, shrink in FACES:
 src = src.replace('/*FONTS*/', '\n'.join(css))
 log.append('fonts: ' + ('쓰는 글자만' if can_subset else '자주 쓰는 글자판 (fontTools 없음)'))
 
+# ---------- 오픈소스 조각 (node tools/build-assets.mjs 로 다시 만들고 결과를 커밋해 둠) ----------
+VEND, ASSETS = os.path.join(ROOT, 'vendor'), os.path.join(ROOT, 'assets')
+def rd(*p):
+    path = os.path.join(*p)
+    return open(path, encoding='utf-8').read() if os.path.exists(path) else ''
+def js_safe(s):  # <script> 안에 넣을 때 태그가 끊기지 않게
+    return s.replace('</', '<\\/')
+vjs = '/*!\n' + rd(VEND, 'LICENSES.txt') + '*/\n' + '\n'.join(rd(VEND, f) for f in ('rough-notation.js', 'number-flow.js', 'drauu.js', 'magic-move.js'))
+src = (src.replace('/*VENDOR_CSS*/', rd(VEND, 'magic-move.css'))
+          .replace('<!--ICONS-->', rd(ASSETS, 'icons.svg') + rd(ASSETS, 'faces.svg'))
+          .replace('/*CODE_JSON*/{}', js_safe(rd(ASSETS, 'code.json') or '{}'))
+          .replace('/*MM_JSON*/null', js_safe(rd(ASSETS, 'magic-move.json') or 'null'))
+          .replace('/*VENDOR_JS*/', vjs))
+log.append(f"vendor: {len(vjs) // 1024}KB, 코드 색칠 {len(json.loads(rd(ASSETS, 'code.json') or '{}'))}개")
+
 # ---------- 출력 ----------
 head_end = src.index('</style>') + len('</style>')
 full = ('<!doctype html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n'
