@@ -1,0 +1,25 @@
+<section class="page" id="rollback" data-title="기준선 넘으면 되돌림" data-steps="2" data-sec="운영과 복구">
+  <h2 class="ttl">오류율이 기준선을 넘으면 바로 이전 버전으로</h2>
+  <div class="grid100" id="g100b" style="left:112px;top:250px"></div>
+  <p class="cap" id="g100bL" style="position:absolute;left:112px;top:820px">새 버전 25명, 이전 버전 75명</p>
+  <p class="pct" id="pctB" style="left:752px;top:240px"><number-flow>25%</number-flow></p>
+  <p class="cap" style="position:absolute;left:760px;top:400px">새 버전을 받은 사용자</p>
+  <svg class="chart" style="left:760px;top:460px" width="1048" height="398" viewBox="0 0 1000 380" aria-hidden="true">
+    <path d="M80 330H980" stroke="#C6C6BE" stroke-width="3"/>
+    <path d="M80 230H980" stroke="#CF222E" stroke-width="3" stroke-dasharray="12 10"/>
+    <text x="980" y="214" text-anchor="end" font-family="Pretendard,sans-serif" font-size="26" font-weight="700" fill="#CF222E">1% 넘으면 되돌림</text>
+    <text x="0" y="40" font-family="Pretendard,sans-serif" font-size="26" font-weight="600" fill="#55554E">오류율</text>
+    <g font-family="Pretendard,sans-serif" font-size="26" font-weight="600" fill="#55554E" text-anchor="middle">
+      <text x="170" y="372">5%</text><text x="420" y="372">25%</text><text x="670" y="372">50%</text><text x="920" y="372">100%</text>
+    </g>
+    <path d="M170 310L420 300" stroke="#2F5BD3" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="170" cy="310" r="10" fill="#2F5BD3"/><circle cx="420" cy="300" r="10" fill="#2F5BD3"/>
+    <g data-s="1"><path d="M420 300L545 90" stroke="#CF222E" stroke-width="5" stroke-linecap="round"/><circle cx="545" cy="90" r="12" fill="#CF222E"/>
+      <text x="575" y="98" font-family="Pretendard,sans-serif" font-size="28" font-weight="800" fill="#CF222E">2.4%</text></g>
+  </svg>
+  <p class="big" data-s="2" style="position:absolute;left:760px;top:876px">되돌림 완료, 노출은 25명에서 멈춤</p>
+  <p class="foot" data-u="2" style="position:absolute;left:760px;top:880px">100명으로 그린 예시 값</p>
+  <aside class="notes">이번엔 문제가 생기는 경우입니다. 25%까지 넓혔습니다.
+(클릭) 그런데 오류율이 2.4%로 튀어서 기준선을 넘습니다.
+(클릭) 그러면 바로 되돌립니다. 새 버전을 받았던 25명도 전부 이전 버전으로 돌아갑니다. 새 버전에 노출된 사람이 100명 중 25명에서 멈춥니다.</aside>
+</section>

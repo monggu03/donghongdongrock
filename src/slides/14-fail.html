@@ -1,0 +1,11 @@
+<section class="page" id="fail" data-title="실패: 테스트에서 멈춤" data-steps="2" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">다음 PR: padStart를 지운 한 줄, 테스트에서 멈춤</h2>
+  <pre class="code" data-lang="diff" style="left:112px;top:818px;width:1696px;padding-bottom:12px" data-label="PR #13 · src/lib/timetable.js">-return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
++return `${h}:${m}`</pre>
+  <p class="hdr" data-u="1">화면은 뜨고, 시간만 14:5로 표시</p>
+  <p class="hdr ngc" data-s="1" data-u="2" data-late>테스트 실패, 뒤 단계는 건너뜀</p>
+  <p class="hdr" data-s="2" data-late>빨간불인 동안 main 합치기 차단</p>
+  <aside class="notes">이번엔 다른 팀원이 PR을 하나 올립니다. 시간을 두 자리로 채워 주는 padStart가 굳이 필요한가 싶어서 지웠습니다. 자기 컴퓨터에서는 화면도 잘 뜹니다. 그런데 시간이 십사 콜론 공오가 아니라, 0이 빠진 십사 콜론 오로 나옵니다.
+(클릭) 설치 통과, 린트 통과, 그리고 테스트에서 걸립니다. 빨간불이 들어오고, 뒤의 빌드는 아예 실행하지 않습니다.
+(클릭) 그리고 머지 문이 잠깁니다.</aside>
+</section>

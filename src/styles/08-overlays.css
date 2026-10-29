@@ -1,0 +1,14 @@
+/* 도움말, 장 이동 입력, 가리기, 발표 중 펜 */
+/* 도움말·발표자·라이브 */
+#help{position:absolute;right:56px;bottom:80px;width:560px;padding:28px 32px;border-radius:16px;background:var(--ink);color:#fff;font:500 24px/1.6 var(--f-sans);z-index:20}
+#help b{display:inline-block;min-width:150px;font-family:var(--f-mono);color:#FFB27D}
+#black{position:absolute;inset:0;background:#000;z-index:30}
+/* 발표 중 펜 (drauu): D로 켜면 클릭 대신 그리기 */
+#ink{position:absolute;left:0;top:0;z-index:25;pointer-events:none;overflow:visible}
+.inking #ink{pointer-events:auto;cursor:crosshair;touch-action:none}
+#pn::before{content:"";display:none}
+.inking #pn::before{content:"펜";display:inline-block;margin-right:14px;padding:2px 10px;border-radius:6px;background:#FF6309;color:#fff;font-weight:700}
+.nolive{display:none!important}
+.pend{font:600 30px/1.35 var(--f-sans)!important;color:var(--faint2)!important;letter-spacing:0!important}
+.live-dot{display:inline-block;width:16px;height:16px;border-radius:50%;background:var(--ok);margin-right:12px;vertical-align:2px}
+#jump{position:absolute;left:56px;bottom:26px;font:700 28px var(--f-mono);color:var(--sub);z-index:20}

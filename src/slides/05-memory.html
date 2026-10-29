@@ -1,0 +1,23 @@
+<section class="page" id="memory" data-title="기억에 의존하는 8단계" data-steps="1" data-sec="손으로 하던 배포">
+  <h2 class="ttl">사람이 8단계를 매번 기억해서 실행</h2>
+  <div class="card" style="left:112px;top:236px;width:1010px;height:640px;overflow:hidden">
+    <p class="cap" style="padding:20px 26px;border-bottom:1px solid var(--line)">deploy-steps.txt, 기억에 의존</p>
+    <ul class="st8 missable stg" data-on="1" style="left:0;top:74px;width:1008px">
+      <li><span class="n">01</span>서버 접속<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
+      <li><span class="n">02</span>최신 코드 받기<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
+      <li><span class="n">03</span>패키지 설치<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
+      <li class="m4"><span class="n" data-rn="circle" data-rn-s="1" data-rn-p="6">04</span>DB 변경 적용<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg><span class="tag">빠뜨림</span></li>
+      <li><span class="n">05</span>앱 빌드<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
+      <li><span class="n">06</span>파일 복사<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
+      <li><span class="n">07</span>앱 재시작<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
+      <li><span class="n">08</span>서비스 확인<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
+    </ul>
+  </div>
+  <div style="position:absolute;left:1200px;top:250px;width:608px">
+    <p class="big">순서도, 빠짐도<br>전부 사람 기억에 의존</p>
+    <p class="big ngc" data-s="1" style="margin-top:60px">한 단계만 빠져도 장애</p>
+    <p class="lead" data-s="1" style="margin-top:14px">04번은 뒤에서 다시 등장</p>
+  </div>
+  <aside class="notes">이 방식이 위험한 이유는 사람이 모든 단계를 기억해야 하기 때문입니다. 접속, 코드 받기, 설치, DB 변경, 빌드, 복사, 재시작, 확인. 여덟 단계를 매번 순서대로 해야 합니다.
+(클릭) 피곤한 새벽에 4번, DB 변경 적용 하나만 빠뜨려도 서비스가 깨집니다. 이 4번은 뒤에서 다시 나옵니다.</aside>
+</section>

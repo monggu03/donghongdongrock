@@ -1,0 +1,89 @@
+<section class="page" id="night" data-title="발표 일주일 전" data-steps="4" data-sec="손으로 하던 배포">
+  <h2 class="ttl">발표 일주일 전, 처음 해 보는 배포</h2>
+  <div class="tl">
+    <div class="tc"><i>개발 기간</i><b>기능마다 main에 합침</b></div>
+    <div class="tc"><i>D-7</i><b>첫 배포, 빌드 실패</b></div>
+    <div class="tc"><i>D-6</i><b>화면만 뜨고 데이터 없음</b></div>
+    <div class="tc"><i>D-5 03:00</i><b>설정 맞추다 밤샘</b></div>
+  </div>
+
+  <div data-u="1">
+    <svg class="drw" style="position:absolute;left:112px;top:410px" width="1696" height="400" viewBox="0 0 1696 400" aria-hidden="true">
+      <path pathLength="1" d="M0 230H1380" stroke="#1E1E1C" stroke-width="5" fill="none"/>
+      <text x="0" y="282" font-family="JetBrains Mono,monospace" font-size="26" fill="#55554E">main</text>
+      <g fill="none" stroke="#55554E" stroke-width="4">
+        <path pathLength="1" d="M150 230C200 230 200 110 256 110H334C390 110 390 230 440 230"/>
+        <path pathLength="1" d="M560 230C610 230 610 110 666 110H744C800 110 800 230 850 230"/>
+        <path pathLength="1" d="M930 230C980 230 980 110 1036 110H1114C1170 110 1170 230 1220 230"/>
+      </g>
+      <g fill="#FAFAF7" stroke="#55554E" stroke-width="4">
+        <circle cx="262" cy="110" r="11"/><circle cx="328" cy="110" r="11"/>
+        <circle cx="672" cy="110" r="11"/><circle cx="738" cy="110" r="11"/>
+        <circle cx="1042" cy="110" r="11"/><circle cx="1108" cy="110" r="11"/>
+      </g>
+      <g fill="#FAFAF7" stroke="#1E1E1C" stroke-width="5">
+        <circle cx="440" cy="230" r="15"/><circle cx="850" cy="230" r="15"/><circle cx="1220" cy="230" r="15"/>
+      </g>
+      <g fill="#1E1E1C">
+        <circle cx="500" cy="230" r="11"/><circle cx="540" cy="230" r="11"/>
+        <circle cx="890" cy="230" r="11"/>
+        <circle cx="1270" cy="230" r="11"/><circle cx="1310" cy="230" r="11"/><circle cx="1350" cy="230" r="11"/>
+      </g>
+      <g font-family="JetBrains Mono,monospace" font-size="24" fill="#55554E" text-anchor="middle">
+        <text x="295" y="76">feat/login</text><text x="705" y="76">feat/payment</text><text x="1075" y="76">feat/timetable</text>
+      </g>
+      <g stroke="#A3A39B" stroke-width="3">
+        <path pathLength="1" d="M520 252V292"/><path pathLength="1" d="M1310 252V292"/><path pathLength="1" d="M850 252V292"/>
+      </g>
+      <g font-family="Pretendard,sans-serif" font-size="28" font-weight="700" fill="#1E1E1C" text-anchor="middle">
+        <text x="520" y="330">main에 바로 push</text><text x="1310" y="330">main에 바로 push</text>
+        <text x="850" y="330">기능마다 PR</text>
+      </g>
+    </svg>
+    <svg style="position:absolute;left:112px;top:410px" width="1696" height="400" viewBox="0 0 1696 400" aria-hidden="true">
+      <path d="M1396 230H1452" stroke="#A3A39B" stroke-width="4" stroke-dasharray="10 10" fill="none"/>
+      <rect x="1462" y="160" width="232" height="140" rx="18" fill="none" stroke="#A3A39B" stroke-width="4" stroke-dasharray="12 10"/>
+      <text x="1578" y="222" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="32" font-weight="800" fill="#55554E">서버</text>
+      <text x="1578" y="262" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="24" font-weight="600" fill="#A3A39B">배포 0번</text>
+    </svg>
+    <p class="lead" style="position:absolute;left:112px;top:850px">합치기는 자주 함, 합칠 때 자동 검사는 없음</p>
+  </div>
+
+  <div data-s="1" data-u="2">
+    <pre class="log type" data-shake="1" style="left:112px;top:430px;width:1180px" data-label="서버 빌드 로그" data-ng="2,4,5">$ npm run build
+✗ Build failed in 285ms
+error during build:
+[UNRESOLVED_IMPORT] Could not resolve
+'./components/sessionTable.jsx' in src/App.jsx</pre>
+    <p class="big" style="position:absolute;left:1360px;top:460px;width:448px">내 컴퓨터에서는<br>잘 되던 코드</p>
+    <p class="cap" style="position:absolute;left:1360px;top:600px;width:448px">이 에러의 정체는 뒤에서</p>
+  </div>
+
+  <div data-s="2" data-u="3">
+    <pre class="log type" data-shake="2" style="left:112px;top:430px;width:1180px" data-label="배포된 화면의 브라우저 콘솔" data-ng="1,2,3">GET http://localhost:8080/api/sessions
+net::ERR_CONNECTION_REFUSED
+Uncaught (in promise) TypeError: Failed to fetch</pre>
+    <pre class="code" data-lang="js" style="left:112px;top:720px;width:1180px" data-label="src/App.jsx">const API = 'http://localhost:8080'</pre>
+    <p class="big" style="position:absolute;left:1360px;top:460px;width:448px">화면은 뜨는데<br>데이터가 없음</p>
+    <p class="cap" style="position:absolute;left:1360px;top:600px;width:448px">localhost = 보는 사람의 컴퓨터</p>
+  </div>
+
+  <div data-s="3" data-u="4">
+    <div style="position:absolute;left:104px;top:400px;font:800 260px/1 var(--f-mono);letter-spacing:-8px">03:00</div>
+    <div style="position:absolute;left:1060px;top:450px;width:748px">
+      <p class="big">환경 변수, CORS, DB 주소, 포트</p>
+      <p class="lead" style="margin-top:20px">하나 고치면 다음이 막힘, 발표 주간 내내 밤샘</p>
+    </div>
+  </div>
+
+  <div data-s="4">
+    <svg style="position:absolute;left:112px;top:366px" width="1696" height="40" viewBox="0 0 1696 40" aria-hidden="true"><path d="M2 2V22H1694V2" fill="none" stroke="#FF6309" stroke-width="4"/></svg>
+    <p style="position:absolute;left:112px;top:450px;margin:0;font:800 72px/1.3 var(--f-sans);letter-spacing:-2px">합치기는 매일<br>검사와 배포는 마지막 주에 처음</p>
+    <p class="lead" style="position:absolute;left:112px;top:680px">몇 주 동안 쌓인 문제가 배포하는 날 한꺼번에 드러남</p>
+  </div>
+  <aside class="notes">동아리에서 팀 프로젝트를 지켜보면 흔히 보는 장면입니다. 합치기는 자주 합니다. main에 바로 push하기도 하고, 기능마다 PR, 그러니까 main에 합쳐 달라는 요청을 올리기도 합니다. 그런데 자동 검사는 없고, 서버에는 한 번도 올려 보지 않습니다.
+(클릭) 그러다 발표 일주일 전, 처음으로 서버에 배포해 봅니다. 서버에서 빌드를 돌렸더니 실패합니다. 이상한 건, 이 코드가 제 컴퓨터에서는 잘 됐다는 점입니다. 이 에러의 정체는 뒤에서 밝혀집니다.
+(클릭) 겨우 고쳐서 띄웠더니 이번엔 데이터가 하나도 없습니다. 콘솔을 보면 API 주소가 아직 localhost입니다. 배포된 화면은 보는 사람의 브라우저에서 돌기 때문에, localhost는 그 사람 컴퓨터를 가리킵니다. 제 노트북에는 백엔드가 켜져 있어서 저만 잘 보였습니다.
+(클릭) 그다음은 환경 변수, CORS, DB 주소, 포트. 하나 고치면 다음 게 막히고, 발표 주간 내내 밤을 샙니다.
+(클릭) 실력 문제가 아닙니다. 합치기는 매일 했는데 검사와 배포는 마지막 주에 처음 해 본 구조가 문제입니다.</aside>
+</section>

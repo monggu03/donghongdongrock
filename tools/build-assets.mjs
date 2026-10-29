@@ -8,9 +8,9 @@
 //   vendor/magic-move.js/.css 코드가 토큰 단위로 미끄러지며 바뀌는 애니메이션(재생기)
 //   assets/icons.svg          Primer Octicons + Tabler Icons 중 쓰는 것만 <symbol>로
 //   assets/faces.svg          DiceBear Notionists 다섯 얼굴
-//   assets/code.json          deck.src.html 코드 카드를 Shiki(github-light)로 미리 칠한 줄
+//   assets/code.json          src/slides/의 코드 카드를 Shiki(github-light)로 미리 칠한 줄
 //   assets/magic-move.json    39장 GitHub → Jenkins → GitLab 전환용 토큰
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
@@ -94,7 +94,8 @@ const LANG = { yaml: 'yaml', js: 'javascript', groovy: 'groovy', diff: 'javascri
 const fnv = (s) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(16); };
 const dec = (s) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const src = readFileSync(join(ROOT, 'deck.src.html'), 'utf8');
+const SLIDES = join(ROOT, 'src', 'slides');  // 장 파일들 (코드 카드와 39장 탭 코드를 여기서 읽음)
+const src = readdirSync(SLIDES).filter((f) => f.endsWith('.html')).sort().map((f) => readFileSync(join(SLIDES, f), 'utf8')).join('\n');
 const code = {};
 for (const m of src.matchAll(/<pre class="code[^"]*"([^>]*)>([\s\S]*?)<\/pre>/g)) {
   const lang = (m[1].match(/data-lang="([^"]+)"/) || [])[1];

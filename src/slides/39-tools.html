@@ -1,0 +1,53 @@
+<section class="page" id="tools" data-title="도구별 문법" data-steps="2" data-sec="회사에서는">
+  <h2 class="ttl">도구가 달라도 트리거, 러너, 단계는 같은 자리</h2>
+  <div class="tabs" style="left:112px;top:236px">
+    <button class="tab ix on" data-tab="0" type="button">GitHub Actions</button>
+    <button class="tab ix" data-tab="1" type="button">Jenkins</button>
+    <button class="tab ix" data-tab="2" type="button">GitLab CI</button>
+  </div>
+  <pre class="code tabp" data-lang="yaml" data-tabp="0" data-mk="1:1,4:2,5:3" style="left:112px;top:330px;width:1180px" data-label=".github/workflows/ci.yml">on: pull_request
+jobs:
+  frontend-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build</pre>
+  <pre class="code tabp hid" data-lang="groovy" data-tabp="1" data-mk="2:2,3:3" style="left:112px;top:330px;width:1180px" data-label="Jenkinsfile">pipeline {
+  agent any
+  stages {
+    stage('Install') { steps { sh 'npm ci' } }
+    stage('Lint')    { steps { sh 'npm run lint' } }
+    stage('Test')    { steps { sh 'npm test' } }
+    stage('Build')   { steps { sh 'npm run build' } }
+  }
+}</pre>
+  <pre class="code tabp hid" data-lang="yaml" data-tabp="2" data-mk="2:1,4:2,5:3" style="left:112px;top:330px;width:1180px" data-label=".gitlab-ci.yml">frontend-check:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+  image: node:24
+  script:
+    - npm ci
+    - npm run lint
+    - npm test
+    - npm run build</pre>
+  <div class="code mmcard" id="mmcard" style="left:112px;top:330px;width:1180px" hidden><span class="lab" id="mmlab">.github/workflows/ci.yml</span><div class="mmwrap"><pre id="mmpre"></pre><span class="mk mm" data-m="1">1</span><span class="mk mm" data-m="2">2</span><span class="mk mm" data-m="3">3</span></div></div>
+  <div style="position:absolute;left:1350px;top:340px;width:458px">
+    <div style="position:relative;height:118px">
+      <p class="big tabp" data-tabp="0" style="position:absolute;left:0;top:0;width:458px">GitHub에 내장</p>
+      <p class="big tabp hid" data-tabp="1" style="position:absolute;left:0;top:0;width:458px">직접 설치해 운영하는 서버</p>
+      <p class="big tabp hid" data-tabp="2" style="position:absolute;left:0;top:0;width:458px">GitLab에 내장</p>
+    </div>
+    <div style="margin-top:44px">
+      <p style="margin:0 0 22px;font:600 30px/1.5 var(--f-sans)"><span class="badge" style="width:46px;height:46px;line-height:46px;font-size:24px;margin-right:14px">1</span>트리거</p>
+      <p style="margin:0 0 22px;font:600 30px/1.5 var(--f-sans)"><span class="badge" style="width:46px;height:46px;line-height:46px;font-size:24px;margin-right:14px">2</span>러너</p>
+      <p style="margin:0 0 22px;font:600 30px/1.5 var(--f-sans)"><span class="badge" style="width:46px;height:46px;line-height:46px;font-size:24px;margin-right:14px">3</span>단계</p>
+    </div>
+    <p class="lead tabp hid" data-tabp="1" style="margin-top:20px">PR 트리거는 보통 파일 밖 설정</p>
+  </div>
+  <aside class="notes">회사에 가면 GitHub Actions 대신 Jenkins나 GitLab CI를 쓰는 곳이 많습니다. GitHub Actions는 GitHub에 들어 있는 자동화입니다. 도구는 달라도 트리거, 러너, 단계 세 자리는 같습니다. 여기서는 on, runs-on, steps입니다.
+(클릭) Jenkins는 회사가 직접 서버에 설치해서 운영하는 자동화 서버입니다. 러너는 agent, 단계는 stages로 바뀌고, PR이 열릴 때 출발시키는 트리거는 보통 파일 밖 Jenkins 설정에 둡니다.
+(클릭) GitLab CI는 GitLab에 들어 있습니다. 트리거는 rules, 러너는 image, 단계는 script입니다. 문법만 다르고 세 자리는 같습니다.</aside>
+</section>

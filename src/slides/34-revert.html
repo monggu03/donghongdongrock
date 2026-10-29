@@ -1,0 +1,10 @@
+<section class="page" id="revert" data-title="이전 이미지로 교체" data-steps="2" data-sec="운영과 복구">
+  <h2 class="ttl">되돌리기 = 보관해 둔 이전 이미지로 교체</h2>
+  <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">보관소에 v1이 그대로 있음</p>
+  <p class="big" data-s="1" style="position:absolute;left:112px;top:846px">다시 빌드하지 않아서 몇 초</p>
+  <p class="lead" data-s="1" data-u="2" style="position:absolute;left:112px;top:926px">Cloud Run: 배포마다 남는 이전 버전(리비전)으로 트래픽 100% 이동</p>
+  <div class="ghrow" data-s="2" style="position:absolute;left:112px;top:914px"><span class="ghpill mg"><svg class="oi"><use href="#oc-git-merge"/></svg>Merged</span><span class="mono">#13</span><span class="ghbtn">Revert</span><span class="lead">버튼 한 번으로 main 코드도 되돌리는 PR</span></div>
+  <aside class="notes">되돌리는 방법은 간단합니다. 아까 보관소에 v1을 남겨 뒀습니다.
+(클릭) 그 v1 이미지를 다시 운영에 올립니다. 다시 빌드하지 않으니까 몇 초면 됩니다. 실습 백엔드를 올린 Cloud Run은 배포마다 버전을 리비전으로 남겨서, 트래픽 100%를 이전 리비전으로 옮기면 끝입니다.
+(클릭) 다만 main에는 아직 v2 코드가 남아 있어서, GitHub의 Revert 버튼으로 되돌리는 PR도 올립니다. 이것도 CI와 CD를 똑같이 한 바퀴 돕니다.</aside>
+</section>

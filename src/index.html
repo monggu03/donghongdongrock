@@ -1,0 +1,52 @@
+<title>CI/CD, 어떻게 하는 걸까</title>
+<style>
+/*FONTS*/
+/*VENDOR_CSS*/
+<!--CSS-->
+</style>
+<!--ICONS-->
+<div id="viewport"><div id="stage">
+<div id="prog"></div>
+<div id="sec"></div>
+
+<!-- ================= 파이프라인 기계: world/build.mjs가 그린 SVG + 글자 덧붙임. 모든 장이 같은 기계 위에서 상태만 바뀜 ================= -->
+<div id="wview">
+<div id="world" class="iso" data-theme="light" aria-hidden="true">
+  <!--WORLD_SVG-->
+  <div class="wbr w" data-w="brCI" id="wbrCI"><span>CI · 지속적 통합</span></div>
+  <div class="wbr w" data-w="brCD" id="wbrCD"><span>CD · 지속적 전달과 배포</span></div>
+  <div class="wl w" data-w="dev" data-at="dev"><b>내 컴퓨터</b><small>코드 수정, 커밋</small></div>
+  <div class="wl w" data-w="install" data-at="install"><svg class="ic" viewBox="0 0 40 40"></svg><b>설치</b><small class="m">npm ci</small></div>
+  <div class="wl w" data-w="lint" data-at="lint"><svg class="ic" viewBox="0 0 40 40"></svg><b>린트</b><small class="m">npm run lint</small></div>
+  <div class="wl w" data-w="test" data-at="test"><svg class="ic" viewBox="0 0 40 40"></svg><b>테스트</b><small class="m">npm test</small></div>
+  <div class="wl w" data-w="build" data-at="build"><svg class="ic" viewBox="0 0 40 40"></svg><b>빌드</b><small class="m">npm run build</small></div>
+  <div class="wl w" data-w="merge" data-at="merge"><svg class="ic" viewBox="0 0 40 40"></svg><b id="wMergeB">머지</b><small class="m">main</small></div>
+  <div class="wl w" data-w="image" data-at="image"><svg class="ic" viewBox="0 0 40 40"></svg><b>포장</b><small>이미지 만들기</small></div>
+  <div class="wl w" data-w="reg" data-at="reg"><svg class="ic" viewBox="0 0 40 40"></svg><b>보관</b><small>이미지 보관소</small></div>
+  <div class="wl w" data-w="stg" data-at="stg"><svg class="ic" viewBox="0 0 40 40"></svg><b>스테이징</b><small>리허설 환경</small></div>
+  <div class="wl w" data-w="appr" data-at="appr"><b id="wApprB">승인</b><small id="wApprS">사람이 버튼</small></div>
+  <div class="wl w" data-w="prod" data-at="prod"><b>운영</b><small>실제 사용자</small></div>
+  <div class="wver w" data-w="prod" id="wVer">v1</div>
+  <div class="wver wcv" id="wcv1">v1</div>
+  <div class="wver wcv v2" id="wcv2">v2</div>
+  <div id="wGhost"><span>승인 버튼 없음</span></div>
+  <div id="wTag"></div>
+  <div id="wOut" class="gone"></div>
+</div>
+</div>
+
+<!--SLIDES-->
+
+<svg id="ink" width="1920" height="1080" viewBox="0 0 1920 1080" aria-hidden="true"></svg>
+<div id="pn"></div>
+<div id="help" class="hid">
+  <b>→ 스페이스</b>다음<br><b>← </b>이전<br><b>숫자 + Enter</b>그 장으로<br><b>F</b>전체 화면<br><b>P</b>발표자 창<br><b>D</b>펜 켜고 끄기<br><b>X</b>펜 자국 지우기<br><b>B</b>화면 가리기<br><b>H</b>이 도움말
+</div>
+<div id="jump"></div>
+<div id="black" class="hid"></div>
+</div></div>
+
+<script>window.DHDL = /*LIVE*/{};</script>
+<script>/*VENDOR_JS*/</script>
+<script>window.DHDL_CODE = /*CODE_JSON*/{}; window.DHDL_MM = /*MM_JSON*/null;</script>
+<!--JS-->

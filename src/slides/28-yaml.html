@@ -1,0 +1,31 @@
+<section class="page" id="yaml" data-title="파일 한 개" data-steps="3" data-sec="전체 흐름">
+  <h2 class="ttl">이 길 전체가 레포 안 파일 한 개</h2>
+  <pre class="code hasdim" data-lang="yaml" data-hlsteps="1-4|8|9-14|15-17" style="left:112px;top:220px;width:1000px;font-size:26px" data-label="ci.yml 구조 (실습 레포 파일을 줄인 것, 배포 단계 생략)">on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  check:
+    name: frontend-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+  deploy:
+    needs: check
+    if: github.event_name == 'push'</pre>
+  <div style="position:absolute;left:1160px;top:250px;width:648px">
+    <div class="yl" data-y="0" style="height:216px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">1</span>트리거</p>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;align-items:flex-start"><span class="chip"><svg class="oi"><use href="#oc-git-pull-request"/></svg>PR 열기 → <code>pull_request</code></span><span class="chip"><svg class="oi"><use href="#oc-git-merge"/></svg>main에 머지 → <code>push</code></span></div></div>
+    <div class="yl" data-y="1" style="height:130px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">2</span>러너</p><p class="lead" style="margin-top:6px">ubuntu-latest, 빌려 쓰는 리눅스</p></div>
+    <div class="yl" data-y="2" style="height:130px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">3</span>단계</p><p class="lead" style="margin-top:6px">코드 받기, 그다음 검사 네 개를 차례로</p></div>
+    <div class="yl" data-y="3" style="height:178px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">4</span>배포</p><p class="lead" style="margin-top:6px">needs: 검사가 통과해야 출발<br>if: main에 머지됐을 때만 배포</p></div>
+  </div>
+  <aside class="notes">방금 본 길 전체가 레포 안 파일 한 개에 적혀 있습니다. 첫 번째, 트리거. 언제 출발할지입니다. PR을 열면 pull_request, main에 머지하면 push입니다.
+(클릭) 두 번째, 러너. 어디서 돌지입니다. ubuntu-latest, 빌려 쓰는 리눅스입니다.
+(클릭) 세 번째, 단계. 맨 위 checkout은 빈 러너에 코드를 받아 오는 줄이고, 그 아래가 아까 본 검사 네 개입니다.
+(클릭) 네 번째, 배포. needs는 검사가 통과해야 출발한다는 뜻이고, if 줄 덕분에 PR에서는 검사만 하고 main에 머지됐을 때만 배포합니다.</aside>
+</section>

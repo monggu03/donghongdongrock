@@ -1,0 +1,30 @@
+/* 코드·로그 카드, 39장 Magic Move 카드 */
+/* 카드·코드·로그 */
+.card{position:absolute;box-sizing:border-box;background:var(--card);border:1px solid var(--line);border-radius:18px}
+.code,.log{position:absolute;margin:0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 0;font:400 28px/1.48 var(--f-mono);color:var(--ink);white-space:pre;overflow:hidden;box-sizing:border-box}
+.code .cl,.log .cl{display:flex;padding:0 30px;min-height:1.48em;transition:opacity .3s,background .3s}
+.code .cl>.tx{flex:1;white-space:pre}
+.code.hasdim .cl{opacity:.3}
+.code.hasdim .cl.hl{opacity:1;background:var(--or-soft)}
+.code .k{color:var(--ink);font-weight:700}
+.code .v{color:var(--val)}
+.code .c{color:var(--faint)}
+.code .cl.add{background:var(--ok-soft)} .code .cl.add .tx::before{content:"+ ";color:var(--ok);font-weight:700}
+.code .cl.del{background:var(--ng-soft)} .code .cl.del .tx::before{content:"- ";color:var(--ng);font-weight:700}
+.code .cl.ctx .tx::before{content:"  "}
+/* 39장 Magic Move 카드: 탭을 바꾸면 같은 토큰이 미끄러져 자리를 옮김 */
+.mmcard[hidden]{display:none}
+.mmcard{height:528px}
+.mmwrap{position:relative;padding:0 30px}
+#mmpre{margin:0;font:inherit;color:#24292E;white-space:pre}
+#mmpre .shiki-magic-move-item{vertical-align:top}
+.mk.mm{position:absolute;left:0;top:0;margin:0;transition:transform .7s var(--ease),opacity .4s}
+.mk{flex:none;width:40px;height:40px;margin:-4px 0 0 18px;border-radius:50%;background:var(--ink);color:#fff;font:800 24px/40px var(--f-sans);text-align:center}
+.code .lab,.log .lab{display:block;padding:0 30px 14px;margin-bottom:12px;border-bottom:1px solid var(--line);font:600 26px/1.3 var(--f-sans);color:var(--sub);white-space:normal}
+.log .cl.ng{color:var(--ng);font-weight:700}
+.log .cl.ok{color:var(--ok);font-weight:700}
+.log .cl.st{font-weight:700}
+.page.active .log.type:not(.hid):not(.hid *) .cl{opacity:0;transition:none;animation:typein .01s linear forwards}
+@keyframes typein{to{opacity:1}}
+.shake{animation:shake .4s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-14px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(5px)}}
