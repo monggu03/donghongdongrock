@@ -1,0 +1,18 @@
+{
+  "name": "dhdl-deck-tools",
+  "private": true,
+  "type": "module",
+  "description": "발표 페이지에 넣는 외부 라이브러리·아이콘·코드 색칠을 미리 만들어 vendor/, assets/ 에 쓰는 도구 (node tools/build-assets.mjs). 결과물은 커밋하므로 Vercel·CI에는 필요 없음.",
+  "devDependencies": {
+    "@dicebear/collection": "9.4.2",
+    "@dicebear/core": "9.4.3",
+    "@drauu/core": "1.0.0",
+    "@primer/octicons": "19.42.0",
+    "@shikijs/magic-move": "4.5.0",
+    "@tabler/icons": "3.50.0",
+    "esbuild": "0.28.2",
+    "number-flow": "0.6.2",
+    "rough-notation": "0.5.1",
+    "shiki": "4.5.0"
+  }
+}

@@ -1,6 +1,7 @@
 <title>CI/CD, 어떻게 하는 걸까</title>
 <style>
 /*FONTS*/
+/*VENDOR_CSS*/
 /* v2: 밝은 종이 위 파이프라인 세계 하나. 커밋 캡슐이 문을 지나고, 카메라가 따라감. 장은 그 위에 글자만 얹음 */
 :root{
   --frame:#E6E6E0; --bg:#FAFAF7; --card:#FFFFFF; --line:#E1E1DA; --line2:#C6C6BE; --tube:#EEEEE8;
@@ -17,7 +18,7 @@
 html,body{height:100%;margin:0;background:var(--frame);overflow:hidden}
 body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialiased}
 #viewport{position:fixed;inset:0;background:var(--frame);overflow:hidden}
-#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;background:var(--bg);transform-origin:center center;overflow:hidden;word-break:keep-all}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;background:var(--bg);transform-origin:center center;overflow:hidden;word-break:keep-all;font-variant-ligatures:none}
 .page{position:absolute;inset:0;z-index:2;opacity:0;visibility:hidden;transition:opacity .25s ease,visibility 0s linear .25s}
 .page.active{opacity:1;visibility:visible;transition:opacity .25s ease}
 .notes{display:none}
@@ -60,12 +61,19 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 .code .cl.add{background:var(--ok-soft)} .code .cl.add .tx::before{content:"+ ";color:var(--ok);font-weight:700}
 .code .cl.del{background:var(--ng-soft)} .code .cl.del .tx::before{content:"- ";color:var(--ng);font-weight:700}
 .code .cl.ctx .tx::before{content:"  "}
+/* 39장 Magic Move 카드: 탭을 바꾸면 같은 토큰이 미끄러져 자리를 옮김 */
+.mmcard[hidden]{display:none}
+.mmcard{height:528px}
+.mmwrap{position:relative;padding:0 30px}
+#mmpre{margin:0;font:inherit;color:#24292E;white-space:pre}
+#mmpre .shiki-magic-move-item{vertical-align:top}
+.mk.mm{position:absolute;left:0;top:0;margin:0;transition:transform .7s var(--ease),opacity .4s}
 .mk{flex:none;width:40px;height:40px;margin:-4px 0 0 18px;border-radius:50%;background:var(--ink);color:#fff;font:800 24px/40px var(--f-sans);text-align:center}
 .code .lab,.log .lab{display:block;padding:0 30px 14px;margin-bottom:12px;border-bottom:1px solid var(--line);font:600 26px/1.3 var(--f-sans);color:var(--sub);white-space:normal}
 .log .cl.ng{color:var(--ng);font-weight:700}
 .log .cl.ok{color:var(--ok);font-weight:700}
 .log .cl.st{font-weight:700}
-.page.active .log.type:not(.hid) .cl{opacity:0;animation:typein .01s linear forwards}
+.page.active .log.type:not(.hid):not(.hid *) .cl{opacity:0;transition:none;animation:typein .01s linear forwards}
 @keyframes typein{to{opacity:1}}
 .shake{animation:shake .4s ease}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-14px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(5px)}}
@@ -157,7 +165,14 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 .st8.strike.on li{color:var(--faint)}
 
 /* 다섯 명 */
-.av{position:absolute;width:72px;height:72px;margin:-36px 0 0 -36px;border-radius:50%;background:var(--ink);color:#fff;font:800 32px/72px var(--f-sans);text-align:center}
+/* 8장·43장 다섯 사람: DiceBear Notionists 얼굴 (assets/faces.svg, 그림 CC0) */
+.av{position:absolute;width:82px;height:82px;margin:-41px 0 0 -41px;border-radius:50%;background:#fff;border:3px solid var(--ink);box-sizing:border-box;overflow:hidden}
+.av svg,.tm .fc svg{display:block;width:100%;height:100%;transform:scale(1.42) translateY(5%)}
+.team{position:absolute;display:flex;flex-wrap:wrap;width:700px}
+.tm{position:relative;width:150px;height:150px;margin-right:-12px;border-radius:50%;background:#fff;border:4px solid var(--ink);box-sizing:border-box}
+.tm .fc{display:block;width:100%;height:100%;border-radius:50%;overflow:hidden}
+.tm .okb{position:absolute;right:-4px;bottom:-4px;width:44px;height:44px;color:var(--ok);background:#fff;border-radius:50%}
+.team .cap{flex-basis:100%;margin-top:22px}
 .flow{position:absolute;left:0;top:0;width:1696px;height:600px}
 .flow i{position:absolute;left:0;top:0;width:22px;height:22px;border-radius:50%;background:var(--ink);offset-rotate:0deg;opacity:0}
 .page.active .flow:not(.hid) i{animation:along 2.6s var(--ease) infinite;animation-delay:var(--d)}
@@ -191,6 +206,51 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 .prbox .r small{display:block;font:500 26px/1.35 var(--f-sans);color:var(--sub);margin-top:4px}
 .prbox .btn{display:inline-block;margin-top:30px;padding:18px 30px;border-radius:12px;font:700 28px/1 var(--f-sans);background:#EDEDE8;color:var(--faint)}
 .prbox .btn.go{background:var(--ok);color:#fff}
+/* Tabler Icons (assets/icons.svg의 ti-*), 선 굵기는 여기서 */
+.ti{display:inline-block;width:1em;height:1em;vertical-align:-0.14em;flex:none;stroke-width:1.75}
+.badge.ic{display:inline-flex;align-items:center;justify-content:center}.badge.ic .ti{width:32px;height:32px;stroke-width:2}
+.tih{display:inline-flex;align-items:center;gap:14px;white-space:nowrap}.tih .ti{width:1.05em;height:1.05em;color:var(--sub)}
+.checks li > .ti{width:50px;height:50px;margin-top:-1px;color:var(--sub)}
+/* 코드 글꼴 합자 끄기: .code의 font 축약형이 #stage 설정을 되돌리므로 전체에 강제 (== 가 한 글자로 붙지 않게) */
+#stage *{font-variant-ligatures:none!important}
+/* GitHub 모양 표시 (Merged 배지, Revert 버튼) */
+.ghpill{display:inline-flex;align-items:center;gap:9px;margin-right:18px;padding:10px 18px 10px 14px;border-radius:999px;color:#fff;font:600 26px/1 var(--f-sans);vertical-align:middle}
+.ghpill .oi{width:26px;height:26px}.ghpill.mg{background:#8250DF}
+.ghrow{display:flex;align-items:center;gap:18px}.ghrow .ghpill{margin-right:0}.ghrow .mono{font:600 30px var(--f-mono);color:var(--faint2)}
+.ghbtn{padding:12px 22px;border:2px solid #D1D9E0;border-radius:10px;background:#F6F8FA;font:600 28px/1 var(--f-sans);color:#25292E}
+.chip .oi{width:30px;height:30px;margin-right:-4px;color:var(--sub)}.chip.ink .oi{color:#fff}
+.rq li>.oi{width:30px;height:30px;color:var(--faint2)}
+.rq .rqf{margin-left:auto;flex:none;width:46px;height:46px;border-radius:50%;border:2px solid var(--ink);background:#fff;overflow:hidden;box-sizing:border-box}
+.rq .rqf svg{display:block;width:100%;height:100%;transform:scale(1.42) translateY(5%)}
+.bx .tih{gap:12px}.bx .tih .oi,.bx .tih .ti{width:1em;height:1em;color:var(--sub)}.bx.ink .tih .ti{color:#fff}
+.ti.fillicon{fill:currentColor;stroke:none}
+.oss{display:flex;gap:56px}.oss .ti{color:var(--sub)}.oss .ngc .ti{color:var(--ng)}
+#catch .sx .cap{margin-bottom:12px}
+.spd{transition:color .5s}.spd.on{color:var(--faint)}
+#map .tb th:nth-child(3),#map .tb td:nth-child(3){padding-left:28px}
+#reasons .tb td:first-child b{font-weight:500;color:var(--sub)}#reasons .tb td:last-child{font-weight:700}
+.nfx{--number-flow-mask-height:.1em;margin:-.1em 0}
+.pct,p:has(>number-flow){overflow:hidden}
+.oi{display:inline-block;width:1em;height:1em;vertical-align:-0.13em;fill:currentColor;flex:none}
+/* 16장: GitHub PR 머지 박스 모양 (아이콘은 Primer Octicons) */
+.prbox.gh{padding:30px 36px}
+.prbox.gh .h{display:flex;align-items:center;border-bottom:0;padding-bottom:26px}
+.prbox.gh .h .pill{display:inline-flex;align-items:center;gap:9px;margin-right:18px;padding:10px 18px 10px 14px;border-radius:999px;background:#1F883D;color:#fff;font:600 26px/1 var(--f-sans)}
+.prbox.gh .h .pill .oi{width:26px;height:26px}
+.prbox.gh .h .num{font:500 34px/1.3 var(--f-mono);color:var(--faint);margin:0 0 0 14px}
+.mbx{display:flex;gap:22px;align-items:flex-start}
+.mbi{flex:none;width:64px;height:64px;border-radius:50%;background:#CF222E;color:#fff;display:flex;align-items:center;justify-content:center}
+.mbi .oi{width:34px;height:34px}
+.mbb{flex:1;border:2px solid var(--line2);border-radius:14px;overflow:hidden}
+.prbox.gh .r{padding:30px 26px;gap:22px}
+.prbox.gh .r svg{width:54px;height:54px}
+.prbox.gh .r b{font-size:33px}
+.prbox.gh .r small{font-size:28px;margin-top:6px}
+.prbox.gh .r small .m{font-family:var(--f-mono);color:var(--ink);font-weight:700}
+.prbox.gh .req{margin-left:auto;align-self:flex-start;font:600 24px/1 var(--f-sans);color:var(--sub);border:2px solid var(--line2);border-radius:999px;padding:7px 14px}
+.prbox.gh .bt{padding:26px 26px;background:#F6F8FA}
+.prbox.gh .btn{margin:0;font-size:30px;padding:18px 30px;display:inline-flex;align-items:center;gap:14px;color:var(--faint2);border:2px solid var(--line2)}
+.prbox.gh .btn .oi{width:30px;height:30px;color:var(--ng)}
 .prbox img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff}
 
 /* 배포 전략 미니 그림 */
@@ -219,6 +279,7 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 .grid100 i.b{background:var(--new)}
 .grid100.rb i.b{background:var(--old)}
 .pct{position:absolute;margin:0;font:800 150px/1 var(--f-sans);letter-spacing:-5px;font-variant-numeric:tabular-nums}
+.pct number-flow{--number-flow-mask-height:.1em;margin:-.1em 0;vertical-align:top} /* 굴러가는 자리의 가림 여백을 줄여 아래 설명 글자와 덜 겹치게, 글자 위치는 원래대로 */
 .chart{position:absolute}
 .chart .seg{transition:opacity .3s}
 
@@ -233,6 +294,7 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 .checks li{display:flex;gap:28px;align-items:flex-start;padding:22px 0;border-bottom:1px solid var(--line);font:600 34px/1.4 var(--f-sans)}
 .checks li .bx2{flex:none;width:44px;height:44px;margin-top:2px;border:3px solid var(--ink);border-radius:8px;box-sizing:border-box;position:relative;transition:background .2s}
 .checks li .bx2::after{content:"";position:absolute;left:12px;top:3px;width:12px;height:22px;border:solid #fff;border-width:0 5px 5px 0;transform:rotate(45deg);opacity:0;transition:opacity .2s}
+.checks li{transition:background .3s}.checks li.now{background:var(--or-soft)}
 .checks li.ck .bx2{background:var(--ink)} .checks li.ck .bx2::after{opacity:1}
 .checks li small{display:block;font:500 26px/1.4 var(--f-sans);color:var(--sub);margin-top:4px}
 
@@ -246,13 +308,18 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 .rp .cap{width:210px;font-size:28px;font-weight:700;color:var(--ink)}
 .ch5{display:flex;gap:14px}
 .ch5 span{padding:12px 24px;border-radius:12px;background:var(--ok-soft);color:var(--ok);font:700 28px/1.2 var(--f-sans)}
-.notr .drw *{transition:none!important}
+.notr .drw *,.notr [data-s],.notr [data-u],.notr .cl{transition:none!important}
 @keyframes capin{from{opacity:0}to{opacity:1}}
 
 /* 도움말·발표자·라이브 */
 #help{position:absolute;right:56px;bottom:80px;width:560px;padding:28px 32px;border-radius:16px;background:var(--ink);color:#fff;font:500 24px/1.6 var(--f-sans);z-index:20}
 #help b{display:inline-block;min-width:150px;font-family:var(--f-mono);color:#FFB27D}
 #black{position:absolute;inset:0;background:#000;z-index:30}
+/* 발표 중 펜 (drauu): D로 켜면 클릭 대신 그리기 */
+#ink{position:absolute;left:0;top:0;z-index:25;pointer-events:none;overflow:visible}
+.inking #ink{pointer-events:auto;cursor:crosshair;touch-action:none}
+#pn::before{content:"";display:none}
+.inking #pn::before{content:"펜";display:inline-block;margin-right:14px;padding:2px 10px;border-radius:6px;background:#FF6309;color:#fff;font-weight:700}
 .nolive{display:none!important}
 .pend{font:600 30px/1.35 var(--f-sans)!important;color:var(--faint2)!important;letter-spacing:0!important}
 .live-dot{display:inline-block;width:16px;height:16px;border-radius:50%;background:var(--ok);margin-right:12px;vertical-align:2px}
@@ -273,6 +340,7 @@ body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialias
 #world.inst,#world.inst *{transition:none!important}
 #world>svg{position:absolute;left:0;top:0;overflow:visible}
 #world .w{transition:opacity .45s ease}
+#world .wl.w,#world .wver.w{transition-property:font-size,opacity,transform;transition-duration:1.15s,.45s,.75s;transition-timing-function:cubic-bezier(.65,0,.25,1),ease,var(--ease)}
 #world .w.off{opacity:0}
 #world .w.fade{opacity:.16}
 #world .iso-halo{filter:blur(10px)}
@@ -430,6 +498,7 @@ body.presenter{overflow:auto;background:#141413;color:#EDEDE6}
 .pv button{font:700 22px var(--f-sans);padding:12px 18px;border-radius:10px;border:0;margin-right:8px;background:#2A2A27;color:#EDEDE6;cursor:pointer}
 </style>
 
+<!--ICONS-->
 <div id="viewport"><div id="stage">
 <div id="prog"></div>
 <div id="sec"></div>
@@ -561,7 +630,7 @@ Uncaught (in promise) TypeError: Failed to fetch</pre>
     <p style="position:absolute;left:112px;top:450px;margin:0;font:800 72px/1.3 var(--f-sans);letter-spacing:-2px">합치기는 매일<br>검사와 배포는 마지막 주에 처음</p>
     <p class="lead" style="position:absolute;left:112px;top:680px">몇 주 동안 쌓인 문제가 배포하는 날 한꺼번에 드러남</p>
   </div>
-  <aside class="notes">동아리에서 팀 프로젝트를 지켜보면 흔히 보는 장면입니다. 합치기는 자주 합니다. main에 바로 push하기도 하고, 기능마다 PR을 올리기도 합니다. 그런데 자동 검사는 없고, 서버에는 한 번도 올려 보지 않습니다.
+  <aside class="notes">동아리에서 팀 프로젝트를 지켜보면 흔히 보는 장면입니다. 합치기는 자주 합니다. main에 바로 push하기도 하고, 기능마다 PR, 그러니까 main에 합쳐 달라는 요청을 올리기도 합니다. 그런데 자동 검사는 없고, 서버에는 한 번도 올려 보지 않습니다.
 (클릭) 그러다 발표 일주일 전, 처음으로 서버에 배포해 봅니다. 서버에서 빌드를 돌렸더니 실패합니다. 이상한 건, 이 코드가 제 컴퓨터에서는 잘 됐다는 점입니다. 이 에러의 정체는 뒤에서 밝혀집니다.
 (클릭) 겨우 고쳐서 띄웠더니 이번엔 데이터가 하나도 없습니다. 콘솔을 보면 API 주소가 아직 localhost입니다. 배포된 화면은 보는 사람의 브라우저에서 돌기 때문에, localhost는 그 사람 컴퓨터를 가리킵니다. 제 노트북에는 백엔드가 켜져 있어서 저만 잘 보였습니다.
 (클릭) 그다음은 환경 변수, CORS, DB 주소, 포트. 하나 고치면 다음 게 막히고, 발표 주간 내내 밤을 샙니다.
@@ -600,7 +669,7 @@ HTTP/1.1 502 Bad Gateway</pre>
       <li><span class="n">01</span>서버 접속<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
       <li><span class="n">02</span>최신 코드 받기<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
       <li><span class="n">03</span>패키지 설치<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
-      <li class="m4"><span class="n">04</span>DB 변경 적용<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg><span class="tag">빠뜨림</span></li>
+      <li class="m4"><span class="n" data-rn="circle" data-rn-s="1" data-rn-p="6">04</span>DB 변경 적용<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg><span class="tag">빠뜨림</span></li>
       <li><span class="n">05</span>앱 빌드<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
       <li><span class="n">06</span>파일 복사<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
       <li><span class="n">07</span>앱 재시작<svg class="ck" data-ic="ok" viewBox="0 0 40 40"></svg></li>
@@ -648,7 +717,7 @@ HTTP/1.1 502 Bad Gateway</pre>
   </svg>
   <p class="cap mono" style="position:absolute;left:112px;top:806px;font-family:var(--f-mono)">main</p>
   <div class="stg" style="position:absolute;left:112px;top:250px;width:1696px;height:600px">
-    <span class="av" style="left:50px;top:50px">A</span><span class="av" style="left:50px;top:140px">B</span><span class="av" style="left:50px;top:230px">C</span><span class="av" style="left:50px;top:320px">D</span><span class="av" style="left:50px;top:410px">E</span>
+    <span class="av" style="left:50px;top:50px"><svg viewBox="0 0 1744 1744"><use href="#face-a"/></svg></span><span class="av" style="left:50px;top:140px"><svg viewBox="0 0 1744 1744"><use href="#face-b"/></svg></span><span class="av" style="left:50px;top:230px"><svg viewBox="0 0 1744 1744"><use href="#face-c"/></svg></span><span class="av" style="left:50px;top:320px"><svg viewBox="0 0 1744 1744"><use href="#face-d"/></svg></span><span class="av" style="left:50px;top:410px"><svg viewBox="0 0 1744 1744"><use href="#face-e"/></svg></span>
   </div>
   <div class="stg" data-s="1" style="position:absolute;left:112px;top:250px;width:1696px;height:600px">
     <span class="chip" style="position:absolute;left:300px;top:21px">로그인 <code>auth.js</code></span>
@@ -671,7 +740,7 @@ HTTP/1.1 502 Bad Gateway</pre>
   </div>
   <div data-s="2" style="position:absolute;left:1560px;top:280px;width:248px">
     <p class="cap">main에 합친 변경</p>
-    <p style="margin:4px 0 0;font:800 160px/1 var(--f-sans);letter-spacing:-5px"><span data-count="6">6</span>건</p>
+    <p style="margin:4px 0 0;font:800 160px/1 var(--f-sans);letter-spacing:-5px"><number-flow class="nfx" id="nf6">6</number-flow>건</p>
     <p class="cap" style="margin-top:8px">오전에만</p>
   </div>
   <aside class="notes">이제 CI가 왜 필요한지 보겠습니다. 다섯 명이 같은 앱을 만든다고 해 보겠습니다.
@@ -684,19 +753,19 @@ HTTP/1.1 502 Bad Gateway</pre>
   <p class="cap" style="position:absolute;left:112px;top:244px">리뷰 대기</p>
   <p style="position:absolute;left:112px;top:280px;margin:0;font:800 84px/1 var(--f-sans);letter-spacing:-2px">6건</p>
   <ul class="rq stg" style="left:112px;top:392px;width:540px">
-    <li><span class="mono">#7</span>로그인 수정</li>
-    <li><span class="mono">#8</span>결제 금액 계산</li>
-    <li><span class="mono">#9</span>DB 컬럼 추가</li>
-    <li><span class="mono">#10</span>화면 정렬</li>
-    <li><span class="mono">#11</span>시간표 표시</li>
-    <li><span class="mono">#12</span>반올림 수정</li>
+    <li><svg class="oi"><use href="#oc-git-pull-request"/></svg><span class="mono">#7</span>로그인 수정<span class="rqf"><svg viewBox="0 0 1744 1744"><use href="#face-a"/></svg></span></li>
+    <li><svg class="oi"><use href="#oc-git-pull-request"/></svg><span class="mono">#8</span>결제 금액 계산<span class="rqf"><svg viewBox="0 0 1744 1744"><use href="#face-b"/></svg></span></li>
+    <li><svg class="oi"><use href="#oc-git-pull-request"/></svg><span class="mono">#9</span>DB 컬럼 추가<span class="rqf"><svg viewBox="0 0 1744 1744"><use href="#face-c"/></svg></span></li>
+    <li><svg class="oi"><use href="#oc-git-pull-request"/></svg><span class="mono">#10</span>화면 정렬<span class="rqf"><svg viewBox="0 0 1744 1744"><use href="#face-d"/></svg></span></li>
+    <li><svg class="oi"><use href="#oc-git-pull-request"/></svg><span class="mono">#11</span>시간표 표시<span class="rqf"><svg viewBox="0 0 1744 1744"><use href="#face-e"/></svg></span></li>
+    <li><svg class="oi"><use href="#oc-git-pull-request"/></svg><span class="mono">#12</span>반올림 수정<span class="rqf"><svg viewBox="0 0 1744 1744"><use href="#face-b"/></svg></span></li>
   </ul>
   <ul class="q5 stg" data-s="1" style="left:760px;top:244px;width:1048px">
-    <li><span class="badge">1</span>문법 오류 여부<code style="font-family:var(--f-sans)">린트·빌드가 함께</code></li>
-    <li><span class="badge">2</span>테스트 통과 여부<code>npm test</code></li>
-    <li><span class="badge">3</span>빌드 성공 여부<code>npm run build</code></li>
-    <li><span class="badge">4</span>코드 형식과 실수<code>npm run lint</code></li>
-    <li><span class="badge">5</span>패키지 보안 취약점<code>npm audit</code></li>
+    <li><span class="badge ic"><svg class="ti"><use href="#ti-file-code"/></svg></span>문법 오류 여부<code style="font-family:var(--f-sans)">린트·빌드가 함께</code></li>
+    <li><span class="badge ic"><svg class="ti"><use href="#ti-gauge"/></svg></span>테스트 통과 여부<code>npm test</code></li>
+    <li><span class="badge ic"><svg class="ti"><use href="#ti-hammer"/></svg></span>빌드 성공 여부<code>npm run build</code></li>
+    <li><span class="badge ic"><svg class="ti"><use href="#ti-brush"/></svg></span>코드 형식과 실수<code>npm run lint</code></li>
+    <li><span class="badge ic"><svg class="ti"><use href="#ti-shield-check"/></svg></span>패키지 보안 취약점<code>npm audit</code></li>
   </ul>
   <aside class="notes">자동화가 없으면, 그 여섯 건을 합치기 전에 누군가 손으로 전부 확인해야 합니다. 리뷰 대기열에 PR이 여섯 개 쌓였습니다.
 (클릭) 합치기 전에 문법 오류는 없는지, 테스트는 통과하는지, 빌드는 되는지, 코드 형식은 맞는지, 패키지에 알려진 보안 문제는 없는지. PR 하나마다 이 다섯 가지입니다.</aside>
@@ -705,7 +774,7 @@ HTTP/1.1 502 Bad Gateway</pre>
 <section class="page" id="thirty" data-title="6 × 5 = 30" data-steps="1" data-sec="CI · 지속적 통합">
   <p style="position:absolute;left:112px;top:220px;margin:0;font:800 76px/1.2 var(--f-sans);letter-spacing:-2px">변경 6건 × 확인 5가지</p>
   <div data-s="1">
-    <p style="position:absolute;left:96px;top:350px;margin:0;font:800 380px/1 var(--f-sans);letter-spacing:-16px;font-variant-numeric:tabular-nums"><span data-count="30">30</span></p>
+    <p style="position:absolute;left:96px;top:350px;margin:0;font:800 380px/1 var(--f-sans);letter-spacing:-16px;font-variant-numeric:tabular-nums"><number-flow class="nfx" id="nf30">30</number-flow></p>
     <div style="position:absolute;left:112px;top:752px;width:300px;height:14px;background:var(--or)"></div>
     <p class="big" style="position:absolute;left:112px;top:800px">점심 전까지 손으로 할 확인 횟수</p>
   </div>
@@ -717,7 +786,7 @@ HTTP/1.1 502 Bad Gateway</pre>
   <h2 class="ttl">CI: PR을 열면 검사가 자동으로 출발</h2>
   <pre class="log" style="left:112px;top:850px;width:1000px" data-st="1">$ git push origin feat/timetable</pre>
   <p class="lead" data-u="1" style="position:absolute;left:1160px;top:868px">그다음 GitHub에서 PR 열기</p>
-  <div data-s="1" style="position:absolute;left:1160px;top:856px"><span class="chip">PR 열기 → <code>on: pull_request</code></span></div>
+  <div data-s="1" style="position:absolute;left:1160px;top:856px"><span class="chip"><svg class="oi"><use href="#oc-git-pull-request"/></svg>PR 열기 → <code>on: pull_request</code></span></div>
   <aside class="notes">이제 CI가 있으면 어떻게 되는지 보겠습니다. 여기서부터 화면은 이 발표용으로 만든 시간표 예제 앱, 실습 레포에서 실제로 돌린 결과입니다. 시간표 기능을 고친 커밋을 올리고 PR을 엽니다. 카트에 붙은 글자가 커밋 번호입니다.
 (클릭) 그 순간 GitHub가 PR이 열린 걸 알고 검사를 자동으로 출발시킵니다. 아무도 버튼을 누르지 않았습니다. 달라진 건 PR마다 검사가 붙었다는 것 하나입니다.</aside>
 </section>
@@ -729,7 +798,7 @@ HTTP/1.1 502 Bad Gateway</pre>
   <p class="big" data-s="2" data-u="3" style="position:absolute;left:112px;top:860px">린트: 안 쓰는 변수처럼 실수하기 쉬운 코드 찾기</p>
   <p class="big" data-s="3" data-u="4" style="position:absolute;left:112px;top:860px">테스트: 미리 적어 둔 기대값과 실제 결과 비교</p>
   <p class="big" data-s="4" style="position:absolute;left:112px;top:860px">빌드: 배포할 파일 만들기, 넷 다 통과하면 머지 가능</p>
-  <aside class="notes">카트는 검사대를 하나씩 지나갑니다. 앞 검사대를 통과해야 다음으로 갑니다. 위에 뜨는 결과는 실습 레포에서 실제로 돌린 출력입니다.
+  <aside class="notes">카트는 검사대를 하나씩 지나갑니다. 앞 검사대를 통과해야 다음으로 갑니다.
 (클릭) 먼저 설치. 잠금 파일에 적힌 버전 그대로 패키지를 설치합니다.
 (클릭) 린트. 안 쓰는 변수처럼 실수하기 쉬운 코드를 찾습니다.
 (클릭) 테스트. 미리 적어 둔 기대값과 실제 결과를 비교합니다. 여섯 개 다 통과.
@@ -738,10 +807,10 @@ HTTP/1.1 502 Bad Gateway</pre>
 
 <section class="page" id="runner" data-title="러너" data-steps="2" data-sec="CI · 지속적 통합">
   <h2 class="ttl">이 검사대가 돌아가는 곳: 매번 새로 빌리는 컴퓨터</h2>
-  <p class="big" data-s="1" data-u="2" style="position:absolute;left:112px;top:842px"><span class="newc">러너</span>: GitHub가 빌려주는 깨끗한 리눅스 컴퓨터</p>
-  <p class="lead" data-s="1" data-u="2" style="position:absolute;left:112px;top:918px">실행이 끝나면 버려짐, 그래서 매번 설치부터 다시</p>
+  <p class="big" data-s="1" data-u="2" style="position:absolute;left:112px;top:846px"><span class="newc">러너</span>: GitHub가 빌려주는 깨끗한 리눅스 컴퓨터</p>
+  <p class="lead" data-s="1" data-u="2" style="position:absolute;left:112px;top:926px">실행이 끝나면 버려짐, 그래서 매번 설치부터 다시</p>
   <div data-s="2" style="position:absolute;left:112px;top:846px"><span class="chip"><code>.github/workflows/ci.yml</code></span></div>
-  <p class="lead" data-s="2" style="position:absolute;left:112px;top:930px">이 파일을 읽고 러너에서 검사를 차례로 실행하는 것이 GitHub Actions</p>
+  <p class="lead" data-s="2" style="position:absolute;left:112px;top:926px">이 파일을 읽고 러너에서 검사를 차례로 실행하는 것이 GitHub Actions</p>
   <aside class="notes">이 검사들이 어디서 도는지 보겠습니다. 제 컴퓨터가 아닙니다.
 (클릭) GitHub가 빌려주는 깨끗한 리눅스 컴퓨터, 러너에서 돕니다. 이 파란 틀이 러너입니다. 실행이 끝나면 버려져서 매번 설치부터 다시 하고, 그래서 내 컴퓨터에만 깔린 무언가에 기대는 코드는 여기서 걸립니다.
 (클릭) 어떤 검사를 어떤 순서로 할지는 레포 안 yml 파일 하나에 적어 둡니다. GitHub Actions는 이 파일을 읽고 러너에서 실행해 주는 서비스입니다.</aside>
@@ -752,9 +821,9 @@ HTTP/1.1 502 Bad Gateway</pre>
   <pre class="code" data-lang="diff" style="left:112px;top:818px;width:1696px;padding-bottom:12px" data-label="PR #13 · src/lib/timetable.js">-return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
 +return `${h}:${m}`</pre>
   <p class="hdr" data-u="1">화면은 뜨고, 시간만 14:5로 표시</p>
-  <p class="hdr ngc" data-s="1" data-u="2">테스트 실패, 뒤 단계는 건너뜀</p>
-  <p class="hdr" data-s="2">빨간불인 동안 main 합치기 차단</p>
-  <aside class="notes">이번엔 다른 팀원이 PR을 하나 올립니다. 시간을 두 자리로 채워 주는 padStart가 굳이 필요한가 싶어서 지웠습니다. 린트도 통과하고 빌드도 됩니다. 화면도 잘 뜨고 시간만 14:5처럼 이상하게 나옵니다.
+  <p class="hdr ngc" data-s="1" data-u="2" data-late>테스트 실패, 뒤 단계는 건너뜀</p>
+  <p class="hdr" data-s="2" data-late>빨간불인 동안 main 합치기 차단</p>
+  <aside class="notes">이번엔 다른 팀원이 PR을 하나 올립니다. 시간을 두 자리로 채워 주는 padStart가 굳이 필요한가 싶어서 지웠습니다. 자기 컴퓨터에서는 화면도 잘 뜹니다. 그런데 시간이 십사 콜론 공오가 아니라, 0이 빠진 십사 콜론 오로 나옵니다.
 (클릭) 설치 통과, 린트 통과, 그리고 테스트에서 걸립니다. 빨간불이 들어오고, 뒤의 빌드는 아예 실행하지 않습니다.
 (클릭) 그리고 머지 문이 잠깁니다.</aside>
 </section>
@@ -771,20 +840,25 @@ Received: "14:5"
 Tests  3 failed | 3 passed (6)</pre>
   <div data-s="1" style="position:absolute;left:1340px;top:250px;width:468px">
     <div style="border-bottom:1px solid var(--line);padding:18px 0"><p class="cap">입력</p><p style="margin:4px 0 0;font:700 52px var(--f-mono)">845</p></div>
-    <div style="border-bottom:1px solid var(--line);padding:18px 0"><p class="cap">기대</p><p style="margin:4px 0 0;font:700 52px var(--f-mono)">"14:05"</p></div>
+    <div style="border-bottom:1px solid var(--line);padding:18px 0"><p class="cap">기대</p><p style="margin:4px 0 0;font:700 52px var(--f-mono)">"14:<span class="ngc" data-rn="underline" data-rn-s="1" data-rn-w="7" data-rn-p="0">0</span>5"</p></div>
     <div style="padding:18px 20px;margin:0 -20px;background:var(--or-soft);border-radius:12px"><p class="cap" style="color:var(--or-t)">실제</p><p style="margin:4px 0 0;font:800 52px var(--f-mono)">"14:5"</p></div>
   </div>
   <aside class="notes">로그를 열어 보면 이렇게 나옵니다. 실습 레포에서 실제로 돌린 결과입니다.
-(클릭) 845분을 넣었을 때 기대한 값은 "14:05", 실제로 나온 값은 "14:5". 사람이 리뷰로는 놓치기 쉬운 한 글자 차이를 기계가 정확히 짚어 줍니다.</aside>
+(클릭) 845분, 그러니까 오후 2시 5분을 넣었을 때 기대한 값은 십사 콜론 공오, 실제 값은 십사 콜론 오입니다. 밑줄 친 0 하나가 빠졌습니다. 사람이 리뷰로는 놓치기 쉬운 한 글자 차이를 기계가 정확히 짚어 줍니다.</aside>
 </section>
 
 <section class="page" id="blocked" data-title="머지 잠김" data-steps="1" data-sec="CI · 지속적 통합">
   <h2 class="ttl">검사가 빨간불인 동안 머지 버튼이 잠김</h2>
-  <div class="prbox" style="left:112px;top:240px;width:1010px;height:600px">
-    <div class="h"><span>#13</span>시간 표시 단순화</div>
-    <div class="r"><svg data-ic="ng" viewBox="0 0 40 40"></svg><div><b>frontend-check</b><small class="ngc">Test 단계에서 실패</small></div></div>
-    <div class="r"><svg data-ic="lock" viewBox="0 0 40 40"></svg><div><b>머지 잠김</b><small>필수 검사가 통과해야 머지 가능</small></div></div>
-    <span class="btn">Merge pull request</span>
+  <div class="prbox gh" style="left:112px;top:240px;width:1010px;height:600px">
+    <div class="h"><span class="pill"><svg class="oi"><use href="#oc-git-pull-request"/></svg>Open</span>시간 표시 단순화<span class="num">#13</span></div>
+    <div class="mbx">
+      <span class="mbi"><svg class="oi"><use href="#oc-git-merge"/></svg></span>
+      <div class="mbb">
+        <div class="r"><svg data-ic="ng" viewBox="0 0 40 40"></svg><div><b>Some checks were not successful</b><small><span class="m">frontend-check</span><span class="ngc"> · Test 단계에서 실패</span></small></div><span class="req">Required</span></div>
+        <div class="r"><svg data-ic="lock" viewBox="0 0 40 40"></svg><div><b>Merging is blocked</b><small>필수 검사가 통과해야 머지 가능</small></div></div>
+        <div class="bt"><span class="btn"><svg class="oi"><use href="#oc-lock"/></svg>Merge pull request</span></div>
+      </div>
+    </div>
     <p class="foot" style="left:40px;bottom:28px;margin:0">설명용으로 다시 그린 화면</p>
     <img data-cap-img="pr-blocked" alt="">
   </div>
@@ -805,8 +879,8 @@ Tests  3 failed | 3 passed (6)</pre>
   <pre class="code" data-lang="diff" style="left:112px;top:818px;width:1696px;padding-bottom:12px" data-label="PR #13에 커밋 추가">-return `${h}:${m}`
 +return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`</pre>
   <p class="hdr" data-u="1">PR을 새로 만들 필요 없음</p>
-  <p class="hdr okc" data-s="1" data-u="2">All checks have passed</p>
-  <p class="hdr" data-s="2">이제부터 3f9a2c1을 끝까지 추적</p>
+  <p class="hdr okc" data-s="1" data-u="2" data-late><svg class="oi" style="margin-right:12px"><use href="#oc-check-circle-fill"/></svg>All checks have passed</p>
+  <p class="hdr" data-s="2" data-late><span class="ghpill mg"><svg class="oi"><use href="#oc-git-merge"/></svg>Merged</span>이제부터 3f9a2c1을 끝까지 추적</p>
   <aside class="notes">고치는 건 간단합니다. 원래대로 돌린 커밋을 같은 브랜치에 push합니다. PR을 새로 만들 필요가 없습니다.
 (클릭) 검사가 자동으로 다시 돌고, 이번엔 전부 통과합니다. 머지 문이 열립니다.
 (클릭) 머지 버튼을 누르면 이 커밋이 main에 합쳐집니다. 이제부터 이 커밋, 3f9a2c1을 끝까지 따라가겠습니다.</aside>
@@ -815,22 +889,22 @@ Tests  3 failed | 3 passed (6)</pre>
 <section class="page" id="catch" data-title="검사대마다 잡는 사고" data-steps="2" data-sec="CI · 지속적 통합">
   <h2 class="ttl">검사대마다 잡아내는 사고가 다름</h2>
   <table class="tb xl" style="left:112px;top:244px;width:1696px">
-    <thead><tr><th style="width:200px">잡은 검사</th><th>실제 로그</th><th style="width:420px">사람이 놓치는 이유</th></tr></thead>
+    <thead><tr><th style="width:250px">잡은 검사</th><th>실제 로그</th><th style="width:420px">사람이 놓치는 이유</th></tr></thead>
     <tbody>
-      <tr><td><b>린트</b></td><td class="m">Identifier 'useMemo' is imported but never used.</td><td>실행에는 문제가 없어서</td></tr>
-      <tr data-s="1"><td><b>테스트</b></td><td class="m">Expected: "14:05" Received: "14:5"</td><td>화면은 떠서</td></tr>
-      <tr data-s="2" class="or"><td><b>빌드</b></td><td class="m">Could not resolve './components/sessionTable.jsx'</td><td>내 컴퓨터에서는 돼서</td></tr>
+      <tr><td><b class="tih"><svg class="ti"><use href="#ti-brush"/></svg>린트</b></td><td class="m">Identifier 'useMemo' is imported but never used.</td><td>실행에는 문제가 없어서</td></tr>
+      <tr data-s="1"><td><b class="tih"><svg class="ti"><use href="#ti-gauge"/></svg>테스트</b></td><td class="m">Expected: "14:05" Received: "14:5"</td><td>화면은 떠서</td></tr>
+      <tr data-s="2" class="or"><td><b class="tih"><svg class="ti"><use href="#ti-hammer"/></svg>빌드</b></td><td class="m">Could not resolve './components/sessionTable.jsx'</td><td>내 컴퓨터에서는 돼서</td></tr>
     </tbody>
   </table>
-  <div data-s="2" style="position:absolute;left:112px;top:640px;width:1696px">
+  <div data-s="2" style="position:absolute;left:112px;top:656px;width:1696px">
     <span class="chip or">발표 일주일 전 그 에러의 정체</span>
     <div style="display:flex;gap:28px;margin-top:22px">
-      <div class="sx"><p class="cap">실제 파일 이름</p><p class="sxn"><b class="sxS">S</b>essionTable.jsx</p></div>
-      <div class="sx"><p class="cap">App.jsx의 import</p><p class="sxn"><b class="sxs">s</b>essionTable.jsx</p></div>
+      <div class="sx"><p class="cap">실제 파일 이름</p><p class="sxn"><b class="sxS" data-rn="circle" data-rn-s="2" data-rn-c="#FF6309" data-rn-p="3">S</b>essionTable.jsx</p></div>
+      <div class="sx"><p class="cap">App.jsx의 import</p><p class="sxn"><b class="sxs" data-rn="circle" data-rn-s="2" data-rn-c="#FF6309" data-rn-p="3">s</b>essionTable.jsx</p></div>
     </div>
-    <p class="lead" style="margin-top:18px;color:var(--ink)">윈도우·맥은 같은 파일로 취급, 리눅스 러너와 서버는 다른 파일로 취급</p>
+    <p class="lead oss" style="margin-top:18px;color:var(--ink)"><span class="tih"><svg class="ti"><use href="#ti-brand-windows"/></svg><svg class="ti"><use href="#ti-brand-apple"/></svg>윈도우·맥: 같은 파일로 취급</span><span class="tih ngc"><svg class="ti"><use href="#ti-brand-ubuntu"/></svg>리눅스 러너·서버: 다른 파일로 취급</span></p>
   </div>
-  <aside class="notes">실습 레포에는 사고를 몇 가지 더 준비해 뒀습니다. 린트는 안 쓰는 import를 잡습니다. 실행에는 문제가 없어서 사람은 그냥 넘어갑니다.
+  <aside class="notes">커밋을 따라가기 전에, 검사대가 잡는 사고를 몇 가지 더 보겠습니다. 린트는 안 쓰는 import를 잡습니다. 실행에는 문제가 없어서 사람은 그냥 넘어갑니다.
 (클릭) 테스트는 방금 본 시간 표시를 잡습니다. 화면은 떠서 놓칩니다.
 (클릭) 빌드는 파일 이름 대소문자를 잡습니다. 발표 일주일 전 서버에서 터진 그 에러가 바로 이것입니다. 파일은 대문자 S인데 import는 소문자 s입니다. 윈도우와 맥은 대소문자를 구분하지 않아 제 컴퓨터에서는 되고, 리눅스인 러너와 서버는 구분해서 실패합니다. 그래서 셋 다 걸어 둡니다.</aside>
 </section>
@@ -851,30 +925,30 @@ Tests  3 failed | 3 passed (6)</pre>
   <h2 class="ttl">CD: 합쳐진 코드를 실제 환경까지 보내는 길</h2>
   <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">머지된 커밋 3f9a2c1이 CD 구간으로 진입</p>
   <div data-s="1" style="position:absolute;left:112px;top:846px"><span class="chip ink">환경 = 앱이 실제로 돌아가는 곳</span></div>
-  <p class="lead" data-s="1" style="position:absolute;left:112px;top:930px">스테이징은 리허설 무대, 운영은 실제 사용자가 쓰는 곳</p>
-  <aside class="notes">머지된 커밋은 이제 실제 환경까지 가야 합니다. 이 뒤쪽 절반이 CD입니다.
+  <p class="lead" data-s="1" style="position:absolute;left:112px;top:926px">스테이징은 리허설 무대, 운영은 실제 사용자가 쓰는 곳</p>
+  <aside class="notes">아까 머지한 그 커밋, 이제 실제 환경까지 가야 합니다. 이 뒤쪽 절반이 CD입니다.
 (클릭) 환경은 앱이 실제로 돌아가는 곳입니다. 보통 운영과 똑같이 만든 리허설 무대인 스테이징을 거쳐, 실제 사용자가 쓰는 운영, 프로덕션으로 갑니다.</aside>
 </section>
 
 <section class="page" id="pack" data-title="이미지로 포장" data-steps="2" data-sec="CD · 지속적 전달과 배포">
   <h2 class="ttl">검사 끝난 코드를 한 번 포장: 이미지</h2>
   <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">배포할 결과물부터 만듦</p>
-  <p class="big" data-s="1" data-u="2" style="position:absolute;left:112px;top:860px">이미지 이름표에 커밋 번호 3f9a2c1, 화면에서는 v2</p>
-  <div data-s="2" style="position:absolute;left:112px;top:842px;display:flex;align-items:center;gap:16px">
+  <p class="big" data-s="1" data-u="2" data-late style="position:absolute;left:112px;top:860px">이미지 이름표에 커밋 번호 3f9a2c1, 화면에서는 v2</p>
+  <div data-s="2" style="position:absolute;left:112px;top:846px;display:flex;align-items:center;gap:16px">
     <span class="chip ink">이미지</span><b style="font:800 36px var(--f-sans)">=</b><span class="chip">실행 환경</span><b style="font:800 36px var(--f-sans)">+</b><span class="chip">앱 코드</span><b style="font:800 36px var(--f-sans)">+</b><span class="chip">패키지</span><b style="font:800 36px var(--f-sans)">+</b><span class="chip">실행 명령</span>
   </div>
-  <p class="lead" data-s="2" style="position:absolute;left:112px;top:930px">한 번 만든 이미지를 스테이징과 운영에 그대로, 환경별 값은 배포 때 주입</p>
+  <p class="lead" data-s="2" style="position:absolute;left:112px;top:926px">한 번 만든 이미지를 스테이징과 운영에 그대로, 환경별 값은 배포 때 주입</p>
   <aside class="notes">배포하려면 먼저 결과물을 포장합니다.
 (클릭) 검사를 통과한 코드를 바로 실행할 수 있게 통째로 묶은 상자를 이미지라고 부릅니다. 이름표에 커밋 번호 3f9a2c1이 붙고, 화면에서는 줄여서 v2라고 부르겠습니다. 지금 운영에서 도는 건 v1입니다.
-(클릭) 이미지 안에는 실행 환경, 앱 코드, 패키지, 실행 명령이 들어 있어서 어느 서버에서든 똑같이 돕니다. 다만 DB 주소처럼 환경마다 다른 값은 배포할 때 환경 변수로 넣습니다. 그래서 같은 이미지를 스테이징과 운영에 그대로 씁니다. 처음의 localhost 문제도 주소를 코드에 적지 않고 환경 변수로 빼면 풀립니다.</aside>
+(클릭) 이미지 안에는 실행 환경, 앱 코드, 패키지, 실행 명령이 들어 있어서 어느 서버에서든 똑같이 돕니다. 다만 DB 주소처럼 환경마다 다른 값은 배포할 때 환경 변수로 넣습니다. 그래서 같은 이미지를 스테이징과 운영에 그대로 씁니다. 처음의 localhost 문제도 API 주소를 코드에 적지 않고 Vercel 환경 변수로 빼면 풀립니다.</aside>
 </section>
 
 <section class="page" id="store" data-title="보관소" data-steps="2" data-sec="CD · 지속적 전달과 배포">
   <h2 class="ttl">만든 이미지는 번호를 붙여 보관소에</h2>
   <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">이미지를 쌓아 두는 창고, 이미 v1이 있음</p>
-  <p class="big" data-s="1" data-u="2" style="position:absolute;left:112px;top:860px">v1 옆에 v2가 쌓임</p>
-  <div data-s="2" style="position:absolute;left:112px;top:842px;display:flex;gap:16px"><span class="chip">Docker Hub</span><span class="chip">Amazon ECR</span><span class="chip">Google Artifact Registry</span></div>
-  <p class="lead" data-s="2" style="position:absolute;left:112px;top:930px">지난 버전도 그대로 남음, 되돌리기의 재료</p>
+  <p class="big" data-s="1" data-u="2" data-late style="position:absolute;left:112px;top:860px">v1 옆에 v2가 쌓임</p>
+  <div data-s="2" style="position:absolute;left:112px;top:846px;display:flex;gap:16px"><span class="chip">Docker Hub</span><span class="chip">Amazon ECR</span><span class="chip">Google Artifact Registry</span></div>
+  <p class="lead" data-s="2" style="position:absolute;left:112px;top:926px">지난 버전도 그대로 남음, 되돌리기의 재료</p>
   <aside class="notes">만든 이미지는 보관소에 넣습니다. 이미 지난번에 만든 v1이 들어 있습니다.
 (클릭) 그 옆에 이번 v2가 쌓입니다.
 (클릭) Docker Hub, ECR, Artifact Registry처럼 이름은 회사마다 달라도, 중요한 건 지난 버전도 그대로 남는다는 점입니다. 이게 뒤에서 되돌릴 때 재료가 됩니다.</aside>
@@ -885,10 +959,10 @@ Tests  3 failed | 3 passed (6)</pre>
   <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">운영과 똑같이 만든 환경</p>
   <p class="big" data-s="1" data-u="2" style="position:absolute;left:112px;top:860px">실제로 띄워 보고, 헬스체크 통과해야 다음으로</p>
   <div data-s="2" style="position:absolute;left:112px;top:846px"><span class="chip">Vercel 미리보기 배포</span></div>
-  <p class="lead" data-s="2" style="position:absolute;left:112px;top:930px">PR마다 임시 주소로 머지 전에 미리 확인, 폰으로 열면 localhost 문제도 발견</p>
+  <p class="lead" data-s="2" style="position:absolute;left:112px;top:926px">PR마다 임시 주소로 머지 전에 미리 확인, 스테이징보다 한 발 앞</p>
   <aside class="notes">운영에 바로 넣기 전에 운영과 똑같이 만든 스테이징에 먼저 올립니다.
 (클릭) 실제로 띄워 보고, 앱이 제대로 응답하는지 직접 묻는 헬스체크를 통과해야 다음으로 갑니다.
-(클릭) 프론트를 Vercel에 연결해 보신 분은 비슷한 걸 이미 쓰고 계십니다. PR마다 미리보기 주소가 생겨서, 스테이징보다 한 발 앞인 머지 전에 확인할 수 있습니다. 처음에 본 localhost 문제도 이 주소를 팀원 폰으로 한 번만 열어 보면 첫 PR에서 바로 보입니다.</aside>
+(클릭) 프론트를 Vercel에 연결해 보신 분은 비슷한 걸 이미 쓰고 계십니다. PR마다 미리보기 주소가 생겨서, 스테이징보다 한 발 앞인 머지 전에 확인할 수 있습니다.</aside>
 </section>
 
 <section class="page" id="delivery" data-title="Continuous Delivery" data-steps="1" data-sec="CD · 지속적 전달과 배포">
@@ -902,10 +976,10 @@ Tests  3 failed | 3 passed (6)</pre>
 
 <section class="page" id="deploy" data-title="Continuous Deployment" data-steps="1" data-sec="CD · 지속적 전달과 배포">
   <h2 class="ttl">Continuous Deployment: 마지막 버튼이 사라짐</h2>
-  <p class="big" data-u="1" style="position:absolute;left:112px;top:846px">승인 버튼 자체가 없음</p>
+  <p class="big" data-u="1" style="position:absolute;left:112px;top:860px">승인 버튼 자체가 없음</p>
   <p class="big" data-s="1" style="position:absolute;left:112px;top:846px">검사를 다 통과하면 사람 없이 운영까지</p>
-  <p class="lead" data-s="1" style="position:absolute;left:112px;top:924px">오늘 실습 레포와 Vercel이 이 방식</p>
-  <aside class="notes">두 번째, Continuous Deployment, 지속적 배포는 한 걸음 더 갑니다. 마지막 버튼 자체가 없습니다.
+  <p class="lead" data-s="1" style="position:absolute;left:112px;top:926px">오늘 실습 레포와 Vercel이 이 방식</p>
+  <aside class="notes">같은 v2를 이번엔 버튼 없이 다시 보내 보겠습니다. 두 번째, Continuous Deployment, 지속적 배포는 한 걸음 더 갑니다. 마지막 버튼 자체가 없습니다.
 (클릭) 검사를 다 통과하면 사람 없이 운영까지 바로 갑니다. 오늘 실습 레포와 Vercel이 이 방식입니다. 둘의 차이는 마지막 버튼 하나뿐입니다.</aside>
 </section>
 
@@ -914,9 +988,9 @@ Tests  3 failed | 3 passed (6)</pre>
   <h2 class="ttl">전체 흐름: 커밋 하나가 운영에 닿기까지</h2>
   <p class="cap" style="position:absolute;left:112px;top:800px">사람이 한 일</p>
   <div style="position:absolute;left:112px;top:842px;display:flex;gap:16px">
-    <span class="chip">PR 올리기</span><span class="chip ink" data-s="2">머지 버튼 한 번</span>
+    <span class="chip"><svg class="oi"><use href="#oc-git-pull-request"/></svg>PR 올리기</span><span class="chip ink" data-s="2"><svg class="oi"><use href="#oc-git-merge"/></svg>머지 버튼 한 번</span>
   </div>
-  <p class="big" data-s="2" style="position:absolute;left:760px;top:846px">나머지는 전부 파이프라인</p>
+  <p class="big" data-s="2" data-late style="position:absolute;left:760px;top:846px">나머지는 전부 파이프라인</p>
   <aside class="notes">전체 흐름을 한 번에 보겠습니다. 커밋 3f9a2c1이 PR로 올라갑니다.
 (클릭) 설치, 린트, 테스트, 빌드. 전부 통과했습니다. 이제 머지 버튼을 누릅니다.
 (클릭) 포장, 보관, 스테이징, 그리고 운영 서버 12대가 새 버전으로 바뀝니다. 사람이 한 일은 PR 올리기와 머지 버튼 한 번뿐입니다.</aside>
@@ -943,7 +1017,7 @@ jobs:
     if: github.event_name == 'push'</pre>
   <div style="position:absolute;left:1160px;top:250px;width:648px">
     <div class="yl" data-y="0" style="height:216px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">1</span>트리거</p>
-      <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;align-items:flex-start"><span class="chip">PR 열기 → <code>pull_request</code></span><span class="chip">main에 머지 → <code>push</code></span></div></div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;align-items:flex-start"><span class="chip"><svg class="oi"><use href="#oc-git-pull-request"/></svg>PR 열기 → <code>pull_request</code></span><span class="chip"><svg class="oi"><use href="#oc-git-merge"/></svg>main에 머지 → <code>push</code></span></div></div>
     <div class="yl" data-y="1" style="height:130px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">2</span>러너</p><p class="lead" style="margin-top:6px">ubuntu-latest, 빌려 쓰는 리눅스</p></div>
     <div class="yl" data-y="2" style="height:130px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">3</span>단계</p><p class="lead" style="margin-top:6px">코드 받기, 그다음 검사 네 개를 차례로</p></div>
     <div class="yl" data-y="3" style="height:178px"><p class="big"><span class="badge" style="margin-right:18px;vertical-align:4px">4</span>배포</p><p class="lead" style="margin-top:6px">needs: 검사가 통과해야 출발<br>if: main에 머지됐을 때만 배포</p></div>
@@ -956,9 +1030,9 @@ jobs:
 
 <section class="page" id="repeat" data-title="반복 가능성" data-steps="2" data-sec="전체 흐름">
   <h2 class="ttl">핵심은 빠른 배포보다 매번 같은 배포</h2>
-  <p style="position:absolute;left:104px;top:236px;margin:0;font:800 200px/1 var(--f-sans);letter-spacing:-8px">속도</p>
+  <p class="spd" data-on="1" style="position:absolute;left:104px;top:236px;margin:0;font:800 200px/1 var(--f-sans);letter-spacing:-8px">속도</p>
   <div class="sl" data-s="1" style="position:absolute;left:96px;top:336px;width:440px;height:16px;border-radius:8px;background:var(--or)"></div>
-  <p data-s="1" style="position:absolute;left:640px;top:296px;margin:0;font:800 120px/1 var(--f-sans);letter-spacing:-4px">반복 가능성</p>
+  <p data-s="1" style="position:absolute;left:640px;top:272px;margin:0;font:800 150px/1 var(--f-sans);letter-spacing:-5px">반복 가능성</p>
   <div class="stg" data-s="2" style="position:absolute;left:112px;top:540px;width:1696px">
     <div class="rp"><p class="cap">첫 번째 배포</p><div class="ch5"><span>설치</span><span>린트</span><span>테스트</span><span>빌드</span><span>배포</span></div></div>
     <div class="rp"><p class="cap">다음 배포</p><div class="ch5"><span>설치</span><span>린트</span><span>테스트</span><span>빌드</span><span>배포</span></div></div>
@@ -973,7 +1047,7 @@ jobs:
 <section class="page" id="prodFail" data-title="운영에서 생기는 문제" data-steps="1" data-sec="운영과 복구">
   <h2 class="ttl">검사를 다 통과해도 운영에서는 문제가 생김</h2>
   <p class="lead" data-u="1" style="position:absolute;left:112px;top:860px">v2가 운영 서버 12대에 퍼진 상태</p>
-  <p class="big" data-s="1" style="position:absolute;left:112px;top:856px">테스트가 운영의 모든 상황을 알지는 못함</p>
+  <p class="big" data-s="1" style="position:absolute;left:112px;top:860px">테스트가 운영의 모든 상황을 알지는 못함</p>
   <aside class="notes">이제 운영과 복구입니다. 검사를 다 통과해도 운영에서는 문제가 생깁니다.
 (클릭) 서버 12대 중 3대에서 오류가 납니다. 같은 이미지여도 운영에서는 서버마다 받는 요청과 데이터가 달라서, 테스트에 없던 상황이 일부부터 터집니다. 그래서 좋은 파이프라인은 새 버전을 내보내는 방법과 되돌리는 방법까지 갖춥니다.</aside>
 </section>
@@ -995,7 +1069,7 @@ jobs:
   <h2 class="ttl">카나리: 사용자 5%에게 먼저, 괜찮으면 넓힘</h2>
   <div class="grid100" id="g100a" style="left:112px;top:250px"></div>
   <p class="cap" id="g100aL" style="position:absolute;left:112px;top:820px">전원 이전 버전</p>
-  <p class="pct" id="pctA" style="left:752px;top:240px">0%</p>
+  <p class="pct" id="pctA" style="left:752px;top:240px"><number-flow>0%</number-flow></p>
   <p class="cap" style="position:absolute;left:760px;top:400px">새 버전을 받은 사용자</p>
   <svg class="chart" style="left:760px;top:460px" width="1048" height="398" viewBox="0 0 1000 380" aria-hidden="true">
     <path d="M80 330H980" stroke="#C6C6BE" stroke-width="3"/>
@@ -1024,7 +1098,7 @@ jobs:
   <h2 class="ttl">오류율이 기준선을 넘으면 바로 이전 버전으로</h2>
   <div class="grid100" id="g100b" style="left:112px;top:250px"></div>
   <p class="cap" id="g100bL" style="position:absolute;left:112px;top:820px">새 버전 25명, 이전 버전 75명</p>
-  <p class="pct" id="pctB" style="left:752px;top:240px">25%</p>
+  <p class="pct" id="pctB" style="left:752px;top:240px"><number-flow>25%</number-flow></p>
   <p class="cap" style="position:absolute;left:760px;top:400px">새 버전을 받은 사용자</p>
   <svg class="chart" style="left:760px;top:460px" width="1048" height="398" viewBox="0 0 1000 380" aria-hidden="true">
     <path d="M80 330H980" stroke="#C6C6BE" stroke-width="3"/>
@@ -1039,7 +1113,7 @@ jobs:
     <g data-s="1"><path d="M420 300L545 90" stroke="#CF222E" stroke-width="5" stroke-linecap="round"/><circle cx="545" cy="90" r="12" fill="#CF222E"/>
       <text x="575" y="98" font-family="Pretendard,sans-serif" font-size="28" font-weight="800" fill="#CF222E">2.4%</text></g>
   </svg>
-  <p class="big" data-s="2" style="position:absolute;left:760px;top:876px">되돌림 완료, 전원 이전 버전</p>
+  <p class="big" data-s="2" style="position:absolute;left:760px;top:876px">되돌림 완료, 노출은 25명에서 멈춤</p>
   <p class="foot" data-u="2" style="position:absolute;left:760px;top:880px">100명으로 그린 예시 값</p>
   <aside class="notes">이번엔 문제가 생기는 경우입니다. 25%까지 넓혔습니다.
 (클릭) 그런데 오류율이 2.4%로 튀어서 기준선을 넘습니다.
@@ -1048,10 +1122,10 @@ jobs:
 
 <section class="page" id="revert" data-title="이전 이미지로 교체" data-steps="2" data-sec="운영과 복구">
   <h2 class="ttl">되돌리기 = 보관해 둔 이전 이미지로 교체</h2>
-  <p class="lead" data-u="1" style="position:absolute;left:112px;top:850px">보관소에 v1이 그대로 있음</p>
+  <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">보관소에 v1이 그대로 있음</p>
   <p class="big" data-s="1" style="position:absolute;left:112px;top:846px">다시 빌드하지 않아서 몇 초</p>
-  <p class="lead" data-s="1" data-u="2" style="position:absolute;left:112px;top:924px">Cloud Run: 배포마다 남는 이전 버전(리비전)으로 트래픽 100% 이동</p>
-  <p class="lead" data-s="2" style="position:absolute;left:112px;top:924px">그다음 Revert PR로 main의 코드도 되돌림</p>
+  <p class="lead" data-s="1" data-u="2" style="position:absolute;left:112px;top:926px">Cloud Run: 배포마다 남는 이전 버전(리비전)으로 트래픽 100% 이동</p>
+  <div class="ghrow" data-s="2" style="position:absolute;left:112px;top:914px"><span class="ghpill mg"><svg class="oi"><use href="#oc-git-merge"/></svg>Merged</span><span class="mono">#13</span><span class="ghbtn">Revert</span><span class="lead">버튼 한 번으로 main 코드도 되돌리는 PR</span></div>
   <aside class="notes">되돌리는 방법은 간단합니다. 아까 보관소에 v1을 남겨 뒀습니다.
 (클릭) 그 v1 이미지를 다시 운영에 올립니다. 다시 빌드하지 않으니까 몇 초면 됩니다. 실습 백엔드를 올린 Cloud Run은 배포마다 버전을 리비전으로 남겨서, 트래픽 100%를 이전 리비전으로 옮기면 끝입니다.
 (클릭) 다만 main에는 아직 v2 코드가 남아 있어서, GitHub의 Revert 버튼으로 되돌리는 PR도 올립니다. 이것도 CI와 CD를 똑같이 한 바퀴 돕니다.</aside>
@@ -1060,9 +1134,9 @@ jobs:
 <section class="page" id="monitor" data-title="모니터링" data-sec="운영과 복구">
   <h2 class="ttl">배포 뒤에는 숫자로 계속 지켜봄</h2>
   <div class="stg">
-    <div class="tile" style="left:112px;top:236px;width:836px;height:290px;--i:0"><p class="cap">요청량</p><p class="val">1.2k/s</p>
+    <div class="tile" style="left:112px;top:236px;width:836px;height:290px;--i:0"><p class="cap">요청량</p><p class="val"><number-flow class="nfx" id="nfReq">1.2k/s</number-flow></p>
       <svg class="drw" width="340" height="110" viewBox="0 0 340 110"><polyline pathLength="1" points="0,80 40,70 80,74 120,52 160,60 200,40 240,48 280,30 340,36" fill="none" stroke="#1E1E1C" stroke-width="5" stroke-linejoin="round"/></svg></div>
-    <div class="tile" style="left:972px;top:236px;width:836px;height:290px;--i:1"><p class="cap">응답 시간</p><p class="val">184ms</p>
+    <div class="tile" style="left:972px;top:236px;width:836px;height:290px;--i:1"><p class="cap">응답 시간</p><p class="val"><number-flow class="nfx" id="nfRt">184ms</number-flow></p>
       <svg class="drw" width="340" height="110" viewBox="0 0 340 110"><polyline pathLength="1" points="0,60 40,58 80,64 120,55 160,60 200,57 240,62 280,56 340,58" fill="none" stroke="#1E1E1C" stroke-width="5" stroke-linejoin="round"/></svg></div>
     <div class="tile" style="left:112px;top:550px;width:836px;height:290px;--i:2"><p class="cap">오류율</p><p class="val">0.1%</p>
       <svg class="drw" width="340" height="110" viewBox="0 0 340 110"><polyline pathLength="1" points="0,96 40,98 80,95 120,97 160,94 200,96 240,97 280,95 340,96" fill="none" stroke="#1E1E1C" stroke-width="5" stroke-linejoin="round"/></svg></div>
@@ -1078,7 +1152,7 @@ jobs:
   <div class="card" style="left:112px;top:236px;width:820px;height:400px;padding:34px 40px">
     <p class="cap">서버 실행 여부</p>
     <p class="mono" style="margin:14px 0 0;font:500 28px var(--f-mono);color:var(--sub)">$ systemctl is-active app</p>
-    <p class="okc" style="margin:40px 0 0;font:800 72px/1 var(--f-mono)">active</p>
+    <p class="okc" style="margin:40px 0 0;font:800 72px/1 var(--f-mono)"><span data-rn="strike-through" data-rn-s="2" data-rn-w="6">active</span></p>
     <div data-s="2" style="margin-top:44px"><span class="chip ng">이것만으로는 부족</span></div>
   </div>
   <div class="card" style="left:988px;top:236px;width:820px;height:400px;padding:34px 40px">
@@ -1095,7 +1169,7 @@ jobs:
   </div>
   <aside class="notes">모니터링에서 중요한 건 질문을 제대로 하는 겁니다. 서버가 켜졌는지만 물으면 active, 켜져 있다고 나옵니다.
 (클릭) 그런데 앱한테 직접 물어보면 500 에러입니다. orders라는 테이블이 없다고 합니다.
-(클릭) 처음에 빠뜨렸던 그 4번, DB 변경 적용입니다. 서버는 켜져 있는데 앱은 깨져 있습니다. 그래서 배포 성공의 기준은 헬스체크 통과이고, 헬스체크는 DB까지 실제로 확인하게 만들어 둡니다. 그러면 스테이징의 GET /health에서 걸려서 이런 버전은 운영까지 못 갑니다.</aside>
+(클릭) active만으로는 부족합니다. 서버는 켜져 있는데 앱은 깨져 있고, 원인은 처음에 빠뜨렸던 그 4번, DB 변경 적용입니다. 배포 성공의 기준은 헬스체크 통과이고, 헬스체크는 DB 연결만 보지 않고 앱이 쓰는 테이블까지 한 번 조회하게 만들어 둡니다. 그러면 이런 버전은 스테이징에서 걸려 운영까지 못 갑니다.</aside>
 </section>
 
 <!-- ================= 7. 정리 ================= -->
@@ -1123,7 +1197,7 @@ jobs:
     <p class="lead" style="margin-top:14px">04 DB 변경도 마이그레이션 파일로 배포 때 자동 적용</p>
   </div>
   <aside class="notes">처음에 본 이 여덟 단계,
-(클릭) 이제 사람이 기억할 필요가 없습니다. 파일 한 개에 적어 두면 매번 같은 순서로 자동으로 돕니다. 4번 DB 변경도 Flyway 같은 마이그레이션 도구로 코드에 넣어 두면 배포할 때 자동으로 적용되고, 혹시 빠져도 DB까지 확인하는 헬스체크에서 멈춥니다.</aside>
+(클릭) 이제 사람이 기억할 필요가 없습니다. 파일 한 개에 적어 두면 매번 같은 순서로 자동으로 돕니다. 4번 DB 변경도 Flyway 같은 마이그레이션 도구로 코드에 넣어 두면 배포할 때 자동으로 적용되고, 혹시 빠져도 실제 테이블까지 조회하는 헬스체크에서 멈춥니다.</aside>
 </section>
 
 <!-- ================= 8. 회사에서는 ================= -->
@@ -1134,14 +1208,16 @@ jobs:
     <button class="tab ix" data-tab="1" type="button">Jenkins</button>
     <button class="tab ix" data-tab="2" type="button">GitLab CI</button>
   </div>
-  <pre class="code tabp" data-lang="yaml" data-tabp="0" data-mk="1:1,2:2,3:3" style="left:112px;top:330px;width:1180px" data-label=".github/workflows/ci.yml">on: pull_request
-runs-on: ubuntu-latest
-steps:
-  - uses: actions/checkout@v7
-  - run: npm ci
-  - run: npm run lint
-  - run: npm test
-  - run: npm run build</pre>
+  <pre class="code tabp" data-lang="yaml" data-tabp="0" data-mk="1:1,4:2,5:3" style="left:112px;top:330px;width:1180px" data-label=".github/workflows/ci.yml">on: pull_request
+jobs:
+  frontend-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build</pre>
   <pre class="code tabp hid" data-lang="groovy" data-tabp="1" data-mk="2:2,3:3" style="left:112px;top:330px;width:1180px" data-label="Jenkinsfile">pipeline {
   agent any
   stages {
@@ -1160,6 +1236,7 @@ steps:
     - npm run lint
     - npm test
     - npm run build</pre>
+  <div class="code mmcard" id="mmcard" style="left:112px;top:330px;width:1180px" hidden><span class="lab" id="mmlab">.github/workflows/ci.yml</span><div class="mmwrap"><pre id="mmpre"></pre><span class="mk mm" data-m="1">1</span><span class="mk mm" data-m="2">2</span><span class="mk mm" data-m="3">3</span></div></div>
   <div style="position:absolute;left:1350px;top:340px;width:458px">
     <div style="position:relative;height:118px">
       <p class="big tabp" data-tabp="0" style="position:absolute;left:0;top:0;width:458px">GitHub에 내장</p>
@@ -1171,22 +1248,22 @@ steps:
       <p style="margin:0 0 22px;font:600 30px/1.5 var(--f-sans)"><span class="badge" style="width:46px;height:46px;line-height:46px;font-size:24px;margin-right:14px">2</span>러너</p>
       <p style="margin:0 0 22px;font:600 30px/1.5 var(--f-sans)"><span class="badge" style="width:46px;height:46px;line-height:46px;font-size:24px;margin-right:14px">3</span>단계</p>
     </div>
-    <p class="lead tabp hid" data-tabp="1" style="margin-top:20px">트리거는 파일 밖 Jenkins 설정</p>
+    <p class="lead tabp hid" data-tabp="1" style="margin-top:20px">PR 트리거는 보통 파일 밖 설정</p>
   </div>
-  <aside class="notes">회사에 가면 GitHub Actions 대신 Jenkins나 GitLab CI를 쓰는 곳이 많습니다. GitHub Actions는 GitHub에 들어 있는 자동화입니다.
-(클릭) Jenkins는 회사가 직접 서버에 설치해서 운영하는 자동화 서버입니다. 마음대로 고칠 수 있는 대신 관리도 직접 합니다. 트리거만 파일 밖, Jenkins 설정에 둡니다.
-(클릭) GitLab CI는 GitLab에 들어 있습니다. 탭을 바꿔 보면 문법만 다르고 트리거, 러너, 단계는 같은 자리에 있습니다.</aside>
+  <aside class="notes">회사에 가면 GitHub Actions 대신 Jenkins나 GitLab CI를 쓰는 곳이 많습니다. GitHub Actions는 GitHub에 들어 있는 자동화입니다. 도구는 달라도 트리거, 러너, 단계 세 자리는 같습니다. 여기서는 on, runs-on, steps입니다.
+(클릭) Jenkins는 회사가 직접 서버에 설치해서 운영하는 자동화 서버입니다. 러너는 agent, 단계는 stages로 바뀌고, PR이 열릴 때 출발시키는 트리거는 보통 파일 밖 Jenkins 설정에 둡니다.
+(클릭) GitLab CI는 GitLab에 들어 있습니다. 트리거는 rules, 러너는 image, 단계는 script입니다. 문법만 다르고 세 자리는 같습니다.</aside>
 </section>
 
 <section class="page" id="map" data-title="회사 도구 대응" data-sec="회사에서는">
   <h2 class="ttl">회사에서는 칸마다 도구 이름만 바뀜</h2>
   <table class="tb xl" style="left:112px;top:250px;width:1696px;font-size:40px">
-    <thead><tr><th style="width:320px">칸</th><th class="colhl" style="width:440px;padding-left:20px">이 실습</th><th style="width:440px">AWS</th><th>사내, 금융권</th></tr></thead>
+    <thead><tr><th style="width:400px">칸</th><th class="colhl" style="width:430px;padding-left:20px">이 실습</th><th style="width:380px">AWS</th><th>사내, 금융권</th></tr></thead>
     <tbody>
-      <tr><td><b>CI 실행기</b></td><td class="colhl" style="padding-left:20px">GitHub Actions</td><td>CodeBuild</td><td>Jenkins</td></tr>
-      <tr><td><b>이미지 보관소</b></td><td class="colhl" style="padding-left:20px">Artifact Registry</td><td>ECR</td><td>Nexus</td></tr>
-      <tr><td><b>실행 환경</b></td><td class="colhl" style="padding-left:20px">Cloud Run</td><td>ECS, EC2</td><td>사내 쿠버네티스</td></tr>
-      <tr><td><b>배포 인증</b></td><td class="colhl" style="padding-left:20px">WIF</td><td>IAM 역할</td><td>사내 계정, 결재</td></tr>
+      <tr><td><b class="tih"><svg class="ti"><use href="#ti-settings-automation"/></svg>CI 실행기</b></td><td class="colhl" style="padding-left:20px">GitHub Actions</td><td>CodeBuild</td><td>Jenkins</td></tr>
+      <tr><td><b class="tih"><svg class="ti"><use href="#ti-building-warehouse"/></svg>이미지 보관소</b></td><td class="colhl" style="padding-left:20px">Artifact Registry</td><td>ECR</td><td>Nexus</td></tr>
+      <tr><td><b class="tih"><svg class="ti"><use href="#ti-server"/></svg>실행 환경</b></td><td class="colhl" style="padding-left:20px">Cloud Run</td><td>ECS, EC2</td><td>사내 쿠버네티스</td></tr>
+      <tr><td><b class="tih"><svg class="ti"><use href="#ti-key"/></svg>배포 인증</b></td><td class="colhl" style="padding-left:20px">WIF</td><td>IAM 역할</td><td>사내 계정, 결재</td></tr>
     </tbody>
   </table>
   <aside class="notes">칸별로 보면 이렇습니다. 칸은 그대로이고 이름만 바뀝니다. 사내나 금융권에서는 Jenkins, Nexus, 사내 쿠버네티스를 많이 씁니다. 면접에서 물어보시면 그 회사 개발 문화가 보입니다.</aside>
@@ -1211,16 +1288,16 @@ steps:
 <section class="page" id="day1" data-title="Day 1 체크리스트" data-steps="4" data-sec="가져가기">
   <h2 class="ttl">첫날 한 시간 체크리스트</h2>
   <ul class="checks xl" style="left:112px;top:240px;width:1696px">
-    <li data-c="1"><span class="bx2"></span><div>두 레포에 ci.yml 복사<small>명령만 프로젝트에 맞게</small></div></li>
-    <li data-c="2"><span class="bx2"></span><div>프론트는 Vercel 연결<small>레포 Import 한 번</small></div></li>
-    <li data-c="3"><span class="bx2"></span><div>백엔드는 Hello World를 Cloud Run에 첫 배포<small>키 파일 없는 배포 권한 연결(WIF)은 gcp-setup.sh 한 번</small></div></li>
-    <li data-c="4"><span class="bx2"></span><div>두 레포 main 보호: PR 필수 + 필수 검사 + 우회 금지<small>GitHub 무료 요금제는 공개 레포만 보호 가능, 해커톤 레포는 공개가 간편</small></div></li>
+    <li data-c="1"><span class="bx2"></span><svg class="ti"><use href="#ti-copy"/></svg><div>두 레포에 ci.yml 복사<small>명령만 프로젝트에 맞게</small></div></li>
+    <li data-c="2"><span class="bx2"></span><svg class="ti fillicon"><use href="#ti-brand-vercel"/></svg><div>프론트는 Vercel 연결<small>레포 Import 한 번</small></div></li>
+    <li data-c="3"><span class="bx2"></span><svg class="ti"><use href="#ti-cloud-upload"/></svg><div>백엔드는 Hello World를 Cloud Run에 첫 배포<small>키 파일 없는 배포 권한 연결(WIF)은 gcp-setup.sh 한 번</small></div></li>
+    <li data-c="4"><span class="bx2"></span><svg class="ti"><use href="#ti-shield-lock"/></svg><div>두 레포 main 보호: PR 필수 + 필수 검사 + 우회 금지<small>GitHub 무료 요금제는 공개 레포만 보호 가능, 해커톤 레포는 공개가 간편</small></div></li>
   </ul>
   <aside class="notes">그래서 프로젝트 첫날 한 시간 안에 이것만 해 두시길 권합니다.
-(클릭) ci.yml 복사. 파일은 가이드북에 그대로 들어 있고, D-7에 터진 빌드 실패가 첫 PR부터 잡힙니다.
+(클릭) ci.yml 복사. 파일은 가이드북에 그대로 들어 있고, 발표 일주일 전에 터진 빌드 실패가 첫 PR부터 잡힙니다.
 (클릭) Vercel 연결. 배포 주소를 폰으로 한 번 열어 보면 localhost 문제가 첫날 걸립니다.
 (클릭) 백엔드 Hello World를 Cloud Run에 첫 배포. 비밀 키 없이 GitHub가 구글 클라우드에 배포하게 이어 주는 WIF도 가이드북 스크립트 한 번이면 됩니다.
-(클릭) 그리고 브랜치 보호. PR 필수, 필수 검사, 우회 금지를 켭니다. GitHub 무료 요금제에서는 공개 레포만 보호 규칙이 걸리니, 해커톤 레포는 공개로 만드시는 게 편합니다.</aside>
+(클릭) 그리고 브랜치 보호. PR 필수, 필수 검사, 우회 금지를 켭니다. 필수 검사는 PR로 한 번 돌려 본 뒤에야 목록에 뜹니다. GitHub 무료 요금제에서는 공개 레포만 보호 규칙이 걸리니, 해커톤 레포는 공개로 만드시는 게 편합니다.</aside>
 </section>
 
 <section class="page" id="dongji" data-title="동지톤" data-sec="가져가기">
@@ -1230,25 +1307,26 @@ steps:
     <p class="big" style="margin-top:24px">동국대·홍익대 연합 해커톤, 동지톤</p>
     <p class="lead" style="margin-top:40px">레포 만들자마자 Day 1 체크리스트부터<br>마지막 날 밤은 발표 준비에 쓰기</p>
   </div>
-  <aside class="notes">마침 1월 30일, 31일에 동국대와 홍익대가 함께하는 연합 해커톤, 동지톤이 있습니다. 레포를 만들자마자 오늘 체크리스트부터 해 두면, 마지막 날 밤을 배포가 아니라 발표 준비에 쓸 수 있습니다.</aside>
+  <div class="team stg" style="left:1096px;top:690px"><span class="tm"><span class="fc"><svg viewBox="0 0 1744 1744"><use href="#face-a"/></svg></span><svg class="okb"><use href="#oc-check-circle-fill"/></svg></span><span class="tm"><span class="fc"><svg viewBox="0 0 1744 1744"><use href="#face-b"/></svg></span><svg class="okb"><use href="#oc-check-circle-fill"/></svg></span><span class="tm"><span class="fc"><svg viewBox="0 0 1744 1744"><use href="#face-c"/></svg></span><svg class="okb"><use href="#oc-check-circle-fill"/></svg></span><span class="tm"><span class="fc"><svg viewBox="0 0 1744 1744"><use href="#face-d"/></svg></span><svg class="okb"><use href="#oc-check-circle-fill"/></svg></span><span class="tm"><span class="fc"><svg viewBox="0 0 1744 1744"><use href="#face-e"/></svg></span><svg class="okb"><use href="#oc-check-circle-fill"/></svg></span><p class="cap">그 다섯 명, 이번엔 첫날부터 자동 검사</p></div>
+  <aside class="notes">마침 1월 30일, 31일에 동국대와 홍익대가 함께하는 연합 해커톤, 동지톤이 있습니다. 처음에 main에 계속 합치던 그 다섯 명이 이번엔 레포를 만들자마자 오늘 체크리스트부터 해 둡니다. 그러면 첫 PR부터 자동 검사가 붙고, 마지막 날 밤을 배포가 아니라 발표 준비에 쓸 수 있습니다.</aside>
 </section>
 
 <section class="page" id="self" data-title="이 페이지도 배포" data-steps="2" data-sec="가져가기">
   <h2 class="ttl">이 발표 페이지도 같은 길로 배포</h2>
-  <div class="bx" style="left:112px;top:300px;width:420px;height:130px;font-family:var(--f-mono);font-size:30px">donghongdongrock<small>발표 페이지 레포</small></div>
+  <div class="bx" style="left:112px;top:300px;width:420px;height:130px;font-family:var(--f-mono);font-size:30px"><span class="tih"><svg class="oi"><use href="#oc-repo"/></svg>donghongdongrock</span><small>발표 페이지 레포</small></div>
   <div class="ar" style="left:544px;top:364px;width:80px"></div>
-  <div class="bx" style="left:636px;top:300px;width:380px;height:130px">GitHub Actions<small>deck-check 검사</small></div>
+  <div class="bx" style="left:636px;top:300px;width:380px;height:130px"><span class="tih"><svg class="oi"><use href="#oc-play"/></svg>GitHub Actions</span><small>deck-check 검사</small></div>
   <div class="ar" style="left:1028px;top:364px;width:80px"></div>
-  <div class="bx ink" style="left:1120px;top:300px;width:260px;height:130px">Vercel</div>
+  <div class="bx ink" style="left:1120px;top:300px;width:260px;height:130px"><span class="tih"><svg class="ti fillicon"><use href="#ti-brand-vercel"/></svg>Vercel</span></div>
   <div style="position:absolute;left:1420px;top:304px;width:388px" data-s="1">
     <p class="cap">이 화면을 만든 커밋</p>
-    <p class="pend" style="margin:6px 0 0;font:800 52px var(--f-mono)" data-live="commit">배포된 주소에서 실시간 표시</p>
+    <p style="margin:6px 0 0;font:800 52px var(--f-mono)"><span class="pend" data-live="commit" data-rn="circle" data-rn-s="1" data-rn-c="#FF6309" data-rn-p="12">배포된 주소에서 실시간 표시</span></p>
   </div>
-  <div class="bx" style="left:112px;top:500px;width:420px;height:130px;font-family:var(--f-mono);font-size:30px">cicd-backend<small>실습 백엔드 레포</small></div>
+  <div class="bx" style="left:112px;top:500px;width:420px;height:130px;font-family:var(--f-mono);font-size:30px"><span class="tih"><svg class="oi"><use href="#oc-repo"/></svg>cicd-backend</span><small>실습 백엔드 레포</small></div>
   <div class="ar" style="left:544px;top:564px;width:80px"></div>
-  <div class="bx" style="left:636px;top:500px;width:380px;height:130px">GitHub Actions<small>테스트 후 배포</small></div>
+  <div class="bx" style="left:636px;top:500px;width:380px;height:130px"><span class="tih"><svg class="oi"><use href="#oc-play"/></svg>GitHub Actions</span><small>테스트 후 배포</small></div>
   <div class="ar" style="left:1028px;top:564px;width:80px"></div>
-  <div class="bx ink" style="left:1120px;top:500px;width:260px;height:130px">Cloud Run</div>
+  <div class="bx ink" style="left:1120px;top:500px;width:260px;height:130px"><span class="tih"><svg class="ti"><use href="#ti-cloud-upload"/></svg>Cloud Run</span></div>
   <div style="position:absolute;left:1420px;top:504px;width:388px" data-s="2">
     <p class="cap">지금 응답 중인 리비전</p>
     <p class="pend" style="margin:6px 0 0;font:800 40px/1.25 var(--f-mono);word-break:break-all" data-live="revision">배포된 주소에서 실시간 표시</p>
@@ -1257,7 +1335,8 @@ steps:
   <p class="lead nolive" data-s="2" data-live-show="revision" style="position:absolute;left:112px;top:800px;color:var(--ink)"><span class="live-dot"></span>지금 이 순간 서버 응답: <b data-live="message"></b></p>
   <aside class="notes">마지막으로 하나만 더 보여 드리겠습니다. 지금 보고 계신 이 발표 페이지도 오늘 본 길로 배포됐습니다. 대본 한 줄을 고칠 때도 PR을 올리고, 검사를 통과해야 머지되고, 머지하면 Vercel이 배포합니다.
 (클릭) 이 숫자가 지금 이 화면을 만든 커밋입니다.
-(클릭) 그리고 이건 지금 응답하고 있는 실습 백엔드의 배포 버전 번호, Cloud Run 리비전입니다.</aside>
+(클릭) 그리고 이건 지금 응답하고 있는 실습 백엔드의 배포 버전 번호, Cloud Run 리비전입니다.
+※ 리비전이 안 뜨면: 행사장 네트워크 때문에 지금은 안 뜨는데, 폰으로 열면 이 자리에 응답 중인 리비전이 뜹니다.</aside>
 </section>
 
 <section class="page" id="sweep" data-title="정리" data-steps="1">
@@ -1281,15 +1360,18 @@ steps:
   <aside class="notes">오늘 화면은 QR로 열면 폰에서 다시 보실 수 있습니다. 실습 가이드북은 발표 끝나고 공유하겠습니다. 질문 받겠습니다. 감사합니다.</aside>
 </section>
 
+<svg id="ink" width="1920" height="1080" viewBox="0 0 1920 1080" aria-hidden="true"></svg>
 <div id="pn"></div>
 <div id="help" class="hid">
-  <b>→ 스페이스</b>다음<br><b>← </b>이전<br><b>숫자 + Enter</b>그 장으로<br><b>F</b>전체 화면<br><b>P</b>발표자 창<br><b>B</b>화면 가리기<br><b>H</b>이 도움말
+  <b>→ 스페이스</b>다음<br><b>← </b>이전<br><b>숫자 + Enter</b>그 장으로<br><b>F</b>전체 화면<br><b>P</b>발표자 창<br><b>D</b>펜 켜고 끄기<br><b>X</b>펜 자국 지우기<br><b>B</b>화면 가리기<br><b>H</b>이 도움말
 </div>
 <div id="jump"></div>
 <div id="black" class="hid"></div>
 </div></div>
 
 <script>window.DHDL = /*LIVE*/{};</script>
+<script>/*VENDOR_JS*/</script>
+<script>window.DHDL_CODE = /*CODE_JSON*/{}; window.DHDL_MM = /*MM_JSON*/null;</script>
 <script>
 (function(){
   'use strict';
@@ -1334,9 +1416,14 @@ steps:
     }
     if(last<line.length) tx.appendChild(document.createTextNode(line.slice(last)));
   }
+  // Shiki로 미리 칠해 둔 줄 (tools/build-assets.mjs → assets/code.json). 코드가 바뀌어 짝이 없으면 아래 간이 색칠로
+  var SHIKI = window.DHDL_CODE || {};
+  function fnv(s){ var h = 0x811c9dc5; for(var i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(16); }
   $$('pre.code, pre.log', stage).forEach(function(pre){
     var lang = pre.dataset.lang||'text';
     var lines = pre.textContent.replace(/^\n+|\n+$/g,'').split('\n');
+    var sh = pre.classList.contains('code') ? SHIKI[fnv(lang+'\n'+lines.join('\n'))] : null;
+    if(sh) pre.classList.add('shiki');
     var hl = parseList(pre.dataset.hl), ng = parseList(pre.dataset.ng), ok = parseList(pre.dataset.ok), st = parseList(pre.dataset.st);
     var gap = pre.dataset.gap ? +pre.dataset.gap : .12;
     var mk = {}; (pre.dataset.mk||'').split(',').forEach(function(p){ if(!p) return; var a=p.split(':'); mk[+a[0]]=a[1]; });
@@ -1349,8 +1436,9 @@ steps:
       if(lang==='diff'){
         var c0=line.charAt(0);
         if(c0==='+') row.classList.add('add'); else if(c0==='-') row.classList.add('del'); else row.classList.add('ctx');
-        hlJs(line.slice(1), tx);
-      } else if(lang==='yaml') hlYaml(line, tx);
+        if(sh) tx.innerHTML = sh[i]; else hlJs(line.slice(1), tx);
+      } else if(sh) tx.innerHTML = sh[i];
+      else if(lang==='yaml') hlYaml(line, tx);
       else if(lang==='js' || lang==='groovy') hlJs(line, tx);
       else tx.textContent = line;
       if(hl[n]) row.classList.add('hl');
@@ -1368,12 +1456,13 @@ steps:
   var ICON = {
     wait:'<circle cx="20" cy="20" r="16" stroke="#C6C6BE" stroke-width="3" fill="#fff"/>',
     run:'<g class="spin"><circle cx="20" cy="20" r="16" stroke="#E6D3A8" stroke-width="4" fill="#fff"/><path d="M20 4a16 16 0 0 1 16 16" stroke="#BF8700" stroke-width="4" fill="none" stroke-linecap="round"/></g>',
-    ok:'<circle cx="20" cy="20" r="18" fill="#1A7F37"/><path d="M12 20.5l5.5 5.5L28.5 14" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
-    ng:'<circle cx="20" cy="20" r="18" fill="#CF222E"/><path d="M13.5 13.5l13 13M26.5 13.5l-13 13" stroke="#fff" stroke-width="4" stroke-linecap="round"/>',
-    skip:'<circle cx="20" cy="20" r="16" stroke="#C6C6BE" stroke-width="3" fill="#fff" stroke-dasharray="4 5"/>',
-    lockidle:'<circle cx="20" cy="20" r="16" stroke="#C6C6BE" stroke-width="3" fill="#fff"/><rect x="13.5" y="19" width="13" height="10" rx="2" fill="#9A9A92"/><path d="M15.8 19v-2.6a4.2 4.2 0 0 1 8.4 0V19" stroke="#9A9A92" stroke-width="2.6" fill="none"/>',
-    lock:'<circle cx="20" cy="20" r="18" fill="#CF222E"/><rect x="13" y="19" width="14" height="11" rx="2" fill="#fff"/><path d="M15.5 19v-3a4.5 4.5 0 0 1 9 0v3" stroke="#fff" stroke-width="3" fill="none"/>',
-    open:'<circle cx="20" cy="20" r="18" fill="#1A7F37"/><rect x="13" y="19" width="14" height="11" rx="2" fill="#fff"/><path d="M15.5 19v-3.5a4.5 4.5 0 0 1 8.7-1.6" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>'
+    /* 통과·실패·건너뜀·자물쇠는 GitHub 화면과 같은 Primer Octicons (assets/icons.svg) */
+    ok:'<circle cx="20" cy="20" r="15" fill="#fff"/><use href="#oc-check-circle-fill" x="1" y="1" width="38" height="38" style="color:#1A7F37"/>',
+    ng:'<circle cx="20" cy="20" r="15" fill="#fff"/><use href="#oc-x-circle-fill" x="1" y="1" width="38" height="38" style="color:#CF222E"/>',
+    skip:'<circle cx="20" cy="20" r="15" fill="#fff"/><use href="#oc-skip" x="2" y="2" width="36" height="36" style="color:#9A9A92"/>',
+    lockidle:'<circle cx="20" cy="20" r="16" stroke="#C6C6BE" stroke-width="3" fill="#fff"/><use href="#oc-lock" x="11" y="11" width="18" height="18" style="color:#9A9A92"/>',
+    lock:'<circle cx="20" cy="20" r="18" fill="#CF222E"/><use href="#oc-lock" x="9" y="8.5" width="22" height="22" style="color:#fff"/>',
+    open:'<circle cx="20" cy="20" r="18" fill="#1A7F37"/><use href="#oc-unlock" x="9" y="8.5" width="22" height="22" style="color:#fff"/>'
   };
   $$('[data-ic]', stage).forEach(function(s){ s.innerHTML = ICON[s.dataset.ic] || ''; });
   $$('.stg, .st8', stage).forEach(function(g){ [].forEach.call(g.children, function(c,i){ c.style.setProperty('--i', i); }); });
@@ -1456,7 +1545,7 @@ steps:
   function M(){ var s = {}; for(var i=0;i<arguments.length;i++) s = mergeSt(s, arguments[i]); return s; }
   function each(name, fn){ (W[name] || []).forEach(fn); }
 
-  var prevW = null, icNow = {};
+  var prevW = null, icNow = {}, czT = null;
   function posOf(name){ return CART[name] || CART.dev || [0, 0]; }
   function applyW(st, inst){
     if(STATIC) inst = true;
@@ -1469,7 +1558,9 @@ steps:
     var c = CAM[st.cam] || CAM.ci;
     world.style.transform = 'translate('+c.tx+'px,'+c.ty+'px) scale('+c.s+')';
     world.classList.toggle('cam-all', c.s < .7);
-    world.classList.toggle('cam-z', !!c.v);
+    clearTimeout(czT);
+    if(c.v || inst) world.classList.toggle('cam-z', !!c.v);
+    else if(world.classList.contains('cam-z')) czT = setTimeout(function(){ world.classList.remove('cam-z'); }, 700);
     $$('.wl', world).forEach(function(e){ var x = c.tx + parseFloat(e.style.left || 0)*c.s; e.classList.toggle('offcam', x < 90 || x > 1830); });
     view.style.setProperty('--v0', (c.v ? c.v[0] : -80)+'px'); view.style.setProperty('--v1', (c.v ? c.v[1] : 1160)+'px');
     world.style.setProperty('--fs', Math.max(1, 1/c.s).toFixed(3));
@@ -1603,8 +1694,8 @@ steps:
       steps:{1:[{show:{runner:1}}]} },
 
     fail:{ base:M(ONCI, {cap:{x:'dev', t:'7d3f0b8', show:1}}),
-      steps:{1:[{cap:{x:'entry'}}].concat(gate('install','ok',{t:500}), gate('lint','ok'), [
-                {t:120, cap:{x:'test'}}, {t:720, g:{test:'run'}},
+      steps:{1:[{cap:{x:'entry'}, spd:'fast'}].concat(gate('install','ok',{t:150, fast:1}), gate('lint','ok',{fast:1}), [
+                {t:120, cap:{x:'test'}, spd:''}, {t:720, g:{test:'run'}},
                 {t:800, g:{test:'ng'}, cap:{st:'ng'}, out:{at:'test', t:'Tests 3 failed | 3 passed (6)', st:'ng'}, fx:'shake', cam:'testZ'},
                 {t:600, g:{build:'skip'}}]),
              2:[{cam:'failMergeZ', out:null}, {t:700, g:{merge:'lock'}}]} },
@@ -1617,10 +1708,10 @@ steps:
     pack:{ base:ONRAIL, steps:{1:[{cam:'imageZ'}].concat(cdPack())} },
     store:{ base:PACKED, steps:{1:[{cam:'regZ'}].concat(cdStore()), 2:[{hi:'v1'}]} },
     staging:{ base:STORED, steps:{1:[{cam:'stgZ'}].concat(cdStage())} },
-    delivery:{ base:M(STAGED, {show:{appr:1}, appr:'human'}),
-      enter:[{t:700, cam:'apprZ'}, {t:300, cap:{x:'pre'}, out:{at:'appr', t:'승인 대기', ko:1}}],
+    delivery:{ base:M(STAGED, {show:{appr:1}, appr:'human', cam:'apprZ'}),
+      enter:[{t:500, cap:{x:'pre'}, out:{at:'appr', t:'승인 대기', ko:1}}],
       steps:{1:[{appr:'up', out:null}, {t:650, cam:'shipZ'}].concat(cdShip('v2', {t:250}))} },
-    deploy:{ base:M(STAGED, {show:{appr:1}, appr:'none', out:null, cam:'shipZ', ghost:1}),
+    deploy:{ base:M(STAGED, {show:{appr:1}, appr:'none', out:null, cam:'shipZ'}), enter:[{t:700, ghost:1}],
       steps:{1:cdShip('v2', {t:0})} },
 
     full:{ base:{on:1, cam:'all', show:{brCI:1, brCD:1, appr:1}, appr:'none', cap:{x:'dev', t:'3f9a2c1', show:1}},
@@ -1630,9 +1721,10 @@ steps:
     prodFail:{ base:M(SHIPPED, {cam:'prodZ'}),
       steps:{1:[{prod:{fail:3}, out:{at:'prod', t:'서버 12대 중 3대 오류', ko:1, st:'ng'}}]} },
 
-    revert:{ base:M(SHIPPED, {cam:'regProdZ'}),
+    revert:{ base:M(SHIPPED, {cam:'regProdZ'}), enter:[{t:600, hi:'v1'}],
       steps:{1:[{hi:'v1'}, {t:700, cap:{x:'reg', t:'v1', kind:'cube', v:'v1', show:1}}, {t:500, cap:{x:'door'}, spd:'fast'},
-                {t:600, cap:{show:0}, prod:{v:'v1'}}, {t:700, out:{at:'prod', t:'v1로 복귀', ko:1, st:'ok'}, spd:''}]} },
+                {t:600, cap:{show:0}, prod:{v:'v1'}}, {t:700, out:{at:'prod', t:'v1로 복귀', ko:1, st:'ok'}, spd:''}],
+             2:[{cam:'all', out:null, hi:'', show:{brCI:1, brCD:1}}, {t:1200, cap:{x:'dev', t:'Revert PR', kind:'', v:'', show:1}}]} },
 
     twoq:{ base:M(SHIPPED, {cam:'allLow', show:{brCI:1, brCD:1}}),
       steps:{1:[{show:FADE_CD}], 2:[{show:M(SHOW_CD, FADE_CI)}]} },
@@ -1669,22 +1761,88 @@ steps:
     for(var i=0;i<100;i++) ch[i].classList.remove('b');
     for(var k=0;k<n;k++){ var e = ch[ORDER[k]]; e.style.transitionDelay = (STATIC ? 0 : Math.min(k,40)*14)+'ms'; e.classList.add('b'); }
   }
+  // 비율 숫자는 자릿수가 굴러가며 바뀜 (number-flow, vendor/number-flow.js). 없으면 글자만 바꿈
+  function setPct(id, n, mode){
+    var host = document.getElementById(id), nf = host.querySelector('number-flow');
+    if(!nf || typeof nf.update !== 'function'){ host.textContent = n+'%'; return; }
+    nf.numberSuffix = '%'; nf.respectMotionPreference = false;
+    nf.animated = !STATIC && (mode === 'step' || mode === 'back');
+    nf.update(n);
+  }
+  // 39장: GitHub → Jenkins → GitLab 코드가 토큰 단위로 미끄러지며 바뀜 (@shikijs/magic-move, assets/magic-move.json)
+  // 없거나 실패하면 원래의 탭별 코드 카드 세 장을 그대로 씀
+  var MM = {steps: window.DHDL_MM, r: null, cur: -1};
+  function mmShow(s, page, mode){
+    if(!MM.steps || !window.MagicMove || MM.failed) return;
+    var card = document.getElementById('mmcard'), pres = $$('pre.tabp', page);
+    try{
+      var k = stage.getBoundingClientRect().width / 1920 || 1;
+      if(!MM.r){
+        card.hidden = false; pres.forEach(function(p){ p.style.display = 'none'; });
+        MM.r = new window.MagicMove.MagicMoveRenderer(document.getElementById('mmpre'), {duration: 900, containerStyle: false, globalScale: k, delayMove: .25, delayEnter: .65});
+      }
+      MM.r.options.globalScale = k;
+      var animate = !STATIC && MM.cur >= 0 && MM.cur !== s && (mode === 'step' || mode === 'back');
+      if(animate) MM.r.render(MM.steps[s]); else MM.r.replace(MM.steps[s]);
+      MM.cur = s;
+      var src = pres[s];
+      document.getElementById('mmlab').textContent = src ? src.dataset.label : '';
+      var mk = {}; ((src && src.dataset.mk) || '').split(',').forEach(function(p){ if(!p) return; var a = p.split(':'); mk[a[1]] = +a[0]; });
+      // 번호 표시는 가리키는 줄의 글자 끝 바로 뒤에 붙고, 코드가 바뀌면 같이 이동
+      var lh = 28 * 1.48, lines = (MM.steps[s].code || '').split('\n'), wrap = card.querySelector('.mmwrap');
+      if(!MM.cw){ var sp = document.createElement('span'); sp.textContent = '0000000000'; sp.style.cssText = 'position:absolute;visibility:hidden;white-space:pre';
+        wrap.appendChild(sp); MM.cw = sp.getBoundingClientRect().width / 10 / k; wrap.removeChild(sp); }
+      $$('.mk.mm', card).forEach(function(m){
+        var line = mk[m.dataset.m];
+        m.style.opacity = line ? 1 : 0;
+        if(line) m.style.transform = 'translate(' + (30 + (lines[line - 1] || '').length * MM.cw + 24) + 'px,' + ((line - 1) * lh + (lh - 40) / 2) + 'px)';
+      });
+    }catch(e){
+      MM.failed = true; card.hidden = true; pres.forEach(function(p){ p.style.display = ''; });
+    }
+  }
+  // NumberFlow 숫자 순서대로 바꾸기 (장을 넘기거나 다시 그리면 남은 예약은 취소)
+  var nfTimers = [], monT = null;
+  function nfStop(){ nfTimers.forEach(clearTimeout); nfTimers = []; if(monT){ clearInterval(monT); monT = null; } }
+  function nfSet(nf, v, anim){ nf.respectMotionPreference = false; nf.animated = !!anim && !STATIC; nf.update(v); }
+  function nfSeq(id, final, seq){
+    var nf = document.getElementById(id); if(!nf || typeof nf.update !== 'function') return;
+    if(!seq || STATIC){ nfSet(nf, final, false); return; }
+    nfSet(nf, 0, false);
+    seq.forEach(function(p){ nfTimers.push(setTimeout(function(){ nfSet(nf, p[1], true); }, p[0])); });
+  }
+  // 35장: 지켜보는 동안 요청량·응답 시간이 조금씩 출렁임 (예시 값)
+  function monitorRun(){
+    var a = document.getElementById('nfReq'), b = document.getElementById('nfRt');
+    if(!a || !b || typeof a.update !== 'function') return;
+    a.numberSuffix = 'k/s'; a.format = {minimumFractionDigits: 1, maximumFractionDigits: 1}; b.numberSuffix = 'ms';
+    var RQ = [1.2, 1.3, 1.2, 1.1, 1.3], RT = [184, 179, 191, 182, 177], i = 0;
+    nfSet(a, RQ[0], false); nfSet(b, RT[0], false);
+    if(STATIC) return;
+    monT = setInterval(function(){ i = (i + 1) % RQ.length; nfSet(a, RQ[i], true); nfSet(b, RT[i], true); }, 1700);
+  }
   function people(n){ return n === 0 ? '전원 이전 버전' : n === 100 ? '전원 새 버전' : '새 버전 '+n+'명, 이전 버전 '+(100-n)+'명'; }
   var hooks = {
     night:function(s, page){ $$('.tc', page).forEach(function(c, i){ c.className = 'tc' + (s >= 4 || i < s ? ' past' : i === s ? (i === 1 || i === 2 ? ' hot' : ' now') : ''); }); },
-    canary:function(s){ var n = [0,5,25,50,100][s]; setGrid('g100a', n); document.getElementById('pctA').textContent = n+'%'; document.getElementById('g100aL').textContent = people(n); },
-    rollback:function(s){ var n = s >= 2 ? 0 : 25; setGrid('g100b', n); document.getElementById('pctB').textContent = n+'%'; document.getElementById('g100bL').textContent = people(n); },
+    canary:function(s, page, mode){ var n = [0,5,25,50,100][s]; setGrid('g100a', n); setPct('pctA', n, mode); document.getElementById('g100aL').textContent = people(n); },
+    rollback:function(s, page, mode){ var n = s >= 2 ? 0 : 25; setGrid('g100b', n); setPct('pctB', n, mode); document.getElementById('g100bL').textContent = people(n); },
     yaml:function(s, page){
       var pre = page.querySelector('pre[data-hlsteps]'), set = parseList(pre.dataset.hlsteps.split('|')[s] || '');
       $$('.cl', pre).forEach(function(r, i){ r.classList.toggle('hl', !!set[i+1]); });
       $$('.yl', page).forEach(function(y){ y.classList.toggle('on', +y.dataset.y === s); });
     },
-    tools:function(s, page){
+    tools:function(s, page, mode){
       $$('.tab', page).forEach(function(t){ t.classList.toggle('on', +t.dataset.tab === s); });
       $$('.tabp', page).forEach(function(t){ t.classList.toggle('hid', +t.dataset.tabp !== s); });
+      mmShow(s, page, mode);
     },
-    day1:function(s, page){ $$('.checks li', page).forEach(function(li){ li.classList.toggle('ck', +li.dataset.c <= s); }); },
+    day1:function(s, page){ $$('.checks li', page).forEach(function(li){ li.classList.toggle('ck', +li.dataset.c <= s); li.classList.toggle('now', +li.dataset.c === s); }); },
     self:function(){ loadLive(0); },
+    // 8장: 점이 main에 닿는 순간마다 1씩 (시각은 실제 재생에서 잰 값)
+    five:function(s, page, mode){ nfSeq('nf6', s >= 2 ? 6 : 0, s === 2 && mode === 'step' ? [1600,2060,2560,3020,3470,4180].map(function(t, i){ return [t, i+1]; }) : null); },
+    // 10장: 6건 × 5가지가 5씩 쌓여 30
+    thirty:function(s, page, mode){ nfSeq('nf30', 30, s === 1 && mode === 'step' ? [5,10,15,20,25,30].map(function(v, i){ return [350 + i*170, v]; }) : null); },
+    monitor:function(){ monitorRun(); },
     delivery:function(s){ var b = document.getElementById('approveBtn'); b.classList.toggle('done', s >= 1); b.textContent = s >= 1 ? '승인됨' : '승인하고 배포'; }
   };
 
@@ -1694,6 +1852,27 @@ steps:
     el.textContent = '0';
     function fr(ts){ if(t0 === null) t0 = ts; var k = Math.min(1, (ts - t0)/900); el.textContent = Math.round(to*(1 - Math.pow(1-k, 3))); if(k < 1) requestAnimationFrame(fr); }
     requestAnimationFrame(fr);
+  }
+  /* ---------- 손그림 강조 (rough-notation, vendor/rough-notation.js) ----------
+     data-rn="circle|underline|strike-through|box" data-rn-s="나타날 단계" data-rn-c="색" data-rn-w="굵기" data-rn-p="여백" */
+  var RN = window.RoughNotation, rnAll = [];
+  function rnSync(page, mode, changed){
+    if(!RN) return;
+    if(changed) rnAll.forEach(function(r){ if(r.page !== page && r.on){ clearTimeout(r.t); r.on = false; r.a.hide(); } });
+    $$('[data-rn]', page).forEach(function(el){
+      var r = el._rn;
+      if(!r){
+        r = el._rn = {page:page, on:false, a:RN.annotate(el, {type:el.dataset.rn, color:el.dataset.rnC || '#CF222E', strokeWidth:+(el.dataset.rnW || 4),
+          padding:+(el.dataset.rnP || 8), iterations:2, animationDuration:650})};
+        rnAll.push(r);
+      }
+      var want = S >= +(el.dataset.rnS || 0) && !el.closest('.hid');
+      if(want && !r.on){
+        var anim = !STATIC && (mode === 'step' || mode === 'page');
+        r.on = true; r.a.animate = anim; clearTimeout(r.t);
+        if(anim) r.t = setTimeout(function(){ if(r.on) r.a.show(); }, mode === 'step' ? 380 : 650); else r.a.show();
+      } else if(!want && r.on){ clearTimeout(r.t); r.on = false; r.a.hide(); }
+    });
   }
   function visStep(el){ for(var e = el; e && e !== stage; e = e.parentElement){ if(e.dataset && e.dataset.s !== undefined) return +e.dataset.s; } return 0; }
 
@@ -1705,16 +1884,26 @@ steps:
     pages.forEach(function(p, i){ p.classList.toggle('active', i === P); });
     var page = pages[P];
     page.dataset.step = S;
-    if(changed){ page.classList.add('notr'); $$('.drw', page).forEach(function(d){ d.classList.add('undrawn'); }); void page.offsetWidth; page.classList.remove('notr'); }
+    if(changed) inkClear();
+    if(changed){ page.classList.add('notr'); $$('.drw', page).forEach(function(d){ d.classList.add('undrawn'); }); }
     $$('[data-s],[data-u]', page).forEach(function(n){
       var s0 = n.dataset.s !== undefined ? +n.dataset.s : 0, u = n.dataset.u !== undefined ? +n.dataset.u : 1e9;
       n.classList.toggle('hid', !(S >= s0 && S < u));
     });
+    if(changed){ void page.offsetWidth; page.classList.remove('notr'); }
     $$('.drw', page).forEach(function(d){ d.classList.toggle('undrawn', !!d.closest('.hid')); });
+    // data-late: 그 단계의 기계 장면이 끝난 뒤에 나타남 (결과 문구가 결과보다 먼저 뜨지 않게)
+    $$('[data-late]', page).forEach(function(n){
+      var fr = (SC[page.id] && SC[page.id].steps && SC[page.id].steps[S]) || [];
+      var late = !STATIC && mode === 'step' && +n.dataset.s === S;
+      n.style.transitionDelay = late ? fr.reduce(function(a, f){ return a + (f.t || 0); }, 0) + 'ms' : '';
+    });
     $$('[data-on]', page).forEach(function(n){ n.classList.toggle('on', S >= +n.dataset.on); });
     if(mode === 'step') $$('[data-shake="'+S+'"]', page).forEach(function(n){ n.classList.remove('shake'); void n.offsetWidth; n.classList.add('shake'); });
     $$('[data-count]', page).forEach(function(n){ var vs = visStep(n); if((mode === 'step' && vs === S) || (changed && mode !== 'back' && vs <= S)) countUp(n); else n.textContent = n.dataset.count; });
+    nfStop();
     if(hooks[page.id]) hooks[page.id](S, page, mode);
+    rnSync(page, mode, changed);
     worldRender(mode);
     secEl.textContent = page.dataset.sec || ''; secEl.style.opacity = page.dataset.sec ? '1' : '0';
     progEl.style.width = (N > 1 ? P/(N-1)*100 : 0)+'%';
@@ -1726,6 +1915,16 @@ steps:
   function next(){ if(S < nsteps(P)){ S++; render('step'); } else if(P < N-1){ P++; S = 0; render('page'); } }
   function prev(){ if(S > 0){ S--; render('back'); } else if(P > 0){ P--; S = nsteps(P); render('back'); } }
   function go(p, s){ P = Math.max(0, Math.min(N-1, p)); S = Math.max(0, Math.min(nsteps(P), s||0)); render('jump'); }
+
+  /* ---------- 펜 (drauu, vendor/drauu.js): D 켜고 끄기, X 지우기, 장을 넘기면 지워짐 ---------- */
+  var ink = null, inkOn = false;
+  function inkToggle(force){
+    if(!window.Drauu) return;
+    if(!ink) ink = window.Drauu.createDrauu({el:'#ink', brush:{mode:'stylus', color:'#FF6309', size:8}});
+    inkOn = force === undefined ? !inkOn : force;
+    document.documentElement.classList.toggle('inking', inkOn);
+  }
+  function inkClear(){ if(ink) ink.clear(); }
 
   /* ---------- 화면 맞춤 ---------- */
   function fit(){ var k = Math.min(window.innerWidth/1920, window.innerHeight/1080); stage.style.transform = 'translate(-50%,-50%) scale('+k+')'; }
@@ -1740,7 +1939,9 @@ steps:
     else if(k === 'Home'){ go(0, 0); } else if(k === 'End'){ go(N-1, 0); }
     else if(/^[0-9]$/.test(k)){ jumpBuf += k; jumpEl.textContent = '→ '+jumpBuf; }
     else if(k === 'Enter'){ if(jumpBuf){ go(+jumpBuf-1, 0); jumpBuf = ''; jumpEl.textContent = ''; } else next(); }
-    else if(k === 'Escape'){ jumpBuf = ''; jumpEl.textContent = ''; help.classList.add('hid'); }
+    else if(k === 'Escape'){ jumpBuf = ''; jumpEl.textContent = ''; help.classList.add('hid'); if(inkOn) inkToggle(false); }
+    else if(!fromPresenter && (k === 'd' || k === 'D')){ inkToggle(); }
+    else if(k === 'x' || k === 'X'){ inkClear(); }
     else if(!fromPresenter && (k === 'f' || k === 'F')){ var d = document.documentElement; try{ if(document.fullscreenElement) document.exitFullscreen(); else if(d.requestFullscreen) d.requestFullscreen().catch(function(){}); }catch(err){} }
     else if(k === 'b' || k === 'B' || k === '.'){ black.classList.toggle('hid'); }
     else if(k === 'h' || k === 'H' || k === '?'){ help.classList.toggle('hid'); }
@@ -1789,7 +1990,7 @@ steps:
     if(d.t === 'hello'){ pres = e.source; sendState(); }
   });
   window.addEventListener('keydown', function(e){ if(e.altKey || e.ctrlKey || e.metaKey) return; onKey(e, false); });
-  stage.addEventListener('click', function(e){ if(e.target.closest('.ix')) return; if(e.shiftKey) prev(); else next(); });
+  stage.addEventListener('click', function(e){ if(inkOn || e.target.closest('.ix')) return; if(e.shiftKey) prev(); else next(); });
   document.getElementById('approveBtn').addEventListener('click', function(e){ e.stopPropagation(); if(pages[P].id === 'delivery' && S === 0) next(); });
   $$('.tab', stage).forEach(function(t){ t.addEventListener('click', function(e){ e.stopPropagation(); if(pages[P].id === 'tools'){ S = +t.dataset.tab; render('step'); } }); });
 
