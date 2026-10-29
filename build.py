@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""발표 페이지 빌드: deck.src.html → out/index.html (폰트·캡처·배포 정보를 넣은 단일 파일)
+"""발표 페이지 빌드: src/ → out/index.html (폰트·캡처·배포 정보를 넣은 단일 파일)
 
   python3 build.py            # out/index.html  (Vercel이 배포하는 파일, 인터넷 없이도 열림)
   python3 build.py --artifact # out/deck.html 도 함께 (문서 뼈대 없는 버전)
+  python3 build.py --src      # out/deck.src.html 도 함께 (조립만 한 원본, 비교·디버깅용)
 
 환경 변수 (Vercel에서 자동/수동으로 들어옴, 없으면 비워 둠)
   DHDL_API_URL                   실습 백엔드(Cloud Run) 주소 → 슬라이드에 지금 리비전 표시
@@ -21,8 +22,26 @@ CAPS = os.path.join(ROOT, 'captures')
 OUT = os.path.join(ROOT, 'out')
 os.makedirs(OUT, exist_ok=True)
 
-src = open(os.path.join(ROOT, 'deck.src.html'), encoding='utf-8').read()
-log = []
+# ---------- 원본 조립 (src/ → 한 덩어리) ----------
+# src/index.html 틀에 styles/*.css, slides/*.html, js/*.js를 파일 이름 순서대로 끼움 (앞 번호 = 순서)
+SRC = os.path.join(ROOT, 'src')
+def _read(path):
+    return open(path, encoding='utf-8').read()
+def _files(sub, ext):
+    d = os.path.join(SRC, sub)
+    return [os.path.join(d, f) for f in sorted(os.listdir(d)) if f.endswith(ext)]
+def assemble():
+    tpl = _read(os.path.join(SRC, 'index.html'))
+    css = '\n'.join(_read(f).rstrip('\n') for f in _files('styles', '.css'))
+    slides = '\n\n'.join(_read(f).rstrip('\n') for f in _files('slides', '.html'))
+    js = '\n'.join('<script>\n' + _read(f).rstrip('\n') + '\n</script>' for f in _files('js', '.js'))
+    for mark in ('<!--CSS-->', '<!--SLIDES-->', '<!--JS-->'):
+        if tpl.count(mark) != 1:
+            sys.exit(f'src/index.html에 {mark} 자리가 하나여야 함')
+    return tpl.replace('<!--CSS-->', css).replace('<!--SLIDES-->', slides).replace('<!--JS-->', js)
+
+src = assemble()
+log = [f"src: 장 {len(_files('slides', '.html'))}개, 스타일 {len(_files('styles', '.css'))}개, 스크립트 {len(_files('js', '.js'))}개"]
 
 # ---------- 배포 정보 ----------
 api = os.environ.get('DHDL_API_URL', '').strip().rstrip('/')
@@ -154,6 +173,8 @@ full = ('<!doctype html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         + src[:head_end] + '\n</head>\n<body>\n' + src[head_end:] + '\n</body>\n</html>\n')
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(full)
+if '--src' in sys.argv:
+    open(os.path.join(OUT, 'deck.src.html'), 'w', encoding='utf-8').write(assemble())
 if '--artifact' in sys.argv:
     open(os.path.join(OUT, 'deck.html'), 'w', encoding='utf-8').write(src)
 log.append('out: ' + ', '.join(f'{f} {os.path.getsize(os.path.join(OUT, f)) // 1024}KB' for f in sorted(os.listdir(OUT)) if f.endswith('.html')))

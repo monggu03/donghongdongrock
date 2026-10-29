@@ -1,0 +1,23 @@
+/* 공통 글자: 구역 표시, 제목, 캡션 */
+/* 공통 글자 */
+#sec{position:absolute;left:112px;top:44px;z-index:3;display:flex;align-items:center;gap:14px;font:700 24px/32px var(--f-sans);color:var(--sub);transition:opacity .3s}
+#sec::before{content:"";width:30px;height:4px;border-radius:2px;background:var(--ink)}
+#prog{position:absolute;left:0;top:0;height:6px;z-index:3;background:var(--ink);transition:width .4s var(--ease)}
+.ttl{position:absolute;left:112px;top:100px;width:1696px;margin:0;font:800 62px/1.22 var(--f-sans);letter-spacing:-1.5px;text-wrap:balance}
+.lead{font:500 32px/1.5 var(--f-sans);color:var(--sub);margin:0}
+.big{font:700 44px/1.3 var(--f-sans);margin:0}
+.cap{font:500 28px/1.4 var(--f-sans);color:var(--sub);margin:0}
+.mono{font-family:var(--f-mono)}
+.okc{color:var(--ok)} .ngc{color:var(--ng)} .orc{color:var(--or-t)} .newc{color:var(--new)}
+.abs{position:absolute}
+.stmt{position:absolute;left:112px;top:0;bottom:0;width:1696px;display:flex;flex-direction:column;justify-content:center;gap:32px}
+.stmt h2{margin:0;font:800 96px/1.2 var(--f-sans);letter-spacing:-2.5px;text-wrap:balance}
+#pn{position:absolute;right:56px;bottom:30px;z-index:3;font:500 24px var(--f-sans);color:var(--faint);font-variant-numeric:tabular-nums}
+.foot{position:absolute;margin:0;font:500 24px/1.3 var(--f-sans);color:var(--faint2)}
+/* 코드 카드 머리줄 오른쪽 캡션 */
+.hdr{position:absolute;right:140px;top:838px;margin:0;font:700 32px/1.3 var(--f-sans);text-align:right;z-index:1}
+/* 대소문자 비교 */
+.sx{flex:1;box-sizing:border-box;padding:18px 30px 22px;border:2px solid var(--line2);border-radius:16px;background:var(--card)}
+.sxn{margin:6px 0 0;font:700 52px/1.15 var(--f-mono)}
+.sxS,.sxs{display:inline-block;padding:0 10px;margin-right:2px;border-radius:10px;font-size:66px;line-height:1.05}
+.sxS{background:var(--ok-soft);color:var(--ok)} .sxs{background:var(--ng-soft);color:var(--ng)}

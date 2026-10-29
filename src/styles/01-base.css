@@ -1,0 +1,23 @@
+/* 무대·장·색 변수 (모든 장의 바탕) */
+/* v2: 밝은 종이 위 파이프라인 세계 하나. 커밋 캡슐이 문을 지나고, 카메라가 따라감. 장은 그 위에 글자만 얹음 */
+:root{
+  --frame:#E6E6E0; --bg:#FAFAF7; --card:#FFFFFF; --line:#E1E1DA; --line2:#C6C6BE; --tube:#EEEEE8;
+  --ink:#1E1E1C; --sub:#55554E; --faint:#9A9A92; --faint2:#6E6E66;
+  --or:#FF6309; --or-t:#D9530B; --or-soft:#FFEADC;
+  --ok:#1A7F37; --ok-soft:#E1F2E6; --ng:#CF222E; --ng-soft:#FDEBEC; --run:#BF8700;
+  --new:#2F5BD3; --new-soft:#E4EBFB; --old:#CFCFC7; --hanji:#F2EBDD; --val:#3D5A80;
+  --f-sans:'Pretendard','Noto Sans CJK KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --f-mono:'JetBrains Mono','Pretendard','D2Coding','Consolas',ui-monospace,monospace;
+  --f-serif:'DHDL Serif','Noto Serif CJK KR','Noto Serif KR','Batang',serif;
+  --ease:cubic-bezier(.55,0,.25,1);
+  color-scheme:light;
+}
+html,body{height:100%;margin:0;background:var(--frame);overflow:hidden}
+body{font-family:var(--f-sans);color:var(--ink);-webkit-font-smoothing:antialiased}
+#viewport{position:fixed;inset:0;background:var(--frame);overflow:hidden}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;background:var(--bg);transform-origin:center center;overflow:hidden;word-break:keep-all;font-variant-ligatures:none}
+.page{position:absolute;inset:0;z-index:2;opacity:0;visibility:hidden;transition:opacity .25s ease,visibility 0s linear .25s}
+.page.active{opacity:1;visibility:visible;transition:opacity .25s ease}
+.notes{display:none}
+[data-s],[data-u]{transition:opacity .3s ease}
+.hid{opacity:0!important;pointer-events:none!important}

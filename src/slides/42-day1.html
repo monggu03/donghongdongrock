@@ -1,0 +1,14 @@
+<section class="page" id="day1" data-title="Day 1 체크리스트" data-steps="4" data-sec="가져가기">
+  <h2 class="ttl">첫날 한 시간 체크리스트</h2>
+  <ul class="checks xl" style="left:112px;top:240px;width:1696px">
+    <li data-c="1"><span class="bx2"></span><svg class="ti"><use href="#ti-copy"/></svg><div>두 레포에 ci.yml 복사<small>명령만 프로젝트에 맞게</small></div></li>
+    <li data-c="2"><span class="bx2"></span><svg class="ti fillicon"><use href="#ti-brand-vercel"/></svg><div>프론트는 Vercel 연결<small>레포 Import 한 번</small></div></li>
+    <li data-c="3"><span class="bx2"></span><svg class="ti"><use href="#ti-cloud-upload"/></svg><div>백엔드는 Hello World를 Cloud Run에 첫 배포<small>키 파일 없는 배포 권한 연결(WIF)은 gcp-setup.sh 한 번</small></div></li>
+    <li data-c="4"><span class="bx2"></span><svg class="ti"><use href="#ti-shield-lock"/></svg><div>두 레포 main 보호: PR 필수 + 필수 검사 + 우회 금지<small>GitHub 무료 요금제는 공개 레포만 보호 가능, 해커톤 레포는 공개가 간편</small></div></li>
+  </ul>
+  <aside class="notes">그래서 프로젝트 첫날 한 시간 안에 이것만 해 두시길 권합니다.
+(클릭) ci.yml 복사. 파일은 가이드북에 그대로 들어 있고, 발표 일주일 전에 터진 빌드 실패가 첫 PR부터 잡힙니다.
+(클릭) Vercel 연결. 배포 주소를 폰으로 한 번 열어 보면 localhost 문제가 첫날 걸립니다.
+(클릭) 백엔드 Hello World를 Cloud Run에 첫 배포. 비밀 키 없이 GitHub가 구글 클라우드에 배포하게 이어 주는 WIF도 가이드북 스크립트 한 번이면 됩니다.
+(클릭) 그리고 브랜치 보호. PR 필수, 필수 검사, 우회 금지를 켭니다. 필수 검사는 PR로 한 번 돌려 본 뒤에야 목록에 뜹니다. GitHub 무료 요금제에서는 공개 레포만 보호 규칙이 걸리니, 해커톤 레포는 공개로 만드시는 게 편합니다.</aside>
+</section>

@@ -1,0 +1,26 @@
+<section class="page" id="blocked" data-title="머지 잠김" data-steps="1" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">검사가 빨간불인 동안 머지 버튼이 잠김</h2>
+  <div class="prbox gh" style="left:112px;top:240px;width:1010px;height:600px">
+    <div class="h"><span class="pill"><svg class="oi"><use href="#oc-git-pull-request"/></svg>Open</span>시간 표시 단순화<span class="num">#13</span></div>
+    <div class="mbx">
+      <span class="mbi"><svg class="oi"><use href="#oc-git-merge"/></svg></span>
+      <div class="mbb">
+        <div class="r"><svg data-ic="ng" viewBox="0 0 40 40"></svg><div><b>Some checks were not successful</b><small><span class="m">frontend-check</span><span class="ngc"> · Test 단계에서 실패</span></small></div><span class="req">Required</span></div>
+        <div class="r"><svg data-ic="lock" viewBox="0 0 40 40"></svg><div><b>Merging is blocked</b><small>필수 검사가 통과해야 머지 가능</small></div></div>
+        <div class="bt"><span class="btn"><svg class="oi"><use href="#oc-lock"/></svg>Merge pull request</span></div>
+      </div>
+    </div>
+    <p class="foot" style="left:40px;bottom:28px;margin:0">설명용으로 다시 그린 화면</p>
+    <img data-cap-img="pr-blocked" alt="">
+  </div>
+  <div style="position:absolute;left:1190px;top:250px;width:618px">
+    <p class="cap">Settings → Branches → main</p>
+    <p class="big" style="margin-top:14px">필수 검사로 지정</p>
+    <p class="lead mono" style="margin-top:8px;font-family:var(--f-mono)">frontend-check</p>
+    <p class="big" data-s="1" style="margin-top:64px">레포 주인도 우회 불가</p>
+    <p class="lead" data-s="1" style="margin-top:10px">팀 규칙을 사람 대신 시스템이 지킴</p>
+    <p class="lead" data-s="1" style="margin-top:10px">PR 필수까지 켜면 main 직접 push도 차단</p>
+  </div>
+  <aside class="notes">PR 화면에서는 이렇게 보입니다. 브랜치 보호를 켜 두면 빨간 X가 떠 있는 동안 머지 버튼 자체가 잠깁니다. main 보호 규칙에서 방금 돌아간 검사 묶음, frontend-check를 필수 검사로 지정해 둔 것입니다.
+(클릭) 레포 주인도 우회하지 못하게 해 둡니다. 테스트 깨진 코드는 머지하지 말자, 말로는 다 하지만 발표 주간 새벽에는 안 지켜집니다. 그 규칙을 시스템이 대신 지킵니다. PR 필수까지 켜 두면 처음에 본 main에 바로 push도 여기서 같이 막힙니다.</aside>
+</section>

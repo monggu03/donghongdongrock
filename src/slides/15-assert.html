@@ -1,0 +1,18 @@
+<section class="page" id="assert" data-title="기대 14:05, 실제 14:5" data-steps="1" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">기대 14:05와 실제 14:5, 한 글자 차이를 기계가 짚음</h2>
+  <pre class="log type" style="left:112px;top:250px;width:1180px;font-size:30px" data-label="Actions 로그, frontend-check › Test" data-ng="1,2,5" data-st="4,7">FAIL  src/lib/timetable.test.js > 시간 변환
+      > 845분은 "14:05"로 표시한다
+AssertionError: expected '14:5' to be '14:05'
+
+Expected: "14:05"
+Received: "14:5"
+
+Tests  3 failed | 3 passed (6)</pre>
+  <div data-s="1" style="position:absolute;left:1340px;top:250px;width:468px">
+    <div style="border-bottom:1px solid var(--line);padding:18px 0"><p class="cap">입력</p><p style="margin:4px 0 0;font:700 52px var(--f-mono)">845</p></div>
+    <div style="border-bottom:1px solid var(--line);padding:18px 0"><p class="cap">기대</p><p style="margin:4px 0 0;font:700 52px var(--f-mono)">"14:<span class="ngc" data-rn="underline" data-rn-s="1" data-rn-w="7" data-rn-p="0">0</span>5"</p></div>
+    <div style="padding:18px 20px;margin:0 -20px;background:var(--or-soft);border-radius:12px"><p class="cap" style="color:var(--or-t)">실제</p><p style="margin:4px 0 0;font:800 52px var(--f-mono)">"14:5"</p></div>
+  </div>
+  <aside class="notes">로그를 열어 보면 이렇게 나옵니다. 실습 레포에서 실제로 돌린 결과입니다.
+(클릭) 845분, 그러니까 오후 2시 5분을 넣었을 때 기대한 값은 십사 콜론 공오, 실제 값은 십사 콜론 오입니다. 밑줄 친 0 하나가 빠졌습니다. 사람이 리뷰로는 놓치기 쉬운 한 글자 차이를 기계가 정확히 짚어 줍니다.</aside>
+</section>

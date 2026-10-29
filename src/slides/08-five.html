@@ -1,0 +1,40 @@
+<section class="page" id="five" data-title="다섯 명, 한 앱" data-steps="2" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">다섯 명이 한 앱을 동시에 고치는 상황</h2>
+  <svg class="drw" style="position:absolute;left:112px;top:250px" width="1696" height="600" viewBox="0 0 1696 600" aria-hidden="true">
+    <path pathLength="1" d="M0 540H1696" stroke="#1E1E1C" stroke-width="5" fill="none"/>
+    <g fill="none" stroke="#9A9A92" stroke-width="4">
+      <path pathLength="1" d="M90 50H1180"/><path pathLength="1" d="M90 140H1180"/><path pathLength="1" d="M90 230H1180"/><path pathLength="1" d="M90 320H1180"/><path pathLength="1" d="M90 410H1180"/>
+    </g>
+  </svg>
+  <p class="cap mono" style="position:absolute;left:112px;top:806px;font-family:var(--f-mono)">main</p>
+  <div class="stg" style="position:absolute;left:112px;top:250px;width:1696px;height:600px">
+    <span class="av" style="left:50px;top:50px"><svg viewBox="0 0 1744 1744"><use href="#face-a"/></svg></span><span class="av" style="left:50px;top:140px"><svg viewBox="0 0 1744 1744"><use href="#face-b"/></svg></span><span class="av" style="left:50px;top:230px"><svg viewBox="0 0 1744 1744"><use href="#face-c"/></svg></span><span class="av" style="left:50px;top:320px"><svg viewBox="0 0 1744 1744"><use href="#face-d"/></svg></span><span class="av" style="left:50px;top:410px"><svg viewBox="0 0 1744 1744"><use href="#face-e"/></svg></span>
+  </div>
+  <div class="stg" data-s="1" style="position:absolute;left:112px;top:250px;width:1696px;height:600px">
+    <span class="chip" style="position:absolute;left:300px;top:21px">로그인 <code>auth.js</code></span>
+    <span class="chip" style="position:absolute;left:300px;top:111px">결제 <code>payment.js</code></span>
+    <span class="chip" style="position:absolute;left:300px;top:201px">DB <code>schema.sql</code></span>
+    <span class="chip" style="position:absolute;left:300px;top:291px">화면 <code>App.jsx</code></span>
+    <span class="chip" style="position:absolute;left:300px;top:381px">시간표 <code>timetable.js</code></span>
+  </div>
+  <svg class="drw" data-s="2" style="position:absolute;left:112px;top:250px" width="1696" height="600" viewBox="0 0 1696 600" aria-hidden="true">
+    <g fill="none" stroke="#1E1E1C" stroke-width="4">
+      <path pathLength="1" d="M1180 50C1300 50 1300 540 1420 540"/><path pathLength="1" d="M1180 140C1300 140 1300 540 1420 540"/><path pathLength="1" d="M1180 230C1300 230 1300 540 1420 540"/><path pathLength="1" d="M1180 320C1300 320 1300 540 1420 540"/><path pathLength="1" d="M1180 410C1300 410 1300 540 1420 540"/>
+    </g>
+  </svg>
+  <div class="flow" data-s="2" style="left:112px;top:250px">
+    <i style="offset-path:path('M90 50H1180C1300 50 1300 540 1420 540H1696');--d:0s"></i>
+    <i style="offset-path:path('M90 140H1180C1300 140 1300 540 1420 540H1696');--d:.5s"></i>
+    <i style="offset-path:path('M90 230H1180C1300 230 1300 540 1420 540H1696');--d:1s"></i>
+    <i style="offset-path:path('M90 320H1180C1300 320 1300 540 1420 540H1696');--d:1.5s"></i>
+    <i style="offset-path:path('M90 410H1180C1300 410 1300 540 1420 540H1696');--d:2s"></i>
+  </div>
+  <div data-s="2" style="position:absolute;left:1560px;top:280px;width:248px">
+    <p class="cap">main에 합친 변경</p>
+    <p style="margin:4px 0 0;font:800 160px/1 var(--f-sans);letter-spacing:-5px"><number-flow class="nfx" id="nf6">6</number-flow>건</p>
+    <p class="cap" style="margin-top:8px">오전에만</p>
+  </div>
+  <aside class="notes">이제 CI가 왜 필요한지 보겠습니다. 다섯 명이 같은 앱을 만든다고 해 보겠습니다.
+(클릭) 한 명은 로그인, 한 명은 결제, 한 명은 DB, 한 명은 화면, 한 명은 시간표를 고칩니다.
+(클릭) 그리고 다들 계속 main에 합칩니다. 오전에만 여섯 번입니다.</aside>
+</section>

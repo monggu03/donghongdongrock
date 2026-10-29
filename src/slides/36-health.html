@@ -1,0 +1,24 @@
+<section class="page" id="health" data-title="켜짐 ≠ 정상" data-steps="2" data-sec="운영과 복구">
+  <h2 class="ttl">켜짐 ≠ 정상: 헬스체크까지 통과해야 배포 성공</h2>
+  <div class="card" style="left:112px;top:236px;width:820px;height:400px;padding:34px 40px">
+    <p class="cap">서버 실행 여부</p>
+    <p class="mono" style="margin:14px 0 0;font:500 28px var(--f-mono);color:var(--sub)">$ systemctl is-active app</p>
+    <p class="okc" style="margin:40px 0 0;font:800 72px/1 var(--f-mono)"><span data-rn="strike-through" data-rn-s="2" data-rn-w="6">active</span></p>
+    <div data-s="2" style="margin-top:44px"><span class="chip ng">이것만으로는 부족</span></div>
+  </div>
+  <div class="card" style="left:988px;top:236px;width:820px;height:400px;padding:34px 40px">
+    <p class="cap">앱 정상 동작 여부</p>
+    <p class="mono" style="margin:14px 0 0;font:500 28px var(--f-mono);color:var(--sub)">$ curl -i my-app.example/health</p>
+    <div data-s="1">
+      <p class="ngc" style="margin:40px 0 0;font:800 44px/1.25 var(--f-mono)">HTTP/1.1 500<br>Internal Server Error</p>
+      <p class="mono" style="margin:20px 0 0;font:500 26px var(--f-mono);color:var(--ng)">relation "orders" does not exist</p>
+    </div>
+  </div>
+  <div class="card" data-s="2" style="left:112px;top:676px;width:1696px;height:210px;padding:36px 44px;border:4px solid var(--or);background:var(--or-soft)">
+    <p class="big">처음에 빠뜨린 04단계: DB 변경 적용</p>
+    <p class="lead" style="margin-top:14px">서버는 켜져 있어도 앱은 깨진 상태</p>
+  </div>
+  <aside class="notes">모니터링에서 중요한 건 질문을 제대로 하는 겁니다. 서버가 켜졌는지만 물으면 active, 켜져 있다고 나옵니다.
+(클릭) 그런데 앱한테 직접 물어보면 500 에러입니다. orders라는 테이블이 없다고 합니다.
+(클릭) active만으로는 부족합니다. 서버는 켜져 있는데 앱은 깨져 있고, 원인은 처음에 빠뜨렸던 그 4번, DB 변경 적용입니다. 배포 성공의 기준은 헬스체크 통과이고, 헬스체크는 DB 연결만 보지 않고 앱이 쓰는 테이블까지 한 번 조회하게 만들어 둡니다. 그러면 이런 버전은 스테이징에서 걸려 운영까지 못 갑니다.</aside>
+</section>

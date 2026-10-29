@@ -1,0 +1,78 @@
+/* 장 구성 요소: 표지, 타임라인, 표, 터미널, 8단계, 얼굴, 리뷰 목록 */
+/* 표지·장 표지 */
+.cover-ttl{position:absolute;left:112px;top:118px;margin:0;font:800 140px/1.04 var(--f-sans);letter-spacing:-4.5px}
+.cover-meta{position:absolute;left:116px;top:438px;font:600 32px/1.5 var(--f-sans);color:var(--sub)}
+.seal{position:absolute;right:112px;top:110px;writing-mode:vertical-rl;font:900 64px/1 var(--f-serif);letter-spacing:10px;color:var(--ink)}
+.chap{position:absolute;inset:0;background:var(--hanji)}
+.chap .k{position:absolute;left:104px;top:190px;font:800 340px/1 var(--f-sans);letter-spacing:-14px}
+.chap .bar{position:absolute;left:112px;top:560px;width:220px;height:14px;background:var(--or)}
+.chap h2{position:absolute;left:112px;top:620px;margin:0;font:800 84px/1.15 var(--f-sans);letter-spacing:-2px}
+.chap p{position:absolute;left:116px;top:740px;margin:0;font:500 34px/1.5 var(--f-sans);color:var(--sub)}
+.page.active .chap .k{animation:chapk .7s var(--ease) both}
+.page.active .chap .bar{animation:chapbar .6s var(--ease) .25s both;transform-origin:0 50%}
+@keyframes chapk{from{opacity:0;transform:translateY(60px)}to{opacity:1;transform:none}}
+@keyframes chapbar{from{transform:scaleX(0)}to{transform:none}}
+
+/* 타임라인(전날 밤) */
+.tl{position:absolute;left:112px;top:226px;width:1696px;height:118px;display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
+.tc{box-sizing:border-box;border:2px solid var(--line2);border-radius:16px;padding:16px 22px;background:var(--card);color:var(--faint);transition:border-color .3s,background .3s,color .3s}
+.tc i{display:block;font:600 24px/1.2 var(--f-sans);font-style:normal;margin-bottom:8px}
+.tc b{display:block;font:700 30px/1.25 var(--f-sans)}
+.tc.past{color:var(--sub)}
+.tc.now{border:3px solid var(--ink);color:var(--ink)}
+.tc.hot{border:3px solid var(--or);background:var(--or-soft);color:var(--ink)}
+.tc.hot i{color:var(--or-t)}
+
+/* 표 */
+.tb{position:absolute;border-collapse:collapse;font:500 30px/1.4 var(--f-sans);color:var(--ink)}
+.tb th{font:600 24px/1.3 var(--f-sans);color:var(--sub);text-align:left;padding:0 24px 16px 0;border-bottom:2px solid var(--ink)}
+.tb td{padding:20px 24px 20px 0;border-bottom:1px solid var(--line);vertical-align:top;transition:background .3s}
+.tb td.m{font:500 24px/1.45 var(--f-mono);color:var(--ng)}
+/* 먼 자리용: 글이 주인공인 표와 목록은 크게 */
+.tb.xl{font-size:38px}.tb.xl th{font-size:28px;padding-bottom:18px}.tb.xl td{padding-top:26px;padding-bottom:26px}.tb.xl td.m{font-size:30px}
+.checks.xl li{font-size:42px;padding:26px 0}.checks.xl li small{font-size:30px}
+.tb tr.or td{background:var(--or-soft)}
+.tb .colhl{background:var(--or-soft)}
+
+/* 터미널·서버 상태(손 배포) */
+.srv{position:absolute;box-sizing:border-box;border:3px solid var(--ink);border-radius:22px;background:var(--card);padding:30px 34px}
+.srv .st{display:inline-flex;align-items:center;gap:14px;margin-top:22px;padding:12px 22px;border-radius:999px;font:700 30px/1 var(--f-sans)}
+.srv .st::before{content:"";width:18px;height:18px;border-radius:50%;background:currentColor}
+.srv .st.up{background:var(--ok-soft);color:var(--ok)}
+.srv .st.down{background:var(--ng-soft);color:var(--ng)}
+.page.active .srv .st.up:not(.hid)::before{animation:blink 1.6s ease-in-out infinite}
+@keyframes blink{50%{opacity:.25}}
+
+/* 8단계 목록 */
+.st8{position:absolute;list-style:none;margin:0;padding:0}
+.st8 li{position:relative;display:flex;align-items:center;gap:24px;height:70px;padding:0 24px;border-bottom:1px solid var(--line);font:600 32px var(--f-sans);transition:background .3s}
+.st8 li .n{width:56px;font:700 28px var(--f-mono);color:var(--faint)}
+.st8 li .ck{margin-left:auto;width:34px;height:34px}
+.st8 li .tag{display:none;margin-left:auto;padding:6px 16px;border-radius:999px;background:var(--ng);color:#fff;font:800 26px/1.2 var(--f-sans)}
+.st8.missable.on li.m4{background:var(--ng-soft);color:var(--ng)}
+.st8.missable.on li.m4 .ck{display:none} .st8.missable.on li.m4 .tag{display:block}
+.st8 li::after{content:"";position:absolute;left:16px;right:16px;top:50%;height:5px;margin-top:-2px;background:var(--or);border-radius:3px;transform:scaleX(0);transform-origin:0 50%;transition:transform .45s var(--ease);transition-delay:calc(var(--i,0)*.16s)}
+.st8.strike.on li::after{transform:none}
+.st8.strike.on li{color:var(--faint)}
+
+/* 다섯 명 */
+/* 8장·43장 다섯 사람: DiceBear Notionists 얼굴 (assets/faces.svg, 그림 CC0) */
+.av{position:absolute;width:82px;height:82px;margin:-41px 0 0 -41px;border-radius:50%;background:#fff;border:3px solid var(--ink);box-sizing:border-box;overflow:hidden}
+.av svg,.tm .fc svg{display:block;width:100%;height:100%;transform:scale(1.42) translateY(5%)}
+.team{position:absolute;display:flex;flex-wrap:wrap;width:700px}
+.tm{position:relative;width:150px;height:150px;margin-right:-12px;border-radius:50%;background:#fff;border:4px solid var(--ink);box-sizing:border-box}
+.tm .fc{display:block;width:100%;height:100%;border-radius:50%;overflow:hidden}
+.tm .okb{position:absolute;right:-4px;bottom:-4px;width:44px;height:44px;color:var(--ok);background:#fff;border-radius:50%}
+.team .cap{flex-basis:100%;margin-top:22px}
+.flow{position:absolute;left:0;top:0;width:1696px;height:600px}
+.flow i{position:absolute;left:0;top:0;width:22px;height:22px;border-radius:50%;background:var(--ink);offset-rotate:0deg;opacity:0}
+.page.active .flow:not(.hid) i{animation:along 2.6s var(--ease) infinite;animation-delay:var(--d)}
+@keyframes along{0%{offset-distance:0%;opacity:0}8%{opacity:1}92%{opacity:1}100%{offset-distance:100%;opacity:0}}
+
+/* 리뷰 대기·확인 목록 */
+.rq{position:absolute;list-style:none;margin:0;padding:0}
+.rq li{display:flex;gap:20px;align-items:center;height:62px;padding:0 22px;margin-bottom:12px;border:2px solid var(--line2);border-radius:14px;background:var(--card);font:600 28px var(--f-sans)}
+.rq li .mono{display:inline-block;min-width:3ch;font:600 26px var(--f-mono);color:var(--faint2)}
+.q5{position:absolute;list-style:none;margin:0;padding:0}
+.q5 li{display:flex;align-items:center;gap:26px;height:96px;border-bottom:1px solid var(--line);font:700 38px var(--f-sans)}
+.q5 li code{margin-left:auto;font:500 28px var(--f-mono);color:var(--val)}

@@ -1,0 +1,28 @@
+<section class="page" id="canary" data-title="카나리 5%" data-steps="4" data-sec="운영과 복구">
+  <h2 class="ttl">카나리: 사용자 5%에게 먼저, 괜찮으면 넓힘</h2>
+  <div class="grid100" id="g100a" style="left:112px;top:250px"></div>
+  <p class="cap" id="g100aL" style="position:absolute;left:112px;top:820px">전원 이전 버전</p>
+  <p class="pct" id="pctA" style="left:752px;top:240px"><number-flow>0%</number-flow></p>
+  <p class="cap" style="position:absolute;left:760px;top:400px">새 버전을 받은 사용자</p>
+  <svg class="chart" style="left:760px;top:460px" width="1048" height="398" viewBox="0 0 1000 380" aria-hidden="true">
+    <path d="M80 330H980" stroke="#C6C6BE" stroke-width="3"/>
+    <path d="M80 230H980" stroke="#CF222E" stroke-width="3" stroke-dasharray="12 10"/>
+    <text x="980" y="214" text-anchor="end" font-family="Pretendard,sans-serif" font-size="26" font-weight="700" fill="#CF222E">1% 넘으면 되돌림</text>
+    <text x="0" y="40" font-family="Pretendard,sans-serif" font-size="26" font-weight="600" fill="#55554E">오류율</text>
+    <g font-family="Pretendard,sans-serif" font-size="26" font-weight="600" fill="#55554E" text-anchor="middle">
+      <text x="170" y="372">5%</text><text x="420" y="372">25%</text><text x="670" y="372">50%</text><text x="920" y="372">100%</text>
+    </g>
+    <g stroke="#2F5BD3" stroke-width="5" stroke-linecap="round">
+      <path data-s="2" d="M170 310L420 300"/><path data-s="3" d="M420 300L670 305"/><path data-s="4" d="M670 305L920 300"/>
+    </g>
+    <g fill="#2F5BD3">
+      <circle data-s="1" cx="170" cy="310" r="10"/><circle data-s="2" cx="420" cy="300" r="10"/><circle data-s="3" cx="670" cy="305" r="10"/><circle data-s="4" cx="920" cy="300" r="10"/>
+    </g>
+  </svg>
+  <p class="foot" style="left:760px;top:880px">100명으로 그린 예시 값</p>
+  <aside class="notes">카나리를 자세히 보겠습니다. 점 하나가 사용자 한 명입니다. 지금은 전원 이전 버전입니다.
+(클릭) 먼저 5%, 다섯 명에게만 새 버전을 보여 줍니다. 오른쪽은 오류율입니다. 빨간 점선, 1%를 넘으면 되돌리기로 미리 정해 둡니다.
+(클릭) 괜찮으면 25%.
+(클릭) 50%.
+(클릭) 그리고 100%. 이렇게 조금씩 넓힙니다.</aside>
+</section>

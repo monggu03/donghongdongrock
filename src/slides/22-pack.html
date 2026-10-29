@@ -1,0 +1,12 @@
+<section class="page" id="pack" data-title="이미지로 포장" data-steps="2" data-sec="CD · 지속적 전달과 배포">
+  <h2 class="ttl">검사 끝난 코드를 한 번 포장: 이미지</h2>
+  <p class="lead" data-u="1" style="position:absolute;left:112px;top:866px">배포할 결과물부터 만듦</p>
+  <p class="big" data-s="1" data-u="2" data-late style="position:absolute;left:112px;top:860px">이미지 이름표에 커밋 번호 3f9a2c1, 화면에서는 v2</p>
+  <div data-s="2" style="position:absolute;left:112px;top:846px;display:flex;align-items:center;gap:16px">
+    <span class="chip ink">이미지</span><b style="font:800 36px var(--f-sans)">=</b><span class="chip">실행 환경</span><b style="font:800 36px var(--f-sans)">+</b><span class="chip">앱 코드</span><b style="font:800 36px var(--f-sans)">+</b><span class="chip">패키지</span><b style="font:800 36px var(--f-sans)">+</b><span class="chip">실행 명령</span>
+  </div>
+  <p class="lead" data-s="2" style="position:absolute;left:112px;top:926px">한 번 만든 이미지를 스테이징과 운영에 그대로, 환경별 값은 배포 때 주입</p>
+  <aside class="notes">배포하려면 먼저 결과물을 포장합니다.
+(클릭) 검사를 통과한 코드를 바로 실행할 수 있게 통째로 묶은 상자를 이미지라고 부릅니다. 이름표에 커밋 번호 3f9a2c1이 붙고, 화면에서는 줄여서 v2라고 부르겠습니다. 지금 운영에서 도는 건 v1입니다.
+(클릭) 이미지 안에는 실행 환경, 앱 코드, 패키지, 실행 명령이 들어 있어서 어느 서버에서든 똑같이 돕니다. 다만 DB 주소처럼 환경마다 다른 값은 배포할 때 환경 변수로 넣습니다. 그래서 같은 이미지를 스테이징과 운영에 그대로 씁니다. 처음의 localhost 문제도 API 주소를 코드에 적지 않고 Vercel 환경 변수로 빼면 풀립니다.</aside>
+</section>

@@ -1,0 +1,22 @@
+<section class="page" id="catch" data-title="검사대마다 잡는 사고" data-steps="2" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">검사대마다 잡아내는 사고가 다름</h2>
+  <table class="tb xl" style="left:112px;top:244px;width:1696px">
+    <thead><tr><th style="width:250px">잡은 검사</th><th>실제 로그</th><th style="width:420px">사람이 놓치는 이유</th></tr></thead>
+    <tbody>
+      <tr><td><b class="tih"><svg class="ti"><use href="#ti-brush"/></svg>린트</b></td><td class="m">Identifier 'useMemo' is imported but never used.</td><td>실행에는 문제가 없어서</td></tr>
+      <tr data-s="1"><td><b class="tih"><svg class="ti"><use href="#ti-gauge"/></svg>테스트</b></td><td class="m">Expected: "14:05" Received: "14:5"</td><td>화면은 떠서</td></tr>
+      <tr data-s="2" class="or"><td><b class="tih"><svg class="ti"><use href="#ti-hammer"/></svg>빌드</b></td><td class="m">Could not resolve './components/sessionTable.jsx'</td><td>내 컴퓨터에서는 돼서</td></tr>
+    </tbody>
+  </table>
+  <div data-s="2" style="position:absolute;left:112px;top:656px;width:1696px">
+    <span class="chip or">발표 일주일 전 그 에러의 정체</span>
+    <div style="display:flex;gap:28px;margin-top:22px">
+      <div class="sx"><p class="cap">실제 파일 이름</p><p class="sxn"><b class="sxS" data-rn="circle" data-rn-s="2" data-rn-c="#FF6309" data-rn-p="3">S</b>essionTable.jsx</p></div>
+      <div class="sx"><p class="cap">App.jsx의 import</p><p class="sxn"><b class="sxs" data-rn="circle" data-rn-s="2" data-rn-c="#FF6309" data-rn-p="3">s</b>essionTable.jsx</p></div>
+    </div>
+    <p class="lead oss" style="margin-top:18px;color:var(--ink)"><span class="tih"><svg class="ti"><use href="#ti-brand-windows"/></svg><svg class="ti"><use href="#ti-brand-apple"/></svg>윈도우·맥: 같은 파일로 취급</span><span class="tih ngc"><svg class="ti"><use href="#ti-brand-ubuntu"/></svg>리눅스 러너·서버: 다른 파일로 취급</span></p>
+  </div>
+  <aside class="notes">커밋을 따라가기 전에, 검사대가 잡는 사고를 몇 가지 더 보겠습니다. 린트는 안 쓰는 import를 잡습니다. 실행에는 문제가 없어서 사람은 그냥 넘어갑니다.
+(클릭) 테스트는 방금 본 시간 표시를 잡습니다. 화면은 떠서 놓칩니다.
+(클릭) 빌드는 파일 이름 대소문자를 잡습니다. 발표 일주일 전 서버에서 터진 그 에러가 바로 이것입니다. 파일은 대문자 S인데 import는 소문자 s입니다. 윈도우와 맥은 대소문자를 구분하지 않아 제 컴퓨터에서는 되고, 리눅스인 러너와 서버는 구분해서 실패합니다. 그래서 셋 다 걸어 둡니다.</aside>
+</section>

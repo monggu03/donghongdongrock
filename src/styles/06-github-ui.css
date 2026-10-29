@@ -1,0 +1,67 @@
+/* 버튼·탭, GitHub PR 화면, 아이콘(Octicons·Tabler), Merged·Revert 표시 */
+/* 버튼·탭 */
+.ix{cursor:pointer}
+.approve{position:absolute;border:0;border-radius:16px;background:var(--or);color:#fff;font:800 34px/1 var(--f-sans);padding:24px 34px;box-shadow:0 6px 0 #C24A05;transition:background .2s,transform .1s,box-shadow .1s}
+.approve:active{transform:translateY(4px);box-shadow:0 2px 0 #C24A05}
+.approve.done{background:var(--ink);box-shadow:0 2px 0 #000;cursor:default}
+.approve:focus-visible,.tab:focus-visible{outline:4px solid var(--ink);outline-offset:4px}
+.tabs{position:absolute;display:flex;gap:12px}
+.tab{border:2px solid var(--line2);background:var(--card);border-radius:12px;padding:14px 26px;font:700 28px var(--f-sans);color:var(--sub)}
+.tab.on{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* PR 머지 상자(설명용) */
+.prbox{position:absolute;box-sizing:border-box;border:2px solid var(--line2);border-radius:20px;background:var(--card);padding:34px 40px;overflow:hidden}
+.prbox .h{font:700 36px/1.3 var(--f-sans);padding-bottom:24px;border-bottom:1px solid var(--line)}
+.prbox .h span{font-family:var(--f-mono);color:var(--faint);margin-right:14px}
+.prbox .r{display:flex;gap:24px;align-items:center;padding:26px 0;border-bottom:1px solid var(--line)}
+.prbox .r svg{flex:none;width:52px;height:52px}
+.prbox .r b{display:block;font:700 32px/1.3 var(--f-sans)}
+.prbox .r small{display:block;font:500 26px/1.35 var(--f-sans);color:var(--sub);margin-top:4px}
+.prbox .btn{display:inline-block;margin-top:30px;padding:18px 30px;border-radius:12px;font:700 28px/1 var(--f-sans);background:#EDEDE8;color:var(--faint)}
+.prbox .btn.go{background:var(--ok);color:#fff}
+/* Tabler Icons (assets/icons.svg의 ti-*), 선 굵기는 여기서 */
+.ti{display:inline-block;width:1em;height:1em;vertical-align:-0.14em;flex:none;stroke-width:1.75}
+.badge.ic{display:inline-flex;align-items:center;justify-content:center}.badge.ic .ti{width:32px;height:32px;stroke-width:2}
+.tih{display:inline-flex;align-items:center;gap:14px;white-space:nowrap}.tih .ti{width:1.05em;height:1.05em;color:var(--sub)}
+.checks li > .ti{width:50px;height:50px;margin-top:-1px;color:var(--sub)}
+/* 코드 글꼴 합자 끄기: .code의 font 축약형이 #stage 설정을 되돌리므로 전체에 강제 (== 가 한 글자로 붙지 않게) */
+#stage *{font-variant-ligatures:none!important}
+/* GitHub 모양 표시 (Merged 배지, Revert 버튼) */
+.ghpill{display:inline-flex;align-items:center;gap:9px;margin-right:18px;padding:10px 18px 10px 14px;border-radius:999px;color:#fff;font:600 26px/1 var(--f-sans);vertical-align:middle}
+.ghpill .oi{width:26px;height:26px}.ghpill.mg{background:#8250DF}
+.ghrow{display:flex;align-items:center;gap:18px}.ghrow .ghpill{margin-right:0}.ghrow .mono{font:600 30px var(--f-mono);color:var(--faint2)}
+.ghbtn{padding:12px 22px;border:2px solid #D1D9E0;border-radius:10px;background:#F6F8FA;font:600 28px/1 var(--f-sans);color:#25292E}
+.chip .oi{width:30px;height:30px;margin-right:-4px;color:var(--sub)}.chip.ink .oi{color:#fff}
+.rq li>.oi{width:30px;height:30px;color:var(--faint2)}
+.rq .rqf{margin-left:auto;flex:none;width:46px;height:46px;border-radius:50%;border:2px solid var(--ink);background:#fff;overflow:hidden;box-sizing:border-box}
+.rq .rqf svg{display:block;width:100%;height:100%;transform:scale(1.42) translateY(5%)}
+.bx .tih{gap:12px}.bx .tih .oi,.bx .tih .ti{width:1em;height:1em;color:var(--sub)}.bx.ink .tih .ti{color:#fff}
+.ti.fillicon{fill:currentColor;stroke:none}
+.oss{display:flex;gap:56px}.oss .ti{color:var(--sub)}.oss .ngc .ti{color:var(--ng)}
+#catch .sx .cap{margin-bottom:12px}
+.spd{transition:color .5s}.spd.on{color:var(--faint)}
+#map .tb th:nth-child(3),#map .tb td:nth-child(3){padding-left:28px}
+#reasons .tb td:first-child b{font-weight:500;color:var(--sub)}#reasons .tb td:last-child{font-weight:700}
+.nfx{--number-flow-mask-height:.1em;margin:-.1em 0}
+.pct,p:has(>number-flow){overflow:hidden}
+.oi{display:inline-block;width:1em;height:1em;vertical-align:-0.13em;fill:currentColor;flex:none}
+/* 16장: GitHub PR 머지 박스 모양 (아이콘은 Primer Octicons) */
+.prbox.gh{padding:30px 36px}
+.prbox.gh .h{display:flex;align-items:center;border-bottom:0;padding-bottom:26px}
+.prbox.gh .h .pill{display:inline-flex;align-items:center;gap:9px;margin-right:18px;padding:10px 18px 10px 14px;border-radius:999px;background:#1F883D;color:#fff;font:600 26px/1 var(--f-sans)}
+.prbox.gh .h .pill .oi{width:26px;height:26px}
+.prbox.gh .h .num{font:500 34px/1.3 var(--f-mono);color:var(--faint);margin:0 0 0 14px}
+.mbx{display:flex;gap:22px;align-items:flex-start}
+.mbi{flex:none;width:64px;height:64px;border-radius:50%;background:#CF222E;color:#fff;display:flex;align-items:center;justify-content:center}
+.mbi .oi{width:34px;height:34px}
+.mbb{flex:1;border:2px solid var(--line2);border-radius:14px;overflow:hidden}
+.prbox.gh .r{padding:30px 26px;gap:22px}
+.prbox.gh .r svg{width:54px;height:54px}
+.prbox.gh .r b{font-size:33px}
+.prbox.gh .r small{font-size:28px;margin-top:6px}
+.prbox.gh .r small .m{font-family:var(--f-mono);color:var(--ink);font-weight:700}
+.prbox.gh .req{margin-left:auto;align-self:flex-start;font:600 24px/1 var(--f-sans);color:var(--sub);border:2px solid var(--line2);border-radius:999px;padding:7px 14px}
+.prbox.gh .bt{padding:26px 26px;background:#F6F8FA}
+.prbox.gh .btn{margin:0;font-size:30px;padding:18px 30px;display:inline-flex;align-items:center;gap:14px;color:var(--faint2);border:2px solid var(--line2)}
+.prbox.gh .btn .oi{width:30px;height:30px;color:var(--ng)}
+.prbox img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff}

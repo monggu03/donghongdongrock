@@ -1,0 +1,11 @@
+<section class="page" id="fixed" data-title="고친 커밋, 다시 초록" data-steps="2" data-sec="CI · 지속적 통합">
+  <h2 class="ttl">고친 커밋을 같은 PR에 push, 다시 초록이면 머지</h2>
+  <pre class="code" data-lang="diff" style="left:112px;top:818px;width:1696px;padding-bottom:12px" data-label="PR #13에 커밋 추가">-return `${h}:${m}`
++return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`</pre>
+  <p class="hdr" data-u="1">PR을 새로 만들 필요 없음</p>
+  <p class="hdr okc" data-s="1" data-u="2" data-late><svg class="oi" style="margin-right:12px"><use href="#oc-check-circle-fill"/></svg>All checks have passed</p>
+  <p class="hdr" data-s="2" data-late><span class="ghpill mg"><svg class="oi"><use href="#oc-git-merge"/></svg>Merged</span>이제부터 3f9a2c1을 끝까지 추적</p>
+  <aside class="notes">고치는 건 간단합니다. 원래대로 돌린 커밋을 같은 브랜치에 push합니다. PR을 새로 만들 필요가 없습니다.
+(클릭) 검사가 자동으로 다시 돌고, 이번엔 전부 통과합니다. 머지 문이 열립니다.
+(클릭) 머지 버튼을 누르면 이 커밋이 main에 합쳐집니다. 이제부터 이 커밋, 3f9a2c1을 끝까지 따라가겠습니다.</aside>
+</section>

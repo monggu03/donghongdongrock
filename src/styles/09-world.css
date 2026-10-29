@@ -1,0 +1,154 @@
+/* 파이프라인 기계: 카메라, 램프, 검사대 움직임, 카트, 라벨 */
+/* ================= 파이프라인 기계 (world/build.mjs가 그린 아이소메트릭 SVG) ================= */
+/*ISO_CSS*/
+/* 카메라 창: 가까이 찍을 때 제목과 아래 글 사이 띠만 보이게(위아래 가장자리는 부드럽게 흐림) */
+@property --v0{syntax:"<length>";inherits:false;initial-value:-80px}
+@property --v1{syntax:"<length>";inherits:false;initial-value:1160px}
+#wview{position:absolute;inset:0;z-index:1;pointer-events:none;--v0:-80px;--v1:1160px;-webkit-mask-image:linear-gradient(to bottom,transparent var(--v0),#000 calc(var(--v0) + 36px),#000 calc(var(--v1) - 36px),transparent var(--v1));mask-image:linear-gradient(to bottom,transparent var(--v0),#000 calc(var(--v0) + 36px),#000 calc(var(--v1) - 36px),transparent var(--v1));transition:--v0 1.15s cubic-bezier(.65,0,.25,1),--v1 1.15s cubic-bezier(.65,0,.25,1)}
+#wview.inst{transition:none}
+#world{position:absolute;left:0;top:0;z-index:1;transform-origin:0 0;opacity:0;pointer-events:none;transition:transform 1.15s cubic-bezier(.65,0,.25,1),opacity .45s ease;
+  --anatomy-paper:#FAFAF7;--anatomy-card:#FAFAF7;--anatomy-weight:1.25px;--anatomy-hi:#1E1E1C;--anatomy-lit:#1E1E1C;--anatomy-dot:#2E2E2B;
+  --anatomy-red:#CF222E;--anatomy-green:#1A7F37;--anatomy-blue:#2F5BD3}
+#world.on{opacity:1}
+#world.on.dim{opacity:.13}
+#world.inst,#world.inst *{transition:none!important}
+#world>svg{position:absolute;left:0;top:0;overflow:visible}
+#world .w{transition:opacity .45s ease}
+#world .wl.w,#world .wver.w{transition-property:font-size,opacity,transform;transition-duration:1.15s,.45s,.75s;transition-timing-function:cubic-bezier(.65,0,.25,1),ease,var(--ease)}
+#world .w.off{opacity:0}
+#world .w.fade{opacity:.16}
+#world .iso-halo{filter:blur(10px)}
+/* 상태 램프 */
+#world .lamp-cap>.iso-top{fill:#DADAD4;transition:fill .3s}
+#world .lamp-cap>.iso-shade{transition:fill .3s}
+#world [data-st="run"] .lamp-cap>.iso-top{fill:#E3B341;animation:lampblink .5s steps(1) infinite}
+#world [data-st="ok"] .lamp-cap>.iso-top,#world [data-st="open"] .lamp-cap>.iso-top{fill:var(--ok)}
+#world [data-st="ng"] .lamp-cap>.iso-top,#world [data-st="lock"] .lamp-cap>.iso-top{fill:var(--ng)}
+@keyframes lampblink{50%{fill:#F3DFA8}}
+/* 설치: 호퍼에서 패키지가 떨어짐 */
+#world .drops{opacity:0}
+#world [data-st="run"] .drops{opacity:1}
+#world [data-st="run"] .pkg{animation:pkgfall .6s linear infinite}
+@keyframes pkgfall{0%{transform:translate(0,0);opacity:0}15%{opacity:1}100%{transform:translate(var(--fx),var(--fy));opacity:0}}
+/* 린트: 솔이 좌우로 */
+#world [data-st="run"] .teeth{animation:brushing .22s ease-in-out infinite alternate}
+@keyframes brushing{from{transform:translate(calc(var(--sx)*-1),calc(var(--sy)*-1))}to{transform:translate(var(--sx),var(--sy))}}
+/* 테스트: 다이얼 바늘 */
+#world .zone{stroke-width:3.2px}
+#world .zone.ok{stroke:var(--ok)} #world .zone.ng{stroke:var(--ng)}
+#world .needle{stroke:var(--ink);stroke-width:2.2px;opacity:0;transition:opacity .3s}
+#world [data-w="test"] .n0{opacity:1}
+#world [data-w="test"][data-st="run"] .n0{animation:needlewob .25s ease-in-out infinite alternate}
+#world [data-w="test"][data-st="ok"] .n0,#world [data-w="test"][data-st="ng"] .n0{opacity:0}
+#world [data-st="ok"] .n1,#world [data-st="ng"] .n2{opacity:1}
+#world [data-st="ng"] .n2{stroke:var(--ng)}
+@keyframes needlewob{from{opacity:.35}to{opacity:1}}
+/* 빌드·포장: 누름판 */
+#world [data-st="run"] .head{animation:pressing .45s ease-in-out 2}
+@keyframes pressing{50%{transform:translate(var(--px),var(--py))}}
+/* 머지: 차단봉과 자물쇠 */
+#world .gbar{transition:transform .7s var(--ease)}
+#world [data-st="open"] .gbar{transform:translate(calc(var(--ux)*1.5),calc(var(--uy)*1.5))}
+#world .shackle{transition:transform .5s var(--ease)}
+#world [data-st="open"] .shackle{transform:translate(0,-22px)}
+#world .lockbody,#world .shackle{transition:transform .5s var(--ease),opacity .45s ease .25s}
+#world [data-st="open"] .lockbody,#world [data-st="open"] .shackle{opacity:0}
+#world [data-st="lock"] .lockbody .iso-edge{stroke:var(--ng)}
+/* 승인: 버튼(주황)과 멈춤판, Deployment에서는 사라짐 */
+#world .console .iso-solid.button>.iso-top{fill:var(--or)}
+#world .console .iso-solid.button>.iso-shade{fill:#F7A06A}
+#world .stripe{fill:var(--or)}
+#world .stop,#world .btn{transition:transform .5s var(--ease),opacity .5s}
+#world [data-st="up"] .stop{transform:translate(var(--dx),var(--dy));opacity:0}
+#world [data-st="up"] .btn{transform:translate(var(--bx),var(--by))}
+#world [data-st="none"] .stop,#world [data-st="none"] .console{opacity:0}
+/* 스테이징·운영 랙 */
+#world .screen{fill:#EEF0EA}
+#world .blade{fill:#F4F4F1;stroke:var(--anatomy-lo);stroke-width:1px;transition:stroke .3s}
+#world .led{fill:#CFCFC7;transition:fill .35s}
+#world [data-st="ok"] .stg-led{fill:var(--ok)}
+#world [data-st="run"] .stg-led{fill:#E3B341}
+#world [data-v="v2"] .led{fill:var(--new)}
+#world .blade-g.ng .led{fill:var(--ng)!important}
+#world .blade{transition:stroke .3s,fill .3s}
+#world .blade-g.ng .blade{stroke:var(--ng);fill:#F9D7DA;stroke-width:2.6px}
+#world .cells .blade-g:nth-child(1) .led{transition-delay:0s}#world .cells .blade-g:nth-child(2) .led{transition-delay:.06s}#world .cells .blade-g:nth-child(3) .led{transition-delay:.12s}
+#world .cells .blade-g:nth-child(4) .led{transition-delay:.18s}#world .cells .blade-g:nth-child(5) .led{transition-delay:.24s}#world .cells .blade-g:nth-child(6) .led{transition-delay:.3s}
+#world .cells .blade-g:nth-child(7) .led{transition-delay:.36s}#world .cells .blade-g:nth-child(8) .led{transition-delay:.42s}#world .cells .blade-g:nth-child(9) .led{transition-delay:.48s}
+#world .cells .blade-g:nth-child(10) .led{transition-delay:.54s}#world .cells .blade-g:nth-child(11) .led{transition-delay:.6s}#world .cells .blade-g:nth-child(12) .led{transition-delay:.66s}
+/* 상자(이미지): v2 파란 띠, v1 회색 띠 */
+#world .band{fill:var(--new)}
+#world .shelf-v1 .band,#world .c-crate.v1 .band{fill:#A9A9A2}
+#world .shelf-v2{transition:opacity .45s,transform .45s var(--ease)}
+#world .shelf-v2.off{opacity:0;transform:translate(0,-14px)}
+#world .crate.hi>.iso-solid>.iso-edge{stroke:var(--or);stroke-width:3px}
+/* 커밋 카트 */
+#wCart,#wLoop{transition:transform .75s var(--ease),opacity .35s}
+#world.fast #wCart{transition-duration:.42s,.3s}
+#world.vfast #wCart{transition-duration:.3s,.2s}
+#wCart .c-crate,#wLoop .c-crate{opacity:0;transition:opacity .35s}
+#wCart .c-cart{transition:opacity .35s}
+#wCart.cube .c-cart{opacity:0}
+#wCart.cube:not(.old) .c-crate.v2,#wCart.cube.old .c-crate.v1{opacity:1}
+#wCart.ng .c-cart .iso-top{fill:var(--ng-soft)}
+#wCart.ng .c-cart .iso-edge{stroke:var(--ng)}
+#wCart.gone{opacity:0}
+#wCart.notr{transition:none!important}
+#wCart.popin{animation:capin .35s ease}
+#wCart.shk .c-cart{animation:cartshk .45s ease}
+@keyframes cartshk{0%,100%{transform:translate(0,0)}20%{transform:translate(-9px,-1px)}40%{transform:translate(8px,1px)}60%{transform:translate(-5px,0)}80%{transform:translate(3px,0)}}
+#wLoop{opacity:0}
+#world.loop #wLoop{opacity:1;animation:loopmove 9s linear infinite}
+@keyframes loopmove{from{transform:translate(var(--l0x),var(--l0y))}to{transform:translate(var(--l1x),var(--l1y))}}
+#world.loop [data-ld] .lamp-cap>.iso-top{animation:lampflash 9s linear infinite;animation-delay:var(--ld)}
+@keyframes lampflash{0%{fill:#DADAD4}1.5%,26%{fill:var(--ok)}30%,100%{fill:#DADAD4}}
+/* 글자 덧붙임(기계 바깥: 이름표, 괄호, 결과 칩). --fs = 1/카메라 배율 → 화면에서는 늘 같은 크기 */
+#world{--fs:1}
+.wl,.wbr span,.wrun b,.wrun small,.wver,#wTag,#wOut{transition-property:font-size,opacity,color,background,border-color,transform;transition-duration:1.15s,.3s,.3s,.3s,.3s,.75s;transition-timing-function:cubic-bezier(.65,0,.25,1),ease,ease,ease,ease,var(--ease)}
+.wl{position:absolute;transform:translateX(-50%);display:grid;grid-template-columns:1fr auto auto 1fr;column-gap:.3em;align-items:center;justify-items:start;white-space:nowrap;font-size:calc(34px*var(--fs))}
+.wl .ic{grid-column:2;width:1.15em;height:1.15em}
+.wl b{grid-column:3;font:800 1em/1.2 var(--f-sans);color:var(--ink);transition:color .3s}
+.wl small{grid-column:1/5;justify-self:center;font:600 .74em/1.35 var(--f-sans);color:var(--sub)}
+.wl small.m{font:500 .72em/1.35 var(--f-mono)}
+#world.cam-z .wl,#world.cam-z .wbr{opacity:0!important}
+#world .wl.offcam{opacity:0!important}
+#world.cam-z #wOut{font-size:calc(22px*var(--fs))}
+.wl.skipped b{color:var(--faint2);font-size:.82em}
+.cam-all .wver{font-size:calc(26px*var(--fs))}
+/* 러너 틀: 파랑으로 */
+#world g[data-w="runner"] path{stroke:#2F5BD3!important}
+#world g[data-w="runner"] .iso-top,#world g[data-w="runner"] .iso-fill{fill:#D3DFFA!important}
+#world g[data-w="runner"] .iso-shade{fill:#9FB6EE!important}
+/* 승인 버튼이 없던 자리 */
+#wGhost{position:absolute;box-sizing:border-box;border:calc(3px*var(--fs)) dashed var(--ng);border-radius:14px;opacity:0;transition:opacity .4s}
+#wGhost.on{opacity:1}
+#wGhost span{position:absolute;left:50%;top:0;transform:translate(-50%,-125%);padding:.15em .8em;border-radius:999px;border:2px solid var(--ng);background:var(--card);color:var(--ng);font:700 calc(24px*var(--fs))/1.4 var(--f-sans);white-space:nowrap}
+.wl[data-st="ng"] b,.wl[data-st="lock"] b{color:var(--ng)}
+.wl[data-st="skip"] b,.wl[data-st="skip"] small{color:var(--faint)}
+.wbr{position:absolute;height:46px;transform-origin:0 50%}
+.wbr::before{content:"";position:absolute;left:0;right:0;top:21px;height:3px;background:var(--line2)}
+.wbr::after{content:"";position:absolute;left:0;right:0;top:21px;height:24px;border-left:3px solid var(--line2);border-right:3px solid var(--line2)}
+.wbr span{position:absolute;left:50%;top:23px;transform:translate(-50%,-50%);padding:0 .6em;background:var(--bg);font:800 calc(36px*var(--fs))/1.3 var(--f-sans);color:var(--ink);white-space:nowrap}
+.wrun{position:absolute;transform:translate(0,-100%);padding-bottom:12px}
+.wrun b{display:block;font:800 calc(36px*var(--fs))/1.2 var(--f-sans)}
+.wrun small{display:block;font:600 calc(26px*var(--fs))/1.3 var(--f-mono);color:var(--sub)}
+.wver{position:absolute;transform:translate(-50%,-100%);padding:0 .65em;border-radius:999px;background:var(--old);font:800 calc(34px*var(--fs))/1.6 var(--f-sans);color:var(--ink)}
+.wver.v2{background:var(--new);color:#fff}
+.wcv{font-size:calc(24px*var(--fs));opacity:0;transition:opacity .4s ease,font-size 1.15s cubic-bezier(.65,0,.25,1)}
+.wcv.on{opacity:1}
+#wTag{position:absolute;left:0;top:0;height:1.9em;padding:0 .7em;border-radius:999px;background:var(--ink);color:#fff;font:700 calc(24px*var(--fs))/1.9em var(--f-mono);white-space:nowrap;translate:-50% 0}
+#world.fast #wTag{transition-duration:1.15s,.3s,.3s,.3s,.3s,.42s}
+#world.vfast #wTag{transition-duration:1.15s,.2s,.2s,.2s,.2s,.3s}
+#wTag.ng{background:var(--ng)}
+#wTag.gone{opacity:0}
+#wTag.notr{transition:none!important}
+#wOut{position:absolute;left:0;top:0;padding:0 .9em;transform:translate(-50%,-100%);border-radius:.6em;background:var(--card);border:3px solid var(--line2);font:600 calc(26px*var(--fs))/2em var(--f-mono);color:var(--ink);white-space:nowrap;box-sizing:border-box;z-index:4}
+#wOut.ok{border-color:var(--ok);color:var(--ok)}
+#wOut.ng{border-color:var(--ng);color:var(--ng);background:var(--ng-soft)}
+#wOut.ko{font-family:var(--f-sans);font-weight:700}
+#wOut.gone{opacity:0}
+#wOut.pop{animation:outpop .35s var(--ease)}
+@keyframes outpop{from{opacity:0;translate:0 16px}to{opacity:1;translate:0 0}}
+/* 멀리서 볼 때(축소)는 보조 글자를 숨김 */
+.cam-all .wl small,.cam-all .wl .ic,.cam-all .wrun small{display:none}
+.cam-all .wl{font-size:calc(30px*var(--fs))}

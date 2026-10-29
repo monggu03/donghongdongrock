@@ -20,7 +20,7 @@ CI/CD를 처음 듣는 사람이 20분 안에 전체 그림을 잡도록, 아이
 
 | 경로 | 내용 |
 |---|---|
-| `deck.src.html` | 발표 원본(46장, 클릭 117번, 장마다 대본). 뒤에 깔린 파이프라인 기계(`#world`)는 장마다 상태만 바뀌고 카메라가 따라감 |
+| `src/` | 발표 원본. 46장, 클릭 72번, 장마다 대본이 있음. 짜임은 아래 "원본 구조" 참고 |
 | `world/build.mjs` | 파이프라인 기계 그림을 만드는 스크립트. `world.svg`(그림)와 `world.json`(카메라 영역·글자 위치·카트 경로)을 씀 |
 | `world/vendor/anatomy/` | 아이소메트릭 도형 키트 `iso-kit.mjs`, `iso.css` ([anatomy](https://github.com/wheresryan22/anatomy), MIT) |
 | `build.py` | 폰트·캡처·배포 정보를 넣어 `out/index.html` 한 파일로 만듦 |
@@ -31,6 +31,40 @@ CI/CD를 처음 듣는 사람이 20분 안에 전체 그림을 잡도록, 아이
 | `captures/` | 슬라이드에 넣을 캡처 (이름 규칙은 `captures/README.md`) |
 | `fonts/` | Pretendard, JetBrains Mono, Noto Serif CJK(東弘同樂 글자만) · 모두 SIL OFL 1.1 |
 | `vercel.json` | Vercel 빌드 설정 |
+
+## 원본 구조 (`src/`)
+
+`build.py`가 `src/index.html` 틀에 아래 파일들을 **파일 이름 순서대로** 끼워 한 파일로 만듭니다(앞 번호 = 순서). 결과는 지금처럼 인터넷 없이 열리는 `out/index.html` 하나입니다.
+
+| 경로 | 내용 | 고칠 때 |
+|---|---|---|
+| `src/index.html` | 틀: 무대, 기계 그림 자리, 쪽 번호·도움말·펜 | 거의 안 고침 |
+| `src/slides/NN-id.html` | **장 하나 = 파일 하나** (`<section>` 화면 + `<aside class="notes">` 대본) | 문구·대본·클릭 단계(`data-steps`, `data-s`, `data-u`) |
+| `src/styles/01~10-*.css` | 바탕 → 글자 → 코드 카드 → 공통 부품 → 장 부품 → GitHub 모양·아이콘 → 차트·목록 → 겹침 화면 → 기계 → 정적·발표자 모드 | 생김새 |
+| `src/js/00-core.js` | 이름공간 `window.Deck`, 이벤트 버스, 장별 동작 등록소 | 거의 안 고침 |
+| `src/js/10~11` | 준비: 코드 카드 색칠, 상태 아이콘 | |
+| `src/js/20-world-state.js` | 기계 상태의 모양과 합치는 규칙 (순수 데이터) | |
+| `src/js/21-scenes.js` | **장별 기계 장면** (어느 장에서 카트가 어디로 가고 무엇이 켜지는지) | 기계 연출 |
+| `src/js/22-world.js` | 상태를 그림에 입히고 프레임을 재생 | |
+| `src/js/30~33` | 효과: 굴러가는 숫자, 39장 코드 전환, 손그림 강조, 펜 | |
+| `src/js/40-slides.js` | **장별 동작** (`Deck.onSlide('canary', …)`) | 장 하나의 특별한 움직임 |
+| `src/js/50-navigation.js` | 렌더 순서 지휘: 장·단계 상태, 다음·이전 | 거의 안 고침 |
+| `src/js/51~53` | 입력(키·클릭), 발표자 창, 실시간 배포 정보 | |
+| `src/js/90-boot.js` | 시작 | |
+
+설계에서 지킨 것
+
+- **내용과 동작 분리**: 장 파일에는 화면과 대본만 있고, 움직임은 `data-*` 속성으로 선언합니다. 장을 고칠 때 스크립트를 열 필요가 없습니다.
+- **장면은 데이터**: 기계 연출은 `21-scenes.js`의 객체로만 정합니다. 그리는 코드(`22-world.js`)는 어떤 장인지 모릅니다.
+- **관찰자(이벤트 버스)**: 렌더 한 번은 `beforeRender → 단계 보이기·숨기기 → 장별 동작 → render → 진행 표시 → afterRender` 순서이고, 효과 모듈은 `Deck.on('render', …)`으로 끼어듭니다. 효과 하나를 빼거나 더할 때 다른 파일을 건드리지 않습니다.
+- **전략(장별 동작 등록소)**: 장마다 다른 동작은 `Deck.onSlide(id, fn)`으로 등록합니다. 진행 코드에 장 이름이 들어가지 않습니다.
+- **빌드 도구 없이**: 모듈은 `window.Deck`에 매달리는 즉시 실행 함수라서 번들러가 필요 없고, Vercel과 CI는 지금처럼 Python만 씁니다.
+
+자주 하는 일
+
+- 대본·문구 고치기: `src/slides/`에서 그 장 파일만 엽니다.
+- 장 추가: 번호를 맞춰 `src/slides/`에 파일을 넣고, 기계 장면이 필요하면 `21-scenes.js`에 같은 id로, 특별한 움직임은 `40-slides.js`에 `Deck.onSlide`로 넣습니다.
+- 조립된 원본을 한 파일로 보고 싶으면 `python build.py --src` → `out/deck.src.html`.
 
 ## 처음 한 번 설정
 
@@ -62,7 +96,7 @@ python build.py
 
 ```bash
 cd tools && npm ci && cd ..   # 처음 한 번 (버전은 tools/package-lock.json에 고정)
-node tools/build-assets.mjs   # deck.src.html을 읽어 assets/code.json 등을 다시 씀
+node tools/build-assets.mjs   # src/slides/를 읽어 assets/code.json 등을 다시 씀
 python build.py
 ```
 

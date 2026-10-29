@@ -1,0 +1,23 @@
+<section class="page" id="ssh" data-title="손으로 하는 배포" data-steps="2" data-sec="손으로 하던 배포">
+  <h2 class="ttl">손으로 하는 배포: 서버에 접속해 명령을 한 줄씩</h2>
+  <pre class="log type" data-gap=".55" style="left:112px;top:240px;width:1130px" data-label="운영 서버에 직접 접속한 터미널 (예시)">$ ssh deploy@my-server
+$ cd app &amp;&amp; git pull
+$ npm install
+$ npm run build
+$ sudo systemctl restart app</pre>
+  <pre class="log type" data-s="2" data-gap=".6" style="left:112px;top:584px;width:1130px" data-ng="2">$ curl -I https://my-app.example
+HTTP/1.1 502 Bad Gateway</pre>
+  <p class="big orc" data-s="1" style="position:absolute;left:112px;top:820px">명령을 다 쳤으면, 이제 아무 일 없기를 기도</p>
+  <div class="srv" data-shake="2" style="left:1300px;top:240px;width:508px;height:300px">
+    <p class="cap">운영 서버</p>
+    <p class="big mono" style="margin-top:8px;font-size:36px">my-app.example</p>
+    <div style="position:relative;height:62px;margin-top:22px">
+      <span class="st up" data-u="2" style="position:absolute;left:0;top:0;margin:0">정상 운영 중</span>
+      <span class="st down" data-s="2" style="position:absolute;left:0;top:0;margin:0">앱 응답 없음 · 502</span>
+    </div>
+  </div>
+  <p class="big ngc" data-s="2" style="position:absolute;left:1300px;top:580px;width:508px">사용자 접속 불가</p>
+  <aside class="notes">그 주에 하는 배포는 보통 이렇게 생겼습니다. 지금도 많은 학생 프로젝트가 이렇게 합니다. 서버에 접속해서, 코드를 받고, 설치하고, 빌드하고, 재시작합니다.
+(클릭) 그리고 아무 일 없기를 기도합니다.
+(클릭) 그런데 주소를 열어 보면 502. 앞단 서버는 살아 있는데 그 뒤의 앱이 응답하지 않습니다. 사용자는 아무것도 못 씁니다.</aside>
+</section>

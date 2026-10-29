@@ -1,0 +1,17 @@
+<section class="page" id="ritual" data-title="8단계가 파일 한 개로" data-steps="1" data-sec="정리">
+  <h2 class="ttl">손으로 하던 8단계가 파일 한 개로</h2>
+  <div class="card" style="left:112px;top:236px;width:900px;height:640px;overflow:hidden">
+    <p class="cap" style="padding:20px 26px;border-bottom:1px solid var(--line)">deploy-steps.txt, 기억에 의존</p>
+    <ul class="st8 strike" data-on="1" style="left:0;top:74px;width:898px">
+      <li><span class="n">01</span>서버 접속</li><li><span class="n">02</span>최신 코드 받기</li><li><span class="n">03</span>패키지 설치</li><li><span class="n">04</span>DB 변경 적용</li>
+      <li><span class="n">05</span>앱 빌드</li><li><span class="n">06</span>파일 복사</li><li><span class="n">07</span>앱 재시작</li><li><span class="n">08</span>서비스 확인</li>
+    </ul>
+  </div>
+  <div data-s="1" style="position:absolute;left:1090px;top:250px;width:718px">
+    <span class="chip"><code>.github/workflows/ci.yml</code></span>
+    <p class="big" style="margin-top:40px">매번 같은 순서로 자동 실행</p>
+    <p class="lead" style="margin-top:14px">04 DB 변경도 마이그레이션 파일로 배포 때 자동 적용</p>
+  </div>
+  <aside class="notes">처음에 본 이 여덟 단계,
+(클릭) 이제 사람이 기억할 필요가 없습니다. 파일 한 개에 적어 두면 매번 같은 순서로 자동으로 돕니다. 4번 DB 변경도 Flyway 같은 마이그레이션 도구로 코드에 넣어 두면 배포할 때 자동으로 적용되고, 혹시 빠져도 실제 테이블까지 조회하는 헬스체크에서 멈춥니다.</aside>
+</section>

@@ -1,0 +1,15 @@
+<section class="page" id="monitor" data-title="모니터링" data-sec="운영과 복구">
+  <h2 class="ttl">배포 뒤에는 숫자로 계속 지켜봄</h2>
+  <div class="stg">
+    <div class="tile" style="left:112px;top:236px;width:836px;height:290px;--i:0"><p class="cap">요청량</p><p class="val"><number-flow class="nfx" id="nfReq">1.2k/s</number-flow></p>
+      <svg class="drw" width="340" height="110" viewBox="0 0 340 110"><polyline pathLength="1" points="0,80 40,70 80,74 120,52 160,60 200,40 240,48 280,30 340,36" fill="none" stroke="#1E1E1C" stroke-width="5" stroke-linejoin="round"/></svg></div>
+    <div class="tile" style="left:972px;top:236px;width:836px;height:290px;--i:1"><p class="cap">응답 시간</p><p class="val"><number-flow class="nfx" id="nfRt">184ms</number-flow></p>
+      <svg class="drw" width="340" height="110" viewBox="0 0 340 110"><polyline pathLength="1" points="0,60 40,58 80,64 120,55 160,60 200,57 240,62 280,56 340,58" fill="none" stroke="#1E1E1C" stroke-width="5" stroke-linejoin="round"/></svg></div>
+    <div class="tile" style="left:112px;top:550px;width:836px;height:290px;--i:2"><p class="cap">오류율</p><p class="val">0.1%</p>
+      <svg class="drw" width="340" height="110" viewBox="0 0 340 110"><polyline pathLength="1" points="0,96 40,98 80,95 120,97 160,94 200,96 240,97 280,95 340,96" fill="none" stroke="#1E1E1C" stroke-width="5" stroke-linejoin="round"/></svg></div>
+    <div class="tile" style="left:972px;top:550px;width:836px;height:290px;--i:3"><p class="cap">헬스체크</p><p class="val okc">12/12</p>
+      <svg class="drw" width="340" height="110" viewBox="0 0 340 110"><polyline pathLength="1" points="0,20 340,20" fill="none" stroke="#1A7F37" stroke-width="5"/></svg></div>
+  </div>
+  <p class="foot" style="left:112px;top:870px">예시 값</p>
+  <aside class="notes">그래서 배포 뒤에도 숫자로 계속 지켜봅니다. 요청이 얼마나 오는지, 응답이 얼마나 걸리는지, 오류가 얼마나 나는지, 그리고 헬스체크. 카나리에서 되돌릴지 말지도 이 숫자로 정합니다.</aside>
+</section>
