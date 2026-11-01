@@ -20,7 +20,7 @@ CI/CD를 처음 듣는 사람이 20분 안에 전체 그림을 잡도록, 아이
 
 | 경로 | 내용 |
 |---|---|
-| `src/` | 발표 원본. 46장, 클릭 72번, 장마다 대본이 있음. 짜임은 아래 "원본 구조" 참고 |
+| `src/` | 발표 원본. 45장, 클릭 71번, 장마다 대본이 있음. 짜임은 아래 "원본 구조" 참고 |
 | `world/build.mjs` | 파이프라인 기계 그림을 만드는 스크립트. `world.svg`(그림)와 `world.json`(카메라 영역·글자 위치·카트 경로)을 씀 |
 | `world/vendor/anatomy/` | 아이소메트릭 도형 키트 `iso-kit.mjs`, `iso.css` ([anatomy](https://github.com/wheresryan22/anatomy), MIT) |
 | `build.py` | 폰트·캡처·배포 정보를 넣어 `out/index.html` 한 파일로 만듦 |
